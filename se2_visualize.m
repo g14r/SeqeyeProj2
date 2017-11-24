@@ -806,6 +806,9 @@ switch what
         
         [coo1_b3,plot1_b3,err1_b3] = lineplot([MT.Day] , MT.b3 , 'subset' , ismember(MT.seqNumb , [1]) );
         [coo0_b3,plot0_b3,err0_b3] = lineplot([MT.Day] , MT.b3 , 'subset' , ismember(MT.seqNumb , [0]) );
+        
+        [coo1_invb3,plot1_invb3,err1_invb3] = lineplot([MT.Day] , (MT.b3).^-1 , 'subset' , ismember(MT.seqNumb , [1]) );
+        [coo0_invb3,plot0_invb3,err0_invb3] = lineplot([MT.Day] , (MT.b3).^-1 , 'subset' , ismember(MT.seqNumb , [0]) );
         close(h0)
         for d = 1:5
             id1  = MT.Day == d & MT.seqNumb ==1;
@@ -821,14 +824,14 @@ switch what
             errorbar(coo1(:,d)',plot1(:,d)',err1(:,d)' , 'LineWidth' , 3);
             hold on
             errorbar(coo0(:,d)',plot0(:,d)',err0(:,d)' , 'LineWidth' , 3);
-            set(gca, 'YLim' , [3000 , 8000] , 'XTick' , [1:8 , 13], 'FontSize' , 20)
+            set(gca, 'YLim' , [3000 , 8000] , 'XTick' , [1:8 , 13], 'FontSize' , 20, 'GridAlpha' , 1)
             hold on
             xlabel('Horizon')
             ylabel('msec')
             title(['Chunked MT vs. Random on Day ' , num2str(d)])
             grid on
         end
-        legend({'Chunked' , 'Random'})
+        legend({'Chunked' , 'Random'}, 'Box' , 'off')
         
         figure('color' , 'white')
         for d = 1:5
@@ -836,14 +839,45 @@ switch what
             errorbar(coo1_pred(:,d)',plot1_pred(:,d)',err1_pred(:,d)' , 'LineWidth' , 3);
             hold on
             errorbar(coo0_pred(:,d)',plot0_pred(:,d)',err0_pred(:,d)' , 'LineWidth' , 3);
-            set(gca, 'YLim' , [3000 , 8000] , 'XTick' , [1:8 , 13], 'FontSize' , 20)
+            set(gca, 'YLim' , [3000 , 8000] , 'XTick' , [1:8 , 13], 'FontSize' , 20, 'GridAlpha' , 1)
             hold on
             xlabel('Horizon')
             ylabel('msec')
             title(['fitted Chunked vs. fitted Random- Day ' , num2str(d)])
             grid on
         end
-        legend({'Chunked' , 'Random'})
+        legend({'Chunked' , 'Random'}, 'Box' , 'off')
+        
+        figure('color' , 'white')
+        for d = 1:5
+            subplot(2,3,d)
+            errorbar(coo1(:,d)',plot1(:,d)',err1(:,d)' , 'LineWidth' , 3,'color','r');
+            hold on
+            errorbar(coo1_pred(:,d)',plot1_pred(:,d)',err1_pred(:,d)' , 'LineWidth' , 3 ,'color','c','LineStyle',':', 'GridAlpha' , 1);
+            set(gca, 'YLim' , [3000 , 8000] , 'XTick' , [1:8 , 13], 'FontSize' , 20, 'GridAlpha' , 1 , 'Box' , 'off')
+            hold on
+            xlabel('Horizon')
+            ylabel('msec')
+            title(['Chunked vs. fitted - Day ' , num2str(d)])
+            grid on
+        end
+        legend({'Chunked' , 'Fitted Chunked'})
+        
+        figure('color' , 'white')
+        for d = 1:5
+            subplot(2,3,d)
+            errorbar(coo0(:,d)',plot0(:,d)',err0(:,d)' , 'LineWidth' , 3,'color','r');
+            hold on
+            errorbar(coo0_pred(:,d)',plot0_pred(:,d)',err0_pred(:,d)' , 'LineWidth' ,3,'color','c','LineStyle',':', 'GridAlpha' , 1);
+            set(gca, 'YLim' , [3000 , 8000] , 'XTick' , [1:8 , 13], 'FontSize' , 20, 'GridAlpha' , 1, 'Box' , 'off')
+            hold on
+            xlabel('Horizon')
+            ylabel('msec')
+            title(['Random vs. fitted Random- Day ' , num2str(d)])
+            grid on
+        end
+        legend({'Random' , 'Fitted Random'}, 'Box' , 'off')
+        
         
         figure('color' , 'white')
         subplot(221)
@@ -851,7 +885,7 @@ switch what
             errorbar(coo1(:,d)',plot1(:,d)',err1(:,d)' , 'LineWidth' , 3);
             hold on
         end
-        set(gca, 'YLim' , [3000 , 8000] , 'XTick' , [1:8 , 13], 'FontSize' , 20)
+        set(gca, 'YLim' , [3000 , 8000] , 'XTick' , [1:8 , 13], 'FontSize' , 20, 'GridAlpha' , 1, 'Box' , 'off')
         hold on
         xlabel('Horizon')
         ylabel('msec')
@@ -863,11 +897,11 @@ switch what
             errorbar(coo0(:,d)',plot0(:,d)',err0(:,d)' , 'LineWidth' , 3);
             hold on
         end
-        set(gca, 'YLim' , [3000 , 8000] , 'XTick' , [1:8 , 13],'FontSize' , 20)
+        set(gca, 'YLim' , [3000 , 8000] , 'XTick' , [1:8 , 13],'FontSize' , 20, 'GridAlpha' , 1, 'Box' , 'off')
         xlabel('Horizon')
         ylabel('msec')
         title('Random MT vs. Horizon')
-        legend({'Day1' , 'Day2' ,'Day3','Day4','Day5'})
+        legend({'Day1' , 'Day2' ,'Day3','Day4','Day5'}, 'Box' , 'off')
         grid on
         
         subplot(223)
@@ -875,7 +909,7 @@ switch what
             errorbar(coo1_pred(:,d)',plot1_pred(:,d)',err1_pred(:,d)' , 'LineWidth' , 3);
             hold on
         end
-        set(gca, 'YLim' , [3000 , 8000] , 'XTick' , [1:8 , 13],'FontSize' , 20)
+        set(gca, 'YLim' , [3000 , 8000] , 'XTick' , [1:8 , 13],'FontSize' , 20, 'GridAlpha' , 1, 'Box' , 'off')
         hold on
         xlabel('Horizon')
         ylabel('msec')
@@ -887,56 +921,68 @@ switch what
             errorbar(coo0_pred(:,d)',plot0_pred(:,d)',err0_pred(:,d)' , 'LineWidth' , 3);
             hold on
         end
-        set(gca, 'YLim' , [3000 , 8000] , 'XTick' , [1:8 , 13],'FontSize' , 20)
+        set(gca, 'YLim' , [3000 , 8000] , 'XTick' , [1:8 , 13],'FontSize' , 20 , 'GridAlpha' , 1, 'Box' , 'off')
         xlabel('Horizon')
         title('Fitted Random MT vs. Horizon')
         grid on
         
         figure('color' , 'white')
-        subplot(131)
+        subplot(141)
         errorbar(coo1_b1,plot1_b1,err1_b1 , 'LineWidth' , 3);
         hold on 
         errorbar(coo0_b1,plot0_b1,err0_b1 , 'LineWidth' , 3);
-        set(gca, 'XTick' , [1:5],'FontSize' , 20)
+        set(gca, 'XTick' , [1:5],'FontSize' , 20, 'Box' , 'off','GridAlpha' , 1)
         hold on
         xlabel('Day')
         title('b1 Coefficient')
         grid on
         
-        subplot(132)
+        subplot(142)
         errorbar(coo1_b2,plot1_b2,err1_b2 , 'LineWidth' , 3);
         hold on 
         errorbar(coo0_b2,plot0_b2,err0_b2 , 'LineWidth' , 3);
-        set(gca, 'XTick' , [1:5],'FontSize' , 20)
+        set(gca, 'XTick' , [1:5],'FontSize' , 20, 'Box' , 'off','GridAlpha' , 1)
         hold on
         xlabel('Day')
         title('b2 Coefficient')
         grid on
         
-        subplot(133)
+        subplot(143)
         errorbar(coo1_b3,plot1_b3,err1_b3 , 'LineWidth' , 3);
         hold on 
         errorbar(coo0_b3,plot0_b3,err0_b3 , 'LineWidth' , 3);
-        set(gca, 'XTick' , [1:5],'FontSize' , 20)
+        set(gca, 'XTick' , [1:5],'FontSize' , 20, 'Box' , 'off','GridAlpha' , 1)
         hold on
         xlabel('Day')
         ylabel('msec')
         title('b3 Coefficient')
         grid on
-        legend({'Chunked' , 'Random'})
+        legend({'Chunked' , 'Random'}, 'Box' , 'off')
         
-        x = [1:35];
-        b1 = 6000;
-        b2 = 10^5;
+        subplot(144)
+        errorbar(coo1_invb3,plot1_invb3,err1_invb3 , 'LineWidth' , 3);
+        hold on 
+        errorbar(coo0_invb3,plot0_invb3,err0_invb3 , 'LineWidth' , 3);
+        set(gca, 'XTick' , [1:5],'FontSize' , 20, 'Box' , 'off','GridAlpha' , 1)
+        hold on
+        xlabel('Day')
+        ylabel('msec')
+        title('1/b3 (Decay constant)')
+        grid on
+        legend({'Chunked' , 'Random'}, 'Box' , 'off')
+        
+        x = [1:10];
+        b1 = 6;
+        b2 = 10;
         figure('color' , 'white')
-        subplot(121)
-        for b3 = 1:5
+%         subplot(121)
+        for b3 = .2:.1:.7
             plot(x , b1 + (b2 - b1)*exp(-(x-1)/b3) ,'LineWidth' , 3)
             hold on
         end
-        legend({'b3  = 1' , 'b3  = 2' ,'b3  = 3' ,'b3  = 4' ,'b3  = 5'})
+        legend({'b3  = 0.2' , 'b3  = 0.3' ,'b3  = 0.4' ,'b3  = 0.5' ,'b3  = 0.6' , 'b3 = 0.7'}, 'Box' , 'off')
         title(['b1 + (b2 - b1)*exp(-(x-1)/b3)         for          b1 = ' ,num2str(b1)  , ',     b2 = ' ,num2str(b2)])
-        set(gca , 'FontSize' , 20, 'Box' , 'off')
+        set(gca , 'FontSize' , 20, 'Box' , 'off', 'GridAlpha' , 1, 'Box' , 'off')
         grid on
         x = [1:35];
         b1 = 6000;
@@ -947,9 +993,9 @@ switch what
             plot(x , b1 + (b2 - b1)*exp(-(x-1)/b3) ,'LineWidth' , 3)
             hold on
         end
-        legend({'b2  = 0' , 'b2  = 20000 ' ,'b2  = 40000' ,'b2  = 60000' ,'b2  = 80000' ,'b2  = 100000'})
-        title(['b1 + (b2 - b1)*exp(-(x-1)/b3)         for          b1 = ' ,num2str(b1)  , ',     b3 = ' ,num2str(b3)])
-        set(gca , 'FontSize' , 20 , 'Box' , 'off')
+        legend({'b2  = 0' , 'b2  = 20000 ' ,'b2  = 40000' ,'b2  = 60000' ,'b2  = 80000' ,'b2  = 100000'}, 'Box' , 'off')
+        title(['b1 = ' ,num2str(b1)  , ',     b3 = ' ,num2str(b3)])
+        set(gca , 'FontSize' , 20 , 'Box' , 'off', 'GridAlpha' , 1)
         grid on   
     case 'test_MT_asymptote'
         Hex = input('What horizons to exclude? (0 = include all)');
@@ -5045,6 +5091,7 @@ switch what
         end
         N3 = input('look into Chunked/Random/All sequences? (c/r/a)'  , 's');
         N4 = input('Use normalized IPIs? (Y/N)'  , 's');
+        N5 = input('What days?');
         if calc
             for subjnum = 1:length(subj_name)-1
                 Dall.isWrong = Dall.AllPress ~=Dall.AllResponse;
@@ -5990,18 +6037,7 @@ switch what
         
         %% Visualize by rank and not by transitions cz most probable ones are different for every subject
         for h = [1:8 13]
-%             h1 = figure;
-%             hold on
-%             [XC2{h},PC2{h},EC2{h}] = lineplot(C.t2Rank , C.IPI_norm , 'subset' , ismember(C.Day , [2:5]) & ismember(C.Horizon , h));
-%             [XC3{h},PC3{h},EC3{h}] = lineplot(C.T3Rank(:,1) , C.IPI_norm , 'subset' , ismember(C.Day , [2:5]) & ismember(C.Horizon , h));
-%             [XC4{h},PC4{h},EC4{h}] = lineplot(C.T4Rank(:,1) , C.IPI_norm , 'subset' , ismember(C.Day , [2:5]) & ismember(C.Horizon , h));
-%             
-%             [XR2{h},PR2{h},ER2{h}]=  lineplot(R.t2Rank , R.IPI_norm , 'subset' , ismember(R.Day , [2:5]) & ismember(R.Horizon , h));
-%             [XR3{h},PR3{h},ER3{h}] = lineplot(R.T3Rank(:,1) , R.IPI_norm , 'subset' , ismember(R.Day , [2:5]) & ismember(R.Horizon , h));
-%             [XR4{h},PR4{h},ER4{h}] = lineplot(R.T4Rank_n(:,1) , R.IPI_norm , 'subset' , ismember(R.Day , [2:5]) & ismember(R.Horizon , h));
-%             close(h1)
-            
-            
+        
             h1 = figure;
             hold on
             [XC2_n{h},PC2_n{h},EC2_n{h}] = lineplot(C.t2Rank_n_binned , C.IPI_norm ,'plotfcn' , 'nanmean', 'subset' , ismember(C.Day , [2:5]) & ismember(C.Horizon , h));
@@ -6015,9 +6051,7 @@ switch what
             [XR4_n{h},PR4_n{h},ER4_n{h}] = lineplot(R.T4Rank_n_binned(:,1) , R.IPI_norm ,'plotfcn' , 'nanmean','subset' , ismember(R.Day , [2:5]) & ismember(R.Horizon , h));
             [XRA{h},PRA{h},ERA{h}] = lineplot(R.IPIarrangement , R.IPI_norm ,'plotfcn' , 'nanmean', 'subset' , ismember(R.Day , [2:5]) & ismember(R.Horizon , h));
             close(h1)
-            
-            
-           
+ 
         end
         
         %%
@@ -6031,9 +6065,10 @@ switch what
             title('chunk placement in chunked seqs','FontSize' , 14)
             cCount = cCount+1;
         end
-        set(gca,'XTick' , [1 2] , 'FontSize' , 16 , 'XTickLabel' , {'Between' , 'Within'})
+        set(gca,'YLim' , [250 400],'XTick' , [1 2] , 'FontSize' , 16 , 'XTickLabel' , {'Between' , 'Within'},...
+            'GridAlpha' , 1 , 'Box' , 'off')
         xlabel('Chunk placement')
-        ylabel('Median Normalized IPI')
+        ylabel('norm time')
         cCount = 1;
         for h = [1:8 13]   
             subplot(122)
@@ -6043,10 +6078,18 @@ switch what
             title('chunk placement in random seqs','FontSize' , 14)
             cCount = cCount+1;
         end
-        set(gca,'XTick' , [0 2] , 'FontSize' , 16 , 'XTickLabel' , {'Random' , 'Within'})
+        set(gca,'XTick' , [0 2],'YLim' , [250 400] , 'FontSize' , 16 , 'XTickLabel' , {'Random' , 'Within'},...
+             'GridAlpha' , 1 , 'Box' , 'off')
         xlabel('Probability Class')
-        ylabel('Median Normalized IPI')
+        ylabel('norm time')
         legend({'H = 1' , 'H = 2','H = 3','H = 4','H = 5','H = 6','H = 7','H = 8','H = 13'})
+        R_w = getrow(R , R.IPIarrangement == 2);
+        R_w.IPIarrangement =  R_w.IPIarrangement+1; % to distinguish from IPIarrangement in Chunked
+        C_w = getrow(C , C.IPIarrangement == 2);
+        RC = addstruct(R_w , C_w);
+        temp = anovaMixed(RC.IPI_norm , RC.SN , 'within' , RC.IPIarrangement , {'withinRandom/withinChunked'} , 'intercept' , 1, 'subset' , ismember(RC.Horizon , [4:13]));
+        
+        
         
         figure('color' , 'white')
         cCount = 1;
@@ -6058,9 +6101,9 @@ switch what
             title('Double trans chunked seqs sorted by norm-prob','FontSize' , 14)
             cCount = cCount+1;
         end
-        set(gca,'XTick' , [1:5] , 'FontSize' , 16)
+        set(gca,'XTick' , [1:5] , 'FontSize' , 16,'GridAlpha' , 1 , 'Box' , 'off','YLim' , [200 600])
         xlabel('Probability Class')
-        ylabel('Median Normalized IPI')
+        ylabel('norm time')
         cCount = 1;
         for h = [1:8 13]    
             subplot(3,2,2)
@@ -6070,10 +6113,10 @@ switch what
             title('Double trans rand seqs sorted by norm-prob','FontSize' , 14)
             cCount = cCount+1;
         end
-        set(gca,'XTick' , [1:5] , 'FontSize' , 16)
+        set(gca,'XTick' , [1:5] , 'FontSize' , 16,'GridAlpha' , 1 , 'Box' , 'off','YLim' , [200 600])
         xlabel('Probability Class')
-        ylabel('Median Normalized IPI')
-        legend({'H = 1' , 'H = 2','H = 3','H = 4','H = 5','H = 6','H = 7','H = 8','H = 13'})
+        ylabel('norm time')
+%         legend({'H = 1' , 'H = 2','H = 3','H = 4','H = 5','H = 6','H = 7','H = 8','H = 13'})
         
         
         cCount = 1;
@@ -6086,9 +6129,9 @@ switch what
             title('Trip trans chunked seqs sorted by norm-prob','FontSize' , 14)
             cCount = cCount+1;
         end
-        set(gca,'XTick' , [1:5] , 'FontSize' , 16)
+        set(gca,'XTick' , [1:5] , 'FontSize' , 16,'GridAlpha' , 1 , 'Box' , 'off','YLim' , [200 600])
         xlabel('Probability Class')
-        ylabel('Median Normalized IPI')
+        ylabel('norm time')
         cCount = 1;
         for h = [1:8 13]
             subplot(324)
@@ -6098,10 +6141,10 @@ switch what
             title('Double trans rand seqs sorted by norm-prob','FontSize' , 14)
             cCount = cCount+1;
         end
-        set(gca,'XTick' , [1:5] , 'FontSize' , 16)
+        set(gca,'XTick' , [1:5] , 'FontSize' , 16,'GridAlpha' , 1 , 'Box' , 'off','YLim' , [200 600])
         xlabel('Probability Class')
-        ylabel('Median Normalized IPI')
-        legend({'H = 1' , 'H = 2','H = 3','H = 4','H = 5','H = 6','H = 7','H = 8','H = 13'})
+        ylabel('norm time')
+%         legend({'H = 1' , 'H = 2','H = 3','H = 4','H = 5','H = 6','H = 7','H = 8','H = 13'})
         
         
         
@@ -6115,9 +6158,9 @@ switch what
             title('Quad trans chunked seqs sorted by norm-prob','FontSize' , 14)
             cCount = cCount +1;
         end
-        set(gca,'XTick' , [1:5] , 'FontSize' , 16)
+        set(gca,'XTick' , [1:5] , 'FontSize' , 16,'GridAlpha' , 1 , 'Box' , 'off','YLim' , [200 600])
         xlabel('Probability Class')
-        ylabel('Median Normalized IPI')
+        ylabel('norm time')
         cCount = 1;
         for h = [1:8 13]
             subplot(326)
@@ -6127,277 +6170,162 @@ switch what
             title('Quad trans rand seqs sorted by norm-prob','FontSize' , 14)
             cCount = cCount +1;
         end
-        set(gca,'XTick' , [1:5] , 'FontSize' , 16)
+        set(gca,'XTick' , [1:5] , 'FontSize' , 16,'GridAlpha' , 1 , 'Box' , 'off','YLim' , [200 600])
         xlabel('Probability Class')
-        ylabel('Median Normalized IPI')
+        ylabel('norm time')
         legend({'H = 1' , 'H = 2','H = 3','H = 4','H = 5','H = 6','H = 7','H = 8','H = 13'})
-
-        %% ------------%------------%------------%------------% Normalized Probabilities%------------%------------%------------%------------
-%         figure('color' , 'white')
-%         subplot(2,3,1)
-%         imagesc(PoC2_n);
-%         ylabel('Press 1')
-%         xlabel('Press 2')
-%         axis square
-%         colorbar
-%         set(gca , 'XTick'  , [1:5] , 'YTick' , [1:5] , 'XTickLabels' , {'Thumb' , 'Index' , 'Middle' , 'Forth' , 'Pinkie'} , ...
-%             'Box' , 'off' , 'YTickLabels' , {'Thumb' , 'Index' , 'Middle' , 'Forth' , 'Pinkie'}  , 'LineWidth', 0.001)
-%         title('Normalized Probability of Occurence for fist-order transitions in All sequences')
-%         for j = 1:length(ChunkNum2)
-%             y = CMB.comb2(ChunkNum2(j,1) , 1);
-%             x = CMB.comb2(ChunkNum2(j,1) , 2);
-%             rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'red')
-%         end
-%         subplot(2,3,2)
-%         imagesc(PoC3_n);
-%         ylabel('Press 1')
-%         xlabel('Press 2 3')
-%         %         axis square
-%         colorbar
-%         set(gca , 'YTick'  , [1:25] , 'XTick' , [1:5] , 'XTickLabels' , {'1' , '2' , '3' , '4' , '5'} , ...
-%             'Box' , 'off' , 'YTickLabels' , cellfun(@num2str , num2cell(CMB.comb2,2),'UniformOutput', false)  , 'LineWidth', 0.001)
-%         title('Normalized Probability of Occurence for 2nd-order transitions in All sequences')
-%         for j = 1:length(ChunkNum3)
-%             x = CMB.comb3(ChunkNum3(j,1) , 3);
-%             y = find(ismember(CMB.comb2 , CMB.comb3(ChunkNum3(j,1) , 1:2) , 'rows'));
-%             rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'red')
-%         end
-%         for j = 1:length(ChunkNum3_4)
-%             x = CMB.comb3(ChunkNum3_4(j,1) , 3);
-%             y = find(ismember(CMB.comb2 , CMB.comb3(ChunkNum3_4(j,1) , 1:2) , 'rows'));
-%             rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'green')
-%         end
-%         subplot(2,3,3)
-%         imagesc(PoC4_n);
-%         ylabel('Press 1 2')
-%         xlabel('Press 3 4')
-%         axis square
-%         colorbar
-%         set(gca , 'XTick'  , [1:5] , 'YTick' , [1:125] , 'YTickLabels' , cellfun(@num2str , num2cell(CMB.comb3,2),'UniformOutput', false) , ...
-%             'Box' , 'off' , 'XTickLabels' , [1:5]  , 'LineWidth', 0.001)
-%         title('Normalized Probability of Occurence for 3rd-order transitions in All sequences')
-%         for j = 1:length(ChunkNum4)
-%             y = find(ismember(CMB.comb3 , CMB.comb4(ChunkNum4(j,1) , 1:3) , 'rows'));
-%             x = CMB.comb4(ChunkNum4(j,1) , 4);
-%             rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'm')
-%         end
-%         %------------%------------%------------%------------% non-Normalized Probabilities%------------%------------%------------%------------
-%         subplot(2,3,4)
-%         imagesc(PoC2);
-%         ylabel('Press 1')
-%         xlabel('Press 2')
-%         axis square
-%         colorbar
-%         set(gca , 'XTick'  , [1:5] , 'YTick' , [1:5] , 'XTickLabels' , {'Thumb' , 'Index' , 'Middle' , 'Forth' , 'Pinkie'} , ...
-%             'Box' , 'off' , 'YTickLabels' , {'Thumb' , 'Index' , 'Middle' , 'Forth' , 'Pinkie'}  , 'LineWidth', 0.001)
-%         title('Probability of Occurence for fist-order transitions in All sequences')
-%         for j = 1:length(ChunkNum2)
-%             y = CMB.comb2(ChunkNum2(j,1) , 1);
-%             x = CMB.comb2(ChunkNum2(j,1) , 2);
-%             rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'red')
-%         end
-%         subplot(2,3,5)
-%         imagesc(PoC3);
-%         ylabel('Press 1')
-%         xlabel('Press 2 3')
-%         %         axis square
-%         colorbar
-%         set(gca , 'YTick'  , [1:25] , 'XTick' , [1:5] , 'XTickLabels' , {'1' , '2' , '3' , '4' , '5'} , ...
-%             'Box' , 'off' , 'YTickLabels' , cellfun(@num2str , num2cell(CMB.comb2,2),'UniformOutput', false)  , 'LineWidth', 0.001)
-%         title('Probability of Occurence for 2nd-order transitions in All sequences')
-%         for j = 1:length(ChunkNum3)
-%             x = CMB.comb3(ChunkNum3(j,1) , 3);
-%             y = find(ismember(CMB.comb2 , CMB.comb3(ChunkNum3(j,1) , 1:2) , 'rows'));
-%             rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'red')
-%         end
-%         for j = 1:length(ChunkNum3_4)
-%             x = CMB.comb3(ChunkNum3_4(j,1) , 3);
-%             y = find(ismember(CMB.comb2 , CMB.comb3(ChunkNum3_4(j,1) , 1:2) , 'rows'));
-%             rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'green')
-%         end
-%         subplot(2,3,6)
-%         imagesc(PoC4);
-%         ylabel('Press 1 2')
-%         xlabel('Press 3 4')
-%         axis square
-%         colorbar
-%         set(gca , 'XTick'  , [1:5] , 'YTick' , [1:125] , 'YTickLabels' , cellfun(@num2str , num2cell(CMB.comb3,2),'UniformOutput', false) , ...
-%             'Box' , 'off' , 'XTickLabels' , [1:5]  , 'LineWidth', 0.001)
-%         title('Probability of Occurence for 3rd-order transitions in All sequences')
-%         for j = 1:length(ChunkNum4)
-%             y = find(ismember(CMB.comb3 , CMB.comb4(ChunkNum4(j,1) , 1:3) , 'rows'));
-%             x = CMB.comb4(ChunkNum4(j,1) , 4);
-%             rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'm')
-%         end
-%         
-        
-        
+       
         %%
         
         switch N3
             case 'c'
                 M = C;
-                titleSuffix = 'Chunked Sequences';
-                hor = {1,2,3,4,5,6,7,8,13,[3:13]};
-                legHor = {'H = 1', 'H = 2','H = 3','H = 4','H = 5','H = 6','H = 7','H = 8','H = 13' , 'H = 3-13'};
+                titleSuffix = 'Chunked';
+                hor = {1,2,3,4,5,6,7,8,13,[5:13]};
+                legHor = {'H = 1', 'H = 2','H = 3','H = 4','H = 5','H = 6','H = 7','H = 8','H = 13' , 'H = 5-13'};
             case 'r'
                 M = R;
-                titleSuffix = 'Random Sequences';
-                hor = {1,2,3,4,5,6,7,8,13,[6:13]};
-                legHor = {'H = 1', 'H = 2','H = 3','H = 4','H = 5','H = 6','H = 7','H = 8','H = 13' , 'H = 6-13'};
+                titleSuffix = 'Random';
+                hor = {1,2,3,4,5,6,7,8,13,[5:13]};
+                legHor = {'H = 1', 'H = 2','H = 3','H = 4','H = 5','H = 6','H = 7','H = 8','H = 13' , 'H = 5-13'};
             case 'a'
                 M = All;
                 titleSuffix = 'All Sequences';
         end
         
         
-        
-        clear xlab R2 ePLOT xcoord ERROR
-        for sn = 1:length(subj_name) - 1
-            for h = 1:length(hor)
-                M.IPIarrangement(M.IPIarrangement == 0) = 1;
-                clear T TSS RSS0 RSS1 FSS1 FSS0 L X X1 X2 X3 X4 X5 X6
-                T = getrow(M , ismember(M.SN , sn) & ismember(M.Horizon , hor{h}) & ismember(M.Day , [3:5]));
-                
-                
-                L = length(T.IPI);
-                X1 = ones(L , 1); % intercept
-                X2 = T.IPIarrangement;
-                %             X2 = T.estIPIarrangement;
-                
-                X2(X2==1) = -1; % between
-                X2(X2==0) = -1; % Random = between
-                X2(X2==2) = 1;  % within
-                
-                
-                
-                switch norm
-                    case 1
-                        X3 = T.t2Rank_n_binned;
-                        switch LastIPI
-                            case 1
-%                                 X4 = T.t3Prob_n(:,1);
-%                                 X5 = T.t4Prob_n(:,1);
-                                X4 = T.T3Rank_n_binned;
-                                X5 = T.T4Rank_n_binned;
-                            otherwise
-                                X4 = mean(T.t3Prob_n , 2);
-                                X5 = mean(T.t4Prob_n , 2);
-                        end
-                    case 0
-                        X3 = T.t2Prob;
-                        switch LastIPI
-                            case 1
-                                X4 = T.t3Prob(:,1);
-                                X5 = T.t4Prob(:,1);
-                            otherwise
-                                X4 = mean(T.t3Prob , 2);
-                                X5 = mean(T.t4Prob , 2);
-                        end
+        for dd = 1:5
+            
+            for sn = 1:length(subj_name) - 1
+                for h = 1:length(hor)
+                    M.IPIarrangement(M.IPIarrangement == 0) = 1;
+                    clear T TSS RSS0 RSS1 FSS1 FSS0 L X X1 X2 X3 X4 X5 X6
+                    T = getrow(M , ismember(M.SN , sn) & ismember(M.Horizon , hor{h}) & ismember(M.Day , dd));
+                    
+                    
+                    L = length(T.IPI);
+                    X1 = ones(L , 1); % intercept
+                    X2 = T.IPIarrangement;
+                    %             X2 = T.estIPIarrangement;
+                    
+                    X2(X2==1) = -1; % between
+                    X2(X2==0) = -1; % Random = between
+                    X2(X2==2) = 1;  % within
+                    
+                    
+                    
+                    switch norm
+                        case 1
+                            X3 = T.t2Rank_n_binned;
+                            switch LastIPI
+                                case 1
+                                    %                                 X4 = T.t3Prob_n(:,1);
+                                    %                                 X5 = T.t4Prob_n(:,1);
+                                    X4 = T.T3Rank_n_binned;
+                                    X5 = T.T4Rank_n_binned;
+                                otherwise
+                                    X4 = mean(T.t3Prob_n , 2);
+                                    X5 = mean(T.t4Prob_n , 2);
+                            end
+                        case 0
+                            X3 = T.t2Prob;
+                            switch LastIPI
+                                case 1
+                                    X4 = T.t3Prob(:,1);
+                                    X5 = T.t4Prob(:,1);
+                                otherwise
+                                    X4 = mean(T.t3Prob , 2);
+                                    X5 = mean(T.t4Prob , 2);
+                            end
+                    end
+                    
+                    X6 = max(T.BN) - [T.BN] +1;
+                    switch N4
+                        case {'n' 'N'}
+                            X = [X1 X2 X3 X4 X5 X6];
+                            xx    = {[1 6] , [1 2 6] ,  [1 3 6]  , [1,3:4,6]           ,[1 3:6] ,      [1:3,6]  ,        [1:4,6]          [1:6]};
+                            Y = T.IPI;
+                            label = {'I+L' '  I+C+L', 'I+1st+L' ,'I+1st+2nd+L'    'I+1st+2nd+3rd+L' , 'I+C+1st+L'  ,  'I+C+1st+2nd+L'  ,  'Full'};
+                        otherwise
+                            %                         X = [X1 X2 X3 X4 X5];
+                            %                         xx    = {[1 2] ,  [1 3]  , [1,3:4]           ,[1 3:5] ,      [1:3]  ,        [1:4]          [1:5]};
+                            %                         Y = T.IPI_norm;
+                            %                         label = {'I+C', 'I+1st' ,'I+1st+2nd'    'I+1st+2nd+3rd' , 'I+C+1st'  ,  'I+C+1st+2nd'  ,  'Full'};
+                            X = [X1 X2 X3 X4 X5 X6];
+                            xx    = {[1 6] , [1 2 6] ,  [1 3 6]  , [1,3:4,6]           ,[1 3:6] ,      [1:3,6]  ,        [1:4,6]          [1:6]};
+                            Y = T.IPI_norm;
+                            label = {'I+L' '  I+C+L', 'I+1st+L' ,'I+1st+2nd+L'    'I+1st+2nd+3rd+L' , 'I+C+1st+L'  ,  'I+C+1st+2nd+L'  ,  'Full'};
+                    end
+                    Xnew = [X1];
+                    B = pinv(Xnew'*Xnew)*Xnew'*Y;
+                    Ypred = Xnew*B;
+                    Res  = Y-Ypred;
+                    TSS = sum(Y.^2); % Total Variance
+                    FSS1 = sum(Ypred.^2); % Fitted Variance of the Null Model (just the intercept)
+                    RSS1 = sum((Y-Ypred).^2); % Residual Variance of the Null Model
+                    for k = 1:length(xx)
+                        Xnew = X(:,xx{k});
+                        Bnew = pinv(Xnew'*Xnew)*Xnew'*Y;
+                        Ypred_new = Xnew*Bnew;
+                        FSS0(k) = sum(Ypred_new.^2);  % Fitted Variance of the partial model
+                        RSS0(k) = sum((Y-Ypred_new).^2); % Residual Variance of the partial Model
+                    end
+                    % ___________________________      R_squared = 1 - (Residual variance of the partial model/Residual variance of the null model)
+                    R2{h,dd}(sn , :) = 1 - (RSS0./RSS1);
+                    xlab{h,dd}(sn , :) = 1:length(xx);
+                    % ___________________________
                 end
-                
-                X6 = max(T.BN) - [T.BN] +1;
-                switch N4
-                    case {'n' 'N'}
-                        X = [X1 X2 X3 X4 X5 X6];
-                        xx    = {[1 6] , [1 2 6] ,  [1 3 6]  , [1,3:4,6]           ,[1 3:6] ,      [1:3,6]  ,        [1:4,6]          [1:6]};
-                        Y = T.IPI;
-                        label = {'I+L' '  I+C+L', 'I+1st+L' ,'I+1st+2nd+L'    'I+1st+2nd+3rd+L' , 'I+C+1st+L'  ,  'I+C+1st+2nd+L'  ,  'Full'};
-                    otherwise
-                        %                         X = [X1 X2 X3 X4 X5];
-                        %                         xx    = {[1 2] ,  [1 3]  , [1,3:4]           ,[1 3:5] ,      [1:3]  ,        [1:4]          [1:5]};
-                        %                         Y = T.IPI_norm;
-                        %                         label = {'I+C', 'I+1st' ,'I+1st+2nd'    'I+1st+2nd+3rd' , 'I+C+1st'  ,  'I+C+1st+2nd'  ,  'Full'};
-                        X = [X1 X2 X3 X4 X5 X6];
-                        xx    = {[1 6] , [1 2 6] ,  [1 3 6]  , [1,3:4,6]           ,[1 3:6] ,      [1:3,6]  ,        [1:4,6]          [1:6]};
-                        Y = T.IPI_norm;
-                        label = {'I+L' '  I+C+L', 'I+1st+L' ,'I+1st+2nd+L'    'I+1st+2nd+3rd+L' , 'I+C+1st+L'  ,  'I+C+1st+2nd+L'  ,  'Full'};
-                end
-                Xnew = [X1];
-                B = pinv(Xnew'*Xnew)*Xnew'*Y;
-                Ypred = Xnew*B;
-                Res  = Y-Ypred;
-                TSS = sum(Y.^2); % Total Variance
-                FSS1 = sum(Ypred.^2); % Fitted Variance of the Null Model (just the intercept)
-                RSS1 = sum((Y-Ypred).^2); % Residual Variance of the Null Model
-                for k = 1:length(xx)
-                    Xnew = X(:,xx{k});
-                    Bnew = pinv(Xnew'*Xnew)*Xnew'*Y;
-                    Ypred_new = Xnew*Bnew;
-                    FSS0(k) = sum(Ypred_new.^2);  % Fitted Variance of the partial model
-                    RSS0(k) = sum((Y-Ypred_new).^2); % Residual Variance of the partial Model
-                end
-                % ___________________________      R_squared = 1 - (Residual variance of the partial model/Residual variance of the null model)
-                R2{h}(sn , :) = 1 - (RSS0./RSS1);
-                xlab{h}(sn , :) = 1:length(xx);
-                % ___________________________
             end
         end
+        clear ePLOT xcoord ERROR
         figure('color' , 'white')
-        subplot(211)
-        cCount = 1;
-        for h = 1:length(hor)-1
-            f = figure;
-            [xcoord,ePLOT,ERROR] = lineplot(reshape(xlab{h} , numel(xlab{h}) , 1) , reshape(R2{h} , numel(R2{h}) , 1) , 'plotfcn' , 'nanmean',...
-                'linecolor' , colors(cCount,:) , 'markercolor' , colors(cCount,:) , 'errorcolor' , colors(cCount,:) , 'linewidth' , 3);
-            close(f)
-            errorbar(xcoord,ePLOT,ERROR , 'color' , colors(cCount,:) , 'LineWidth' , 3)
-            hold on
-%             plotshade(xcoord',ePLOT , ERROR,'transp' , .2 , 'patchcolor' , colors(cCount,:) , 'linecolor' , colors(cCount,:) , 'linewidth' , 3 , 'linestyle' , ':');
-            cCount = cCount+1;
+        for dd = 1:5    
+            subplot(2,5,dd)
+            cCount = 1;
+            for h = 1:length(hor)-1
+                f = figure;
+                [xcoordh,ePLOTh,ERRORh] = lineplot(reshape(xlab{h,dd} , numel(xlab{h,dd}) , 1) , reshape(R2{h,dd} , numel(R2{h,dd}) , 1) , 'plotfcn' , 'nanmean',...
+                    'linecolor' , colors(cCount,:) , 'markercolor' , colors(cCount,:) , 'errorcolor' , colors(cCount,:) , 'linewidth' , 3);
+                close(f)
+                errorbar(xcoordh,ePLOTh,ERRORh , 'color' , colors(cCount,:) , 'LineWidth' , 3)
+                hold on
+                %             plotshade(xcoord',ePLOT , ERROR,'transp' , .2 , 'patchcolor' , colors(cCount,:) , 'linecolor' , colors(cCount,:) , 'linewidth' , 3 , 'linestyle' , ':');
+                cCount = cCount+1;
+            end
+            ylabel('R^2')
+            set(gca , 'XLim' , [0 length(xx)+1],'XTick' , [1: length(xx)] , 'XTickLabels' ,[],'FontSize' , 20,...
+                'YLim' , [0 .4],'Box' , 'off' , 'GridAlpha' , 1)
+            title([titleSuffix , ' , Days ' , num2str(dd)])
+            grid on
         end
-        ylabel('R^2')
-        set(gca , 'XLim' , [0 length(xx)+1],'XTick' , [1: length(xx)] , 'XTickLabels' ,[],'FontSize' , 20 )
-        title(['R^2 Model Comparisons in ' , titleSuffix])
-        grid on
-        legend(legHor(1:end-1))
-        
-        
-        subplot(212)
-        cCount = 1;
-        for h = length(hor)
-            f = figure;
-            [xcoord,ePLOT,ERROR] = lineplot(reshape(xlab{h} , numel(xlab{h}) , 1) , reshape(R2{h} , numel(R2{h}) , 1) , 'plotfcn' , 'nanmean',...
-                'linecolor' , colors(cCount,:) , 'markercolor' , colors(cCount,:) , 'errorcolor' , colors(cCount,:) , 'linewidth' , 3);
-            close(f)
-            errorbar(xcoord,ePLOT,ERROR , 'color' , colors(cCount,:) , 'LineWidth' , 3)
-            hold on
-            plotshade(xcoord',ePLOT , ERROR,'transp' , .2 , 'patchcolor' , colors(cCount,:) , 'linecolor' , colors(cCount,:) , 'linewidth' , 3 , 'linestyle' , ':');
-            cCount = cCount+1;
+        legend(legHor(1:end-1), 'Box' , 'off')
+        for dd = 1:5    
+            subplot(2,5,5+dd)
+            cCount = 1;
+            for h = length(hor)
+                f = figure;
+                [xcoord(dd,:),ePLOT(dd,:),ERROR(dd,:)] = lineplot(reshape(xlab{h,dd} , numel(xlab{h,dd}) , 1) , reshape(R2{h,dd} , numel(R2{h,dd}) , 1) , 'plotfcn' , 'nanmean',...
+                    'linecolor' , colors(cCount,:) , 'markercolor' , colors(cCount,:) , 'errorcolor' , colors(cCount,:) , 'linewidth' , 3);
+                close(f)
+                errorbar(xcoord(dd,:)',ePLOT(dd,:),ERROR(dd,:) , 'color' , colors(cCount,:) , 'LineWidth' , 3)
+                hold on
+                plotshade(xcoord(dd,:),ePLOT(dd,:) , ERROR(dd,:),'transp' , .2 , 'patchcolor' , colors(cCount,:) , 'linecolor' , colors(cCount,:) , 'linewidth' , 3 , 'linestyle' , ':');
+                cCount = cCount+1;
+            end
+            ylabel('R^2')
+            title([titleSuffix, ' , Days ' , num2str(dd)])
+            set(gca , 'XLim' , [0 length(xx)+1] , 'XTick' , [1: length(xx)] , 'XTickLabels' , label , 'FontSize' , 20 ,...
+                'XTickLabelRotation',45,'YLim' , [0 .3],'Box' , 'off' , 'GridAlpha' , 1)
+            grid on
         end
-        ylabel('R^2')
-        title(['R^2 Model Comparisons in ' , titleSuffix])
-        legend(legHor(end))
-        set(gca , 'XLim' , [0 length(xx)+1] , 'XTick' , [1: length(xx)] , 'XTickLabels' , label , 'FontSize' , 20 ,'XTickLabelRotation',45)
-        grid on
-        out = [];
+        legend(legHor(end) , 'Box' , 'off')
         
-%         subplot(3, 3 ,[4:6])
-%         %         plot(X(:,2) ,Y, '*')
-%         histogram(Y(X(:,2) == -1));
-%         hold on
-%         histogram(Y(X(:,2) == 1));
-%         title([titleSuffix , ' - Subject' , num2str(subjnum) ,' -IPI vs. Chunk Placement'])
-%         set(gca ,'FontSize' , 20);
-%         legend({'between' , 'Within'})
-%         
-%         subplot(337)
-%         plot(X(:,3) ,Y, '*')
-%         title([titleSuffix ,  ' - IPI vs. 1st Order Probability'])
-%         xlabel('Transition Probability')
-%         ylabel('msec')
-%         
-%         subplot(338)
-%         plot(X(:,4) ,Y, '*')
-%         title([titleSuffix , ' - IPI vs. 2nd Order Probability'])
-%         xlabel('Transition Probability')
-%         ylabel('msec')
-%         
-%         subplot(339)
-%         plot(X(:,5) ,Y, '*')
-%         title([titleSuffix , ' - IPI vs. 3rd Order Probability'])
-%         xlabel('Transition Probability')
-%         ylabel('msec')
+        figure('color' , 'white')
+        imagesc(ePLOT)
+        colorbar
+        set(gca , 'XTick' , [1 :length(xx)] , 'XTickLabels' , label , 'FontSize' , 20 ,...
+                'XTickLabelRotation',45,'YTick' , [1 :5])
+        
     case 'crossvaldist_chunk'
         %% chunk distances
         h = input('Which horizon?');
