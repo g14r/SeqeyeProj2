@@ -3888,1184 +3888,6 @@ switch what
         
         
         out = [];
-    case 'transitions_All'
-        %         prompt = 'Which Horizon?';
-        %         h = input(prompt);
-        LastIPI = 0;
-        
-        if GroupCode == 1
-            load([baseDir , '/CMB_34_1.mat'])
-            CMB = CMB_34_1;
-        elseif GroupCode == 1
-            load([baseDir , '/CMB_34_2.mat'])
-            CMB = CMB_34_2;
-        end
-        
-        for subjnum = 1:length(subj_name)-1
-            Dall.isWrong = Dall.AllPress ~=Dall.AllResponse;
-            ANA_allh = getrow(Dall , ismember(Dall.SN , subjnum));
-            ANA1_allh = getrow(Dall ,ismember(Dall.seqNumb , [1:6]) & ismember(Dall.SN , subjnum));
-            ANA0_allh = getrow(Dall ,ismember(Dall.seqNumb , 0) & ismember(Dall.SN , subjnum));
-            
-            
-            
-            allT2 = [length(ANA1_allh.AllPress)*(size(ANA1_allh.AllPress , 2)-1) length(ANA0_allh.AllPress)*(size(ANA0_allh.AllPress , 2)-1) ...
-                sum(ismember(ANA_allh.seqNumb , [0:6]))*(size(ANA_allh.AllPress , 2)-1) + sum(ismember(ANA_allh.seqNumb , [102 202])) + sum(ismember(ANA_allh.seqNumb , [103 203 ]))*2 + sum(ismember(ANA_allh.seqNumb , [104 204 ]))*3];
-            t2_Nums_allh(subjnum).Chunked = zeros(length(CMB.comb2) , 1);
-            t2_Nums_allh(subjnum).Rand    = zeros(length(CMB.comb2) , 1);
-            t2_Nums_allh(subjnum).All     = zeros(length(CMB.comb2) , 1);
-            
-            ANA1_allh.t2_Nums = zeros(length(ANA1_allh.AllPress) , size(ANA1_allh.AllPress , 2) -1);
-            ANA0_allh.t2_Nums = zeros(length(ANA0_allh.AllPress) , size(ANA0_allh.AllPress , 2) -1);
-            ANA_allh.t2_Nums = zeros(length(ANA_allh.AllPress) , size(ANA_allh.AllPress , 2) -1);
-            for t2 = 1:length(CMB.comb2)
-                
-                t2_Nums_allh(subjnum).TranNumb(t2 , 1) = t2;
-                t2_Nums_allh(subjnum).Transition(t2 , 1:2) = CMB.comb2(t2,:);
-                for p = 1:size(ANA1_allh.AllPress , 2) -1
-                    t2_Nums_allh(subjnum).Chunked(t2,1) =  t2_Nums_allh(subjnum).Chunked(t2,1) + sum(ismember(ANA1_allh.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows'));
-                    t2_Nums_allh(subjnum).Rand(t2,1) =  t2_Nums_allh(subjnum).Rand(t2,1) + sum(ismember(ANA0_allh.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows'));
-                    t2_Nums_allh(subjnum).All(t2,1) =  t2_Nums_allh(subjnum).All(t2,1) + sum(ismember(ANA_allh.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows'));
-                    
-                    ANA1_allh.t2_Nums(ismember(ANA1_allh.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows') , p) = t2;
-                    ANA0_allh.t2_Nums(ismember(ANA0_allh.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows') , p) = t2;
-                    ANA_allh.t2_Nums(ismember(ANA_allh.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows') , p) = t2;
-                end
-            end
-            t2_Nums_allh(subjnum).Chunked = t2_Nums_allh(subjnum).Chunked/allT2(1);
-            t2_Nums_allh(subjnum).Rand    = t2_Nums_allh(subjnum).Rand/allT2(2);
-            t2_Nums_allh(subjnum).All    = t2_Nums_allh(subjnum).All/allT2(3);
-            
-            for p1 = 1:5
-                for p2 = 1:5
-                    i = find(ismember(CMB.comb2 , [p1 p2] , 'rows'));
-                    PoC2(p1 , p2) = t2_Nums_allh(subjnum).All(i);
-                end
-                PoC2_n(p1, :) = PoC2(p1, :)/sum(PoC2(p1, :)); % sets the sum of every row to 1
-                for p2 = 1:5
-                    i = find(ismember(CMB.comb2 , [p1 p2] , 'rows'));
-                    t2_Nums_allh(subjnum).All_normalized(i) = PoC2_n(p1, p2);
-                end
-            end
-            
-            allT3 = [length(ANA1_allh.AllPress)*(size(ANA1_allh.AllPress , 2)-2) length(ANA0_allh.AllPress)*(size(ANA0_allh.AllPress , 2)-2) ...
-                sum(ismember(ANA_allh.seqNumb , [0:6]))*(size(ANA_allh.AllPress , 2)-2) + sum(ismember(ANA_allh.seqNumb , [103 203 ])) + sum(ismember(ANA_allh.seqNumb , [104 204 ]))*2];
-            t3_Nums_allh(subjnum).Chunked = zeros(length(CMB.comb3) , 1);
-            t3_Nums_allh(subjnum).Rand    = zeros(length(CMB.comb3) , 1);
-            t3_Nums_allh(subjnum).All    = zeros(length(CMB.comb3) , 1);
-            
-            ANA1_allh.t3_Nums = zeros(length(ANA1_allh.AllPress) , size(ANA1_allh.AllPress , 2) -2);
-            ANA0_allh.t3_Nums = zeros(length(ANA0_allh.AllPress) , size(ANA0_allh.AllPress , 2) -2);
-            ANA_allh.t3_Nums = zeros(length(ANA_allh.AllPress) , size(ANA_allh.AllPress , 2) -2);
-            for t3 = 1:length(CMB.comb3)
-                
-                
-                t3_Nums_allh(subjnum).TranNumb(t3 , 1) = t3;
-                t3_Nums_allh(subjnum).Transition(t3 , :) = CMB.comb3(t3,:);
-                for p = 1:size(ANA1_allh.AllPress , 2) -2
-                    t3_Nums_allh(subjnum).Chunked(t3,1) =  t3_Nums_allh(subjnum).Chunked(t3,1) + sum(ismember(ANA1_allh.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows'));
-                    t3_Nums_allh(subjnum).Rand(t3,1) =  t3_Nums_allh(subjnum).Rand(t3,1) + sum(ismember(ANA0_allh.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows'));
-                    t3_Nums_allh(subjnum).All(t3,1) =  t3_Nums_allh(subjnum).All(t3,1) + sum(ismember(ANA_allh.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows'));
-                    
-                    ANA1_allh.t3_Nums(ismember(ANA1_allh.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows') , p) = t3;
-                    ANA0_allh.t3_Nums(ismember(ANA0_allh.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows') , p) = t3;
-                    ANA_allh.t3_Nums(ismember(ANA_allh.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows') , p) = t3;
-                end
-            end
-            t3_Nums_allh(subjnum).Chunked = t3_Nums_allh(subjnum).Chunked/allT3(1);
-            t3_Nums_allh(subjnum).Rand = t3_Nums_allh(subjnum).Rand/allT3(2);
-            t3_Nums_allh(subjnum).All = t3_Nums_allh(subjnum).All/allT3(3);
-            for p12 = 1:25
-                for p3 = 1:5
-                    i = find(ismember(CMB.comb3 , [CMB.comb2(p12 , :) , p3] , 'rows'));
-                    PoC3(p12 , p3) = t3_Nums_allh(subjnum).All(i);
-                end
-                PoC3_n(p12, :) = PoC3(p12, :)/sum(PoC3(p12, :)); % sets the sum of every row to 1
-                for p3 = 1:5
-                    i = find(ismember(CMB.comb3 , [CMB.comb2(p12 , :) p3] , 'rows'));
-                    t3_Nums_allh(subjnum).All_normalized(i) = PoC3_n(p12, p3);
-                end
-            end
-            
-            allT4 = [length(ANA1_allh.AllPress)*(size(ANA1_allh.AllPress , 2)-3) length(ANA0_allh.AllPress)*(size(ANA0_allh.AllPress , 2)-3) ...
-                sum(ismember(ANA_allh.seqNumb , [0:6]))*(size(ANA_allh.AllPress , 2)-3)+sum(ismember(ANA_allh.seqNumb , [104 204 ]))];
-            t4_Nums_allh(subjnum).Chunked = zeros(length(CMB.comb4) , 1);
-            t4_Nums_allh(subjnum).Rand    = zeros(length(CMB.comb4) , 1);
-            t4_Nums_allh(subjnum).All    = zeros(length(CMB.comb4) , 1);
-            
-            ANA1_allh.t4_Nums = zeros(length(ANA1_allh.AllPress) , size(ANA1_allh.AllPress , 2) -3);
-            ANA0_allh.t4_Nums = zeros(length(ANA0_allh.AllPress) , size(ANA0_allh.AllPress , 2) -3);
-            ANA_allh.t4_Nums = zeros(length(ANA_allh.AllPress) , size(ANA_allh.AllPress , 2) -3);
-            for t4 = 1:length(CMB.comb4)
-                
-                t4_Nums_allh(subjnum).TranNumb(t4 , 1) = t4;
-                t4_Nums_allh(subjnum).Transition(t4 , :) = CMB.comb4(t4,:);
-                for p = 1:size(ANA1_allh.AllPress , 2) -3
-                    t4_Nums_allh(subjnum).Chunked(t4,1) =  t4_Nums_allh(subjnum).Chunked(t4,1) + sum(ismember(ANA1_allh.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows'));
-                    t4_Nums_allh(subjnum).Rand(t4,1) =  t4_Nums_allh(subjnum).Rand(t4,1) + sum(ismember(ANA0_allh.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows'));
-                    t4_Nums_allh(subjnum).All(t4,1) =  t4_Nums_allh(subjnum).All(t4,1) + sum(ismember(ANA_allh.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows'));
-                    
-                    ANA1_allh.t4_Nums(ismember(ANA1_allh.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows') , p) = t4;
-                    ANA0_allh.t4_Nums(ismember(ANA0_allh.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows') , p) = t4;
-                    ANA_allh.t4_Nums(ismember(ANA_allh.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows') , p) = t4;
-                end
-            end
-            t4_Nums_allh(subjnum).Chunked = t4_Nums_allh(subjnum).Chunked/allT4(1);
-            t4_Nums_allh(subjnum).Rand = t4_Nums_allh(subjnum).Rand/allT4(2);
-            t4_Nums_allh(subjnum).All = t4_Nums_allh(subjnum).All/allT4(3);
-            for p123 = 1:125
-                for p4 = 1:5
-                    i = find(ismember(CMB.comb4 , [CMB.comb3(p123 , :) p4] , 'rows'));
-                    PoC4(p123 , p4) = t4_Nums_allh(subjnum).All(i);
-                end
-                PoC4_n(p123, :) = PoC4(p123, :)/sum(PoC4(p123, :)); % sets the sum of every row to 1
-                for p4 = 1:5
-                    i = find(ismember(CMB.comb4 , [CMB.comb3(p123 , :) p4] , 'rows'));
-                    t4_Nums_allh(subjnum).All_normalized(i) = PoC4_n(p123, p4);
-                end
-            end
-            
-            
-            for h  = [1:8 , 13]
-                ANA1 = getrow(Dall ,ismember(Dall.seqNumb , [1:2]) & ismember(Dall.SN , subjnum)  & ismember(Dall.Horizon , h));
-                ANA0 = getrow(Dall ,ismember(Dall.seqNumb , 0) & ismember(Dall.SN , subjnum)& ismember(Dall.Horizon , h));
-                ANA = getrow(Dall ,ismember(Dall.SN , subjnum)& ismember(Dall.Horizon , h));
-                
-                allT2 = [length(ANA1.AllPress)*(size(ANA1.AllPress , 2)-1) length(ANA0.AllPress)*(size(ANA0.AllPress , 2)-1) length(ANA.AllPress)*(size(ANA.AllPress , 2)-1)];
-                t2_Nums(subjnum,h).Chunked = zeros(length(CMB.comb2) , 1);
-                t2_Nums(subjnum,h).Rand    = zeros(length(CMB.comb2) , 1);
-                t2_Nums(subjnum,h).All    = zeros(length(CMB.comb2) , 1);
-                
-                ANA1.t2_Nums = zeros(length(ANA1.AllPress) , size(ANA1.AllPress , 2) -1);
-                ANA0.t2_Nums = zeros(length(ANA0.AllPress) , size(ANA0.AllPress , 2) -1);
-                ANA.t2_Nums = zeros(length(ANA.AllPress) , size(ANA.AllPress , 2) -1);
-                for t2 = 1:length(CMB.comb2)
-                    t2_Nums(subjnum,h).Chunked_IPI{t2,1} = [];
-                    t2_Nums(subjnum,h).Rand_IPI{t2,1} = [];
-                    t2_Nums(subjnum,h).All_IPI{t2,1} = [];
-                    
-                    t2_Nums(subjnum,h).TranNumb(t2 , 1) = t2;
-                    t2_Nums(subjnum,h).Transition(t2 , 1:2) = CMB.comb2(t2,:);
-                    for p = 1:size(ANA1.AllPress , 2) -1
-                        t2_Nums(subjnum,h).Chunked(t2,1) =  t2_Nums(subjnum,h).Chunked(t2,1) + sum(ismember(ANA1.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows'));
-                        t2_Nums(subjnum,h).Rand(t2,1)    =  t2_Nums(subjnum,h).Rand(t2,1) + sum(ismember(ANA0.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows'));
-                        t2_Nums(subjnum,h).All(t2,1)     =  t2_Nums(subjnum,h).Rand(t2,1) + sum(ismember(ANA.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows'));
-                        
-                        ANA1.t2_Nums(ismember(ANA1.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows') , p) = t2;
-                        ANA0.t2_Nums(ismember(ANA0.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows') , p) = t2;
-                        ANA.t2_Nums(ismember(ANA.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows') , p) = t2;
-                        
-                        CorID = ismember(ANA1.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows') & ~sum(ANA1.isWrong(:,p:p+1) , 2);
-                        t2_Nums(subjnum,h).Chunked_IPI{t2} = [t2_Nums(subjnum,h).Chunked_IPI{t2} ; [ANA1.IPI(CorID , p) t2*ones(length(ANA1.IPI(CorID , p)) , 1) ANA1.SN(CorID) ANA1.Day(CorID) ANA1.Horizon(CorID)]];
-                        
-                        CorID = ismember(ANA0.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows') & ~sum(ANA0.isWrong(:,p:p+1) , 2);
-                        t2_Nums(subjnum,h).Rand_IPI{t2} = [t2_Nums(subjnum,h).Rand_IPI{t2} ; [ANA0.IPI(CorID , p) t2*ones(length(ANA0.IPI(CorID , p)) , 1) ANA0.SN(CorID) ANA0.Day(CorID) ANA0.Horizon(CorID)]];
-                        
-                        CorID = ismember(ANA.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows') & ~sum(ANA.isWrong(:,p:p+1) , 2);
-                        t2_Nums(subjnum,h).All_IPI{t2} = [t2_Nums(subjnum,h).All_IPI{t2} ; [ANA.IPI(CorID , p) t2*ones(length(ANA.IPI(CorID , p)) , 1) ANA.SN(CorID) ANA.Day(CorID) ANA.Horizon(CorID)]];
-                    end
-                    t2_Nums(subjnum,h).MeanChunked_IPI(t2,1) = nanmean(t2_Nums(subjnum,h).Chunked_IPI{t2}(:,1));
-                    t2_Nums(subjnum,h).MeanRand_IPI(t2,1) = nanmean(t2_Nums(subjnum,h).Rand_IPI{t2}(:,1));
-                    t2_Nums(subjnum,h).MeanAll_IPI(t2,1) = nanmean(t2_Nums(subjnum,h).All_IPI{t2}(:,1));
-                end
-                
-                
-                t2_Nums(subjnum,h).Chunked = t2_Nums_allh.Chunked;%t2_Nums(subjnum,h).Chunked/allT2(1);
-                t2_Nums(subjnum,h).Rand = t2_Nums_allh.Rand;%t2_Nums(subjnum,h).Rand/allT2(2);
-                t2_Nums(subjnum,h).All = t2_Nums_allh.All;%t2_Nums(subjnum,h).Rand/allT2(2);
-                [~ , t2_Nums(subjnum,h).sort_ID] = sort(t2_Nums(subjnum,h).All , 'descend');
-                
-                
-                
-                t2_Nums(subjnum,h).SortedMeanIPI_Chunked = t2_Nums(subjnum,h).MeanChunked_IPI(t2_Nums(subjnum,h).sort_ID);
-                t2_Nums(subjnum,h).SortedIPI_Chunked = t2_Nums(subjnum,h).Chunked_IPI(t2_Nums(subjnum,h).sort_ID);
-                t2_Nums(subjnum,h).ReadyToPlot_Chunked = cell2mat(t2_Nums(subjnum,h).SortedIPI_Chunked);
-                clear xtick_r xtick_c xticklab_r xticklab_c
-                counter = 1;
-                ChunkNum2 = [];
-                for i = 1:length(CMB.comb2)
-                    idd = t2_Nums(subjnum,h).ReadyToPlot_Chunked(:,2) == t2_Nums(subjnum,h).sort_ID(i);
-                    if sum(ismember(CMB.Chunks{3}(:,1:2) , CMB.comb2(i,:) , 'rows')) | sum(ismember(CMB.Chunks{3}(:,2:3) , CMB.comb2(i,:) , 'rows'))
-                        ChunkNum2 = [ChunkNum2 ; [i , find(t2_Nums(subjnum,h).sort_ID == i)]];
-                    end
-                    if sum(ismember(CMB.Chunks{4}(:,1:2) , CMB.comb2(i,:) , 'rows')) | sum(ismember(CMB.Chunks{4}(:,2:3) , CMB.comb2(i,:) , 'rows')) | sum(ismember(CMB.Chunks{4}(:,3:4) , CMB.comb2(i,:) , 'rows'))
-                        ChunkNum2 = [ChunkNum2 ; [i , find(t2_Nums(subjnum,h).sort_ID == i)]];
-                    end
-                    if sum(idd)
-                        T2(h).xticklab_c{counter} = num2str(unique(t2_Nums(subjnum,h).ReadyToPlot_Chunked(idd,2)));
-                        t2_Nums(subjnum,h).ReadyToPlot_Chunked(idd,7) = t2_Nums(subjnum,h).All(t2_Nums(subjnum,h).sort_ID(i));
-                        T2(h).xtick_c(counter) = i;
-                        counter = counter + 1;
-                    end
-                    t2_Nums(subjnum,h).ReadyToPlot_Chunked(idd,6) = i; %rank the triplet numbers based on their frequency of occurence
-                    
-                end
-                
-                t2_Nums(subjnum,h).SortedMeanIPI_Rand = t2_Nums(subjnum,h).MeanRand_IPI(t2_Nums(subjnum,h).sort_ID);
-                t2_Nums(subjnum,h).SortedIPI_Rand = t2_Nums(subjnum,h).Rand_IPI(t2_Nums(subjnum,h).sort_ID);
-                t2_Nums(subjnum,h).ReadyToPlot_Rand = cell2mat(t2_Nums(subjnum,h).SortedIPI_Rand);
-                counter = 1;
-                for i = 1:length(CMB.comb2)
-                    idd = t2_Nums(h).ReadyToPlot_Rand(:,2) == t2_Nums(h).sort_ID(i);
-                    if sum(idd)
-                        T2(h).xticklab_r{counter} = num2str(unique(t2_Nums(h).ReadyToPlot_Rand(idd,2)));
-                        t2_Nums(h).ReadyToPlot_Rand(idd,7) = t2_Nums(h).All(t2_Nums(h).sort_ID(i));
-                        T2(h).xtick_r(counter) = i;
-                        counter = counter + 1;
-                    end
-                    t2_Nums(h).ReadyToPlot_Rand(idd,6) = i; %rank the triplet numbers based on their frequency of occurence
-                    
-                end
-                
-                t2_Nums(h).SortedMeanIPI_All= t2_Nums(h).MeanAll_IPI(t2_Nums(h).sort_ID);
-                t2_Nums(h).SortedIPI_All = t2_Nums(h).All_IPI(t2_Nums(h).sort_ID);
-                t2_Nums(h).ReadyToPlot_All = cell2mat(t2_Nums(h).SortedIPI_All);
-                counter = 1;
-                for i = 1:length(CMB.comb2)
-                    idd = t2_Nums(h).ReadyToPlot_All(:,2) == t2_Nums(h).sort_ID(i);
-                    if sum(idd)
-                        T2(h).xticklab_a{counter} = num2str(unique(t2_Nums(h).ReadyToPlot_All(idd,2)));
-                        t2_Nums(h).ReadyToPlot_All(idd,7) = t2_Nums(h).All(t2_Nums(h).sort_ID(i));
-                        T2(h).xtick_a(counter) = i;
-                        counter = counter + 1;
-                    end
-                    t2_Nums(h).ReadyToPlot_All(idd,6) = i; %rank the triplet numbers based on their frequency of occurence
-                end
-                
-                
-                h1 = figure;
-                hold on
-                h
-                [xcoordC_2{h},PLOTC_2{h},ERRORC_2{h}]  = lineplot(t2_Nums(h).ReadyToPlot_Chunked(:,6) , t2_Nums(h).ReadyToPlot_Chunked(:,1), 'subset' , ismember(t2_Nums(h).ReadyToPlot_Chunked(:,4) , [4 5]));
-                [xcoordR_2{h},PLOTR_2{h},ERRORR_2{h}]  = lineplot(t2_Nums(h).ReadyToPlot_Rand(:,6) , t2_Nums(h).ReadyToPlot_Rand(:,1), 'subset' , ismember(t2_Nums(h).ReadyToPlot_Rand(:,4) , [4 5]));
-                [xcoordA_2{h},PLOTA_2{h},ERRORA_2{h}]  = lineplot(t2_Nums(h).ReadyToPlot_All(:,6) , t2_Nums(h).ReadyToPlot_All(:,1), 'subset' , ismember(t2_Nums(h).ReadyToPlot_All(:,4) , [4 5]));
-                close(h1)
-                
-                temp = corrcoef(t2_Nums(h).ReadyToPlot_Chunked(:,1) , t2_Nums(h).ReadyToPlot_Chunked(:,7));
-                C2_chunked(h) = temp(2);
-                temp  = corrcoef(t2_Nums(h).ReadyToPlot_Rand(:,1) , t2_Nums(h).ReadyToPlot_Rand(:,7));
-                C2_random(h) = temp(2);
-                temp  = corrcoef(t2_Nums(h).ReadyToPlot_All(:,1) , t2_Nums(h).ReadyToPlot_All(:,7));
-                C2_all(h) = temp(2);
-                
-                
-                
-                
-                clear xtick_r xtick_c xticklab_r xticklab_c
-                allT3 = [length(ANA1.AllPress)*(size(ANA1.AllPress , 2)-2) length(ANA0.AllPress)*(size(ANA0.AllPress , 2)-2) length(ANA.AllPress)*(size(ANA.AllPress , 2)-2)];
-                t3_Nums(h).Chunked = zeros(length(CMB.comb3) , 1);
-                t3_Nums(h).Rand    = zeros(length(CMB.comb3) , 1);
-                t3_Nums(h).All     = zeros(length(CMB.comb3) , 1);
-                
-                ANA1.t3_Nums = zeros(length(ANA1.AllPress) , size(ANA1.AllPress , 2) -2);
-                ANA0.t3_Nums = zeros(length(ANA0.AllPress) , size(ANA0.AllPress , 2) -2);
-                ANA.t3_Nums = zeros(length(ANA.AllPress) , size(ANA.AllPress , 2) -2);
-                for t3 = 1:length(CMB.comb3)
-                    t3_Nums(h).Chunked_IPI{t3,1} = [];
-                    t3_Nums(h).Rand_IPI{t3,1} = [];
-                    t3_Nums(h).All_IPI{t3,1} = [];
-                    
-                    t3_Nums(h).TranNumb(t3 , 1) = t3;
-                    t3_Nums(h).Transition(t3 , :) = CMB.comb3(t3,:);
-                    for p = 1:size(ANA1.AllPress , 2) -2
-                        t3_Nums(h).Chunked(t3,1) =  t3_Nums(h).Chunked(t3,1) + sum(ismember(ANA1.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows'));
-                        t3_Nums(h).Rand(t3,1) =  t3_Nums(h).Rand(t3,1) + sum(ismember(ANA0.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows'));
-                        t3_Nums(h).All(t3,1) =  t3_Nums(h).All(t3,1) + sum(ismember(ANA.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows'));
-                        
-                        ANA1.t3_Nums(ismember(ANA1.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows') , p) = t3;
-                        ANA0.t3_Nums(ismember(ANA0.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows') , p) = t3;
-                        ANA.t3_Nums(ismember(ANA.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows') , p) = t3;
-                        
-                        CorID = ismember(ANA1.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows') & ~sum(ANA1.isWrong(:,p:p+2) , 2);
-                        if ~LastIPI
-                            t3_Nums(h).Chunked_IPI{t3} = [t3_Nums(h).Chunked_IPI{t3} ; [sum(ANA1.IPI(CorID , p:p+1),2) t3*ones(length(ANA1.IPI(CorID , p)) , 1) ANA1.SN(CorID) ANA1.Day(CorID) ANA1.Horizon(CorID)]];
-                        else
-                            t3_Nums(h).Chunked_IPI{t3} = [t3_Nums(h).Chunked_IPI{t3} ; [sum(ANA1.IPI(CorID , p+1),2) t3*ones(length(ANA1.IPI(CorID , p)) , 1) ANA1.SN(CorID) ANA1.Day(CorID) ANA1.Horizon(CorID)]];
-                        end
-                        
-                        CorID = ismember(ANA0.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows') & ~sum(ANA0.isWrong(:,p:p+2) , 2);
-                        if ~LastIPI
-                            t3_Nums(h).Rand_IPI{t3} = [t3_Nums(h).Rand_IPI{t3} ; [sum(ANA0.IPI(CorID , p:p+1),2) t3*ones(length(ANA0.IPI(CorID , p)) , 1) ANA0.SN(CorID) ANA0.Day(CorID) ANA0.Horizon(CorID)]];
-                        else
-                            t3_Nums(h).Rand_IPI{t3} = [t3_Nums(h).Rand_IPI{t3} ; [sum(ANA0.IPI(CorID , p+1),2) t3*ones(length(ANA0.IPI(CorID , p)) , 1) ANA0.SN(CorID) ANA0.Day(CorID) ANA0.Horizon(CorID)]];
-                        end
-                        
-                        CorID = ismember(ANA.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows') & ~sum(ANA.isWrong(:,p:p+2) , 2);
-                        if ~LastIPI
-                            t3_Nums(h).All_IPI{t3} = [t3_Nums(h).All_IPI{t3} ; [sum(ANA.IPI(CorID , p:p+1),2) t3*ones(length(ANA.IPI(CorID , p)) , 1) ANA.SN(CorID) ANA.Day(CorID) ANA.Horizon(CorID)]];
-                        else
-                            t3_Nums(h).All_IPI{t3} = [t3_Nums(h).All_IPI{t3} ; [sum(ANA.IPI(CorID , p+1),2) t3*ones(length(ANA.IPI(CorID , p)) , 1) ANA.SN(CorID) ANA.Day(CorID) ANA.Horizon(CorID)]];
-                        end
-                    end
-                    t3_Nums(h).MeanChunked_IPI(t3,1) = nanmean(t3_Nums(h).Chunked_IPI{t3}(:,1));
-                    t3_Nums(h).MeanRand_IPI(t3,1) = nanmean(t3_Nums(h).Rand_IPI{t3}(:,1));
-                    t3_Nums(h).MeanAll_IPI(t3,1) = nanmean(t3_Nums(h).All_IPI{t3}(:,1));
-                end
-                t3_Nums(h).Chunked = t3_Nums_allh.Chunked;%t3_Nums(h).Chunked/allT3(1);
-                t3_Nums(h).Rand = t3_Nums_allh.Rand;%t3_Nums(h).Rand/allT3(2);
-                t3_Nums(h).All = t3_Nums_allh.All;%t3_Nums(h).Rand/allT3(2);
-                [~ , t3_Nums(h).sort_ID] = sort(t3_Nums(h).All , 'descend');
-                
-                t3_Nums(h).SortedMeanIPI_Chunked = t3_Nums(h).MeanChunked_IPI(t3_Nums(h).sort_ID);
-                t3_Nums(h).SortedIPI_Chunked = t3_Nums(h).Chunked_IPI(t3_Nums(h).sort_ID);
-                t3_Nums(h).ReadyToPlot_Chunked = cell2mat(t3_Nums(h).SortedIPI_Chunked);
-                counter = 1;
-                ChunkNum3 = [];
-                ChunkNum3_4 = [];
-                for i = 1:length(CMB.comb3)
-                    
-                    idd = t3_Nums(h).ReadyToPlot_Chunked(:,2) == t3_Nums(h).sort_ID(i);
-                    if sum(ismember(CMB.Chunks{3}(:,1:3) , CMB.comb3(i,:) , 'rows'))
-                        ChunkNum3 = [ChunkNum3 ; [i , find(t3_Nums(h).sort_ID == i)]];
-                    end
-                    if sum(ismember(CMB.Chunks{4}(:,1:3) , CMB.comb3(i,:) , 'rows')) | sum(ismember(CMB.Chunks{4}(:,2:4) , CMB.comb3(i,:) , 'rows'))
-                        ChunkNum3_4 = [ChunkNum3_4 ; [i , find(t3_Nums(h).sort_ID == i)]];
-                    end
-                    if sum(idd)
-                        T3(h).xticklab_c{counter} = num2str(unique(t3_Nums(h).ReadyToPlot_Chunked(idd,2)));
-                        t3_Nums(h).ReadyToPlot_Chunked(idd,7) = t3_Nums(h).All(t3_Nums(h).sort_ID(i));
-                        T3(h).xtick_c(counter) = i;
-                        counter = counter + 1;
-                    end
-                    t3_Nums(h).ReadyToPlot_Chunked(idd,6) = i; %rank the triplet numbers based on their frequency of occurence
-                    
-                end
-                
-                
-                t3_Nums(h).SortedMeanIPI_Rand = t3_Nums(h).MeanRand_IPI(t3_Nums(h).sort_ID);
-                t3_Nums(h).SortedIPI_Rand = t3_Nums(h).Rand_IPI(t3_Nums(h).sort_ID);
-                t3_Nums(h).ReadyToPlot_Rand = cell2mat(t3_Nums(h).SortedIPI_Rand);
-                counter = 1;
-                for i = 1:length(CMB.comb3)
-                    idd = t3_Nums(h).ReadyToPlot_Rand(:,2) == t3_Nums(h).sort_ID(i);
-                    if sum(idd)
-                        T3(h).xticklab_r{counter} = num2str(unique(t3_Nums(h).ReadyToPlot_Rand(idd,2)));
-                        t3_Nums(h).ReadyToPlot_Rand(idd,7) = t3_Nums(h).All(t3_Nums(h).sort_ID(i));
-                        T3(h).xtick_r(counter) = i;
-                        counter = counter + 1;
-                    end
-                    t3_Nums(h).ReadyToPlot_Rand(idd,6) = i; %rank the triplet numbers based on their frequency of occurence
-                    
-                end
-                
-                
-                t3_Nums(h).SortedMeanIPI_All = t3_Nums(h).MeanAll_IPI(t3_Nums(h).sort_ID);
-                t3_Nums(h).SortedIPI_All = t3_Nums(h).All_IPI(t3_Nums(h).sort_ID);
-                t3_Nums(h).ReadyToPlot_All = cell2mat(t3_Nums(h).SortedIPI_All);
-                counter = 1;
-                for i = 1:length(CMB.comb3)
-                    idd = t3_Nums(h).ReadyToPlot_All(:,2) == t3_Nums(h).sort_ID(i);
-                    if sum(idd)
-                        T3(h).xticklab_a{counter} = num2str(unique(t3_Nums(h).ReadyToPlot_All(idd,2)));
-                        t3_Nums(h).ReadyToPlot_All(idd,7) = t3_Nums(h).All(t3_Nums(h).sort_ID(i));
-                        T3(h).xtick_a(counter) = i;
-                        counter = counter + 1;
-                    end
-                    t3_Nums(h).ReadyToPlot_All(idd,6) = i; %rank the triplet numbers based on their frequency of occurence
-                    
-                end
-                
-                
-                h1 = figure;
-                hold on
-                [xcoordC_3{h},PLOTC_3{h},ERRORC_3{h}]  = lineplot(t3_Nums(h).ReadyToPlot_Chunked(:,6) , t3_Nums(h).ReadyToPlot_Chunked(:,1) , 'subset' , ismember(t3_Nums(h).ReadyToPlot_Chunked(:,4) , [4 5]));
-                [xcoordR_3{h},PLOTR_3{h},ERRORR_3{h}]  = lineplot(t3_Nums(h).ReadyToPlot_Rand(:,6) , t3_Nums(h).ReadyToPlot_Rand(:,1) , 'subset' , ismember(t3_Nums(h).ReadyToPlot_Rand(:,4) , [4 5]));
-                [xcoordA_3{h},PLOTA_3{h},ERRORA_3{h}]  = lineplot(t3_Nums(h).ReadyToPlot_All(:,6) , t3_Nums(h).ReadyToPlot_All(:,1) , 'subset' , ismember(t3_Nums(h).ReadyToPlot_All(:,4) , [4 5]));
-                close(h1)
-                
-                %
-                %             anovan(t3_Nums(h).ReadyToPlot_Rand(:,1) , t3_Nums(h).ReadyToPlot_Rand(:,2))
-                temp = corrcoef(t3_Nums(h).ReadyToPlot_Chunked(:,1) , t3_Nums(h).ReadyToPlot_Chunked(:,7));
-                C3_chunked(h) = temp(2);
-                temp  = corrcoef(t3_Nums(h).ReadyToPlot_Rand(:,1) , t3_Nums(h).ReadyToPlot_Rand(:,7));
-                C3_random(h) = temp(2);
-                temp  = corrcoef(t3_Nums(h).ReadyToPlot_All(:,1) , t3_Nums(h).ReadyToPlot_All(:,7));
-                C3_all(h) = temp(2);
-                
-                
-                
-                clear xtick_r xtick_c xticklab_r xticklab_c
-                allt4 = [length(ANA1.AllPress)*(size(ANA1.AllPress , 2)-3) length(ANA0.AllPress)*(size(ANA0.AllPress , 2)-3) length(ANA.AllPress)*(size(ANA.AllPress , 2)-3)];
-                t4_Nums(h).Chunked = zeros(length(CMB.comb4) , 1);
-                t4_Nums(h).Rand    = zeros(length(CMB.comb4) , 1);
-                t4_Nums(h).All     = zeros(length(CMB.comb4) , 1);
-                
-                ANA1.t4_Nums = zeros(length(ANA1.AllPress) , size(ANA1.AllPress , 2) -3);
-                ANA0.t4_Nums = zeros(length(ANA0.AllPress) , size(ANA0.AllPress , 2) -3);
-                ANA.t4_Nums  = zeros(length(ANA.AllPress) , size(ANA.AllPress , 2) -3);
-                for t4 = 1:length(CMB.comb4)
-                    t4_Nums(h).Chunked_IPI{t4,1} = [];
-                    t4_Nums(h).Rand_IPI{t4,1} = [];
-                    t4_Nums(h).All_IPI{t4,1} = [];
-                    
-                    t4_Nums(h).TranNumb(t4 , 1) = t4;
-                    t4_Nums(h).Transition(t4 , :) = CMB.comb4(t4,:);
-                    for p = 1:size(ANA1.AllPress , 2) -3
-                        t4_Nums(h).Chunked(t4,1) =  t4_Nums(h).Chunked(t4,1) + sum(ismember(ANA1.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows'));
-                        t4_Nums(h).Rand(t4,1) =  t4_Nums(h).Rand(t4,1) + sum(ismember(ANA0.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows'));
-                        t4_Nums(h).All(t4,1) =  t4_Nums(h).All(t4,1) + sum(ismember(ANA.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows'));
-                        
-                        ANA1.t4_Nums(ismember(ANA1.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows') , p) = t4;
-                        ANA0.t4_Nums(ismember(ANA0.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows') , p) = t4;
-                        ANA.t4_Nums(ismember(ANA.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows') , p) = t4;
-                        
-                        CorID = ismember(ANA1.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows') & ~sum(ANA1.isWrong(:,p:p+3) , 2);
-                        if ~LastIPI
-                            t4_Nums(h).Chunked_IPI{t4} = [t4_Nums(h).Chunked_IPI{t4} ; [sum(ANA1.IPI(CorID , p:p+2),2) t4*ones(length(ANA1.IPI(CorID , p)) , 1) ANA1.SN(CorID) ANA1.Day(CorID) ANA1.Horizon(CorID)]];
-                        else
-                            t4_Nums(h).Chunked_IPI{t4} = [t4_Nums(h).Chunked_IPI{t4} ; [sum(ANA1.IPI(CorID , p+2),2) t4*ones(length(ANA1.IPI(CorID , p)) , 1) ANA1.SN(CorID) ANA1.Day(CorID) ANA1.Horizon(CorID)]];
-                        end
-                        
-                        CorID = ismember(ANA0.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows') & ~sum(ANA0.isWrong(:,p:p+3) , 2);
-                        if ~LastIPI
-                            t4_Nums(h).Rand_IPI{t4} = [t4_Nums(h).Rand_IPI{t4} ; [sum(ANA0.IPI(CorID , p:p+2),2) t4*ones(length(ANA0.IPI(CorID , p)) , 1) ANA0.SN(CorID) ANA0.Day(CorID) ANA0.Horizon(CorID)]];
-                        else
-                            t4_Nums(h).Rand_IPI{t4} = [t4_Nums(h).Rand_IPI{t4} ; [sum(ANA0.IPI(CorID , p+2),2) t4*ones(length(ANA0.IPI(CorID , p)) , 1) ANA0.SN(CorID) ANA0.Day(CorID) ANA0.Horizon(CorID)]];
-                        end
-                        
-                        CorID = ismember(ANA.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows') & ~sum(ANA.isWrong(:,p:p+3) , 2);
-                        if ~LastIPI
-                            t4_Nums(h).All_IPI{t4} = [t4_Nums(h).All_IPI{t4} ; [sum(ANA.IPI(CorID , p:p+2),2) t4*ones(length(ANA.IPI(CorID , p)) , 1) ANA.SN(CorID) ANA.Day(CorID) ANA.Horizon(CorID)]];
-                        else
-                            t4_Nums(h).All_IPI{t4} = [t4_Nums(h).All_IPI{t4} ; [sum(ANA.IPI(CorID , p+2),2) t4*ones(length(ANA.IPI(CorID , p)) , 1) ANA.SN(CorID) ANA.Day(CorID) ANA.Horizon(CorID)]];
-                        end
-                    end
-                    t4_Nums(h).MeanChunked_IPI(t4,1) = nanmean(t4_Nums(h).Chunked_IPI{t4}(:,1));
-                    t4_Nums(h).MeanRand_IPI(t4,1) = nanmean(t4_Nums(h).Rand_IPI{t4}(:,1));
-                    t4_Nums(h).MeanAll_IPI(t4,1) = nanmean(t4_Nums(h).All_IPI{t4}(:,1));
-                end
-                t4_Nums(h).Chunked = t4_Nums_allh.Chunked;%t4_Nums(h).Chunked/allt4(1);
-                t4_Nums(h).Rand = t4_Nums_allh.Rand;%t4_Nums(h).Rand/allt4(2);
-                t4_Nums(h).All = t4_Nums_allh.All;%t4_Nums(h).Rand/allt4(2);
-                [~ , t4_Nums(h).sort_ID] = sort(t4_Nums(h).All , 'descend');
-                
-                t4_Nums(h).SortedMeanIPI_Chunked = t4_Nums(h).MeanChunked_IPI(t4_Nums(h).sort_ID);
-                t4_Nums(h).SortedIPI_Chunked = t4_Nums(h).Chunked_IPI(t4_Nums(h).sort_ID);
-                t4_Nums(h).ReadyToPlot_Chunked = cell2mat(t4_Nums(h).SortedIPI_Chunked);
-                counter = 1;
-                ChunkNum4 = [];
-                for i = 1:length(CMB.comb4)
-                    idd = t4_Nums(h).ReadyToPlot_Chunked(:,2) == t4_Nums(h).sort_ID(i);
-                    if sum(ismember(CMB.Chunks{4} , CMB.comb4(i,:)  , 'rows'))
-                        ChunkNum4 = [ChunkNum4 ; [i , find(t4_Nums(h).sort_ID == i)]];
-                    end
-                    
-                    if sum(idd)
-                        T4(h).xticklab_c{counter} = num2str(unique(t4_Nums(h).ReadyToPlot_Chunked(idd,2)));
-                        t4_Nums(h).ReadyToPlot_Chunked(idd,7) = t4_Nums(h).All(t4_Nums(h).sort_ID(i));
-                        T4(h).xtick_c(counter) = i;
-                        counter = counter + 1;
-                    end
-                    t4_Nums(h).ReadyToPlot_Chunked(idd,6) = i; %rank the triplet numbers based on their frequency of occurence
-                    
-                end
-                
-                t4_Nums(h).SortedMeanIPI_Rand = t4_Nums(h).MeanRand_IPI(t4_Nums(h).sort_ID);
-                t4_Nums(h).SortedIPI_Rand = t4_Nums(h).Rand_IPI(t4_Nums(h).sort_ID);
-                t4_Nums(h).ReadyToPlot_Rand = cell2mat(t4_Nums(h).SortedIPI_Rand);
-                counter = 1;
-                for i = 1:length(CMB.comb4)
-                    idd = t4_Nums(h).ReadyToPlot_Rand(:,2) == t4_Nums(h).sort_ID(i);
-                    if sum(idd)
-                        T4(h).xticklab_r{counter} = num2str(unique(t4_Nums(h).ReadyToPlot_Rand(idd,2)));
-                        t4_Nums(h).ReadyToPlot_Rand(idd,7) = t4_Nums(h).All(t4_Nums(h).sort_ID(i));
-                        T4(h).xtick_r(counter) = i;
-                        counter = counter + 1;
-                    end
-                    t4_Nums(h).ReadyToPlot_Rand(idd,6) = i; %rank the triplet numbers based on their frequency of occurence
-                    
-                end
-                
-                t4_Nums(h).SortedMeanIPI_All = t4_Nums(h).MeanAll_IPI(t4_Nums(h).sort_ID);
-                t4_Nums(h).SortedIPI_All = t4_Nums(h).All_IPI(t4_Nums(h).sort_ID);
-                t4_Nums(h).ReadyToPlot_All = cell2mat(t4_Nums(h).SortedIPI_All);
-                counter = 1;
-                for i = 1:length(CMB.comb4)
-                    idd = t4_Nums(h).ReadyToPlot_All(:,2) == t4_Nums(h).sort_ID(i);
-                    if sum(idd)
-                        T4(h).xticklab_a{counter} = num2str(unique(t4_Nums(h).ReadyToPlot_All(idd,2)));
-                        t4_Nums(h).ReadyToPlot_All(idd,7) = t4_Nums(h).All(t4_Nums(h).sort_ID(i));
-                        T4(h).xtick_a(counter) = i;
-                        counter = counter + 1;
-                    end
-                    t4_Nums(h).ReadyToPlot_All(idd,6) = i; %rank the triplet numbers based on their frequency of occurence
-                    
-                end
-                
-                h1 = figure;
-                hold on
-                [xcoordC_4{h},PLOTC_4{h},ERRORC_4{h}]  = lineplot(t4_Nums(h).ReadyToPlot_Chunked(:,6) , t4_Nums(h).ReadyToPlot_Chunked(:,1) , 'subset' , ismember(t4_Nums(h).ReadyToPlot_Chunked(:,4) , [4 5]));
-                [xcoordR_4{h},PLOTR_4{h},ERRORR_4{h}]  = lineplot(t4_Nums(h).ReadyToPlot_Rand(:,6) , t4_Nums(h).ReadyToPlot_Rand(:,1) , 'subset' , ismember(t4_Nums(h).ReadyToPlot_Rand(:,4) , [4 5]));
-                [xcoordA_4{h},PLOTA_4{h},ERRORA_4{h}]  = lineplot(t4_Nums(h).ReadyToPlot_All(:,6) , t4_Nums(h).ReadyToPlot_All(:,1) , 'subset' , ismember(t4_Nums(h).ReadyToPlot_All(:,4) , [4 5]));
-                close(h1)
-                
-                %
-                %             anovan(t4_Nums(h).ReadyToPlot_Rand(:,1) , t4_Nums(h).ReadyToPlot_Rand(:,2))
-                temp = corrcoef(t4_Nums(h).ReadyToPlot_Chunked(:,1) , t4_Nums(h).ReadyToPlot_Chunked(:,7));
-                C4_chunked(h) = temp(2);
-                temp  = corrcoef(t4_Nums(h).ReadyToPlot_Rand(:,1) , t4_Nums(h).ReadyToPlot_Rand(:,7));
-                C4_random(h) = temp(2);
-                temp  = corrcoef(t4_Nums(h).ReadyToPlot_All(:,1) , t4_Nums(h).ReadyToPlot_All(:,7));
-                C4_all(h) = temp(2);
-            end
-        end
-        figCount = 1;
-        figure('color' , 'white')
-        for h = [1:8 , 13]
-            subplot(9,3,figCount)
-            errorbar(xcoordC_2{h},PLOTC_2{h},ERRORC_2{h} , 'LineWidth' , 3);
-            set(gca , 'XTick' , T2(h).xtick_c , 'XTickLabels' , T2(h).xticklab_c, 'FontSize' , 10)
-            hold on
-            for i  =1:length(ChunkNum2)
-                line([ChunkNum2(i , 2) ChunkNum2(i , 2)] , [min(PLOTC_3{h}) max(PLOTC_3{h})] , 'color' , 'red' , 'LineWidth' , 1)
-            end
-            grid on
-            title('Double trans chunked seqs sorted by freq of occurrence in all seqs','FontSize' , 14)
-            figCount = figCount +1;
-            
-            subplot(9,3,figCount)
-            errorbar(xcoordR_2{h},PLOTR_2{h},ERRORR_2{h}, 'LineWidth' , 3);
-            set(gca , 'XTick' , T2(h).xtick_r , 'XTickLabels' , T2(h).xticklab_r , 'FontSize' , 10)
-            hold on
-            for i  =1:length(ChunkNum2)
-                line([ChunkNum2(i , 2) ChunkNum2(i , 2)] , [min(PLOTC_3{h}) max(PLOTC_3{h})] , 'color' , 'red' , 'LineWidth' , 1)
-            end
-            grid on
-            title('Double trans rand seqs sorted by freq of occurrence in all seqs','FontSize' , 14)
-            figCount = figCount +1;
-            
-            subplot(9,3,figCount)
-            errorbar(xcoordA_2{h},PLOTA_2{h},ERRORA_2{h}, 'LineWidth' , 3);
-            set(gca , 'XTick' , T2(h).xtick_a , 'XTickLabels' , T2(h).xticklab_a , 'FontSize' , 10)
-            hold on
-            for i  =1:length(ChunkNum2)
-                line([ChunkNum2(i , 2) ChunkNum2(i , 2)] , [min(PLOTC_3{h}) max(PLOTC_3{h})] , 'color' , 'red' , 'LineWidth' , 1)
-            end
-            grid on
-            title('Double trans all seqs sorted by freq of occurrence in all seqs','FontSize' , 14)
-            figCount = figCount +1;
-        end
-        
-        
-        figCount = 1;
-        figure('color' , 'white')
-        for h = [1:8 , 13]
-            subplot(9,3,figCount)
-            errorbar(xcoordC_3{h},PLOTC_3{h},ERRORC_3{h} , 'LineWidth' , 3);
-            set(gca , 'XTick' , T3(h).xtick_c , 'XTickLabels' , T3(h).xticklab_c, 'FontSize' , 4)
-            hold on
-            for i  =1:length(ChunkNum3)
-                line([ChunkNum3(i , 2) ChunkNum3(i , 2)] , [min(PLOTC_3{h}) max(PLOTC_3{h})] , 'color' , 'red' , 'LineWidth' , 1)
-            end
-            for i  =1:length(ChunkNum3_4)
-                line([ChunkNum3_4(i , 2) ChunkNum3_4(i , 2)] , [min(PLOTC_3{h}) max(PLOTC_3{h})] , 'color' , 'green' , 'LineWidth' , 1)
-            end
-            grid on
-            title('Triplet trans chunked seqs sorted by freq of occurrence in all seqs','FontSize' , 14)
-            figCount = figCount +1;
-            
-            
-            subplot(9,3,figCount)
-            errorbar(xcoordR_3{h},PLOTR_3{h},ERRORR_3{h}, 'LineWidth' , 3);
-            set(gca , 'XTick' , T3(h).xtick_r , 'XTickLabels' , T3(h).xticklab_r, 'FontSize' , 4)
-            hold on
-            for i  =1:length(ChunkNum3)
-                line([ChunkNum3(i , 2) ChunkNum3(i , 2)] , [min(PLOTR_3{h}) max(PLOTR_3{h})] , 'color' , 'red' , 'LineWidth' , 1)
-            end
-            for i  =1:length(ChunkNum3_4)
-                line([ChunkNum3_4(i , 2) ChunkNum3_4(i , 2)] , [min(PLOTC_3{h}) max(PLOTC_3{h})] , 'color' , 'green' , 'LineWidth' , 1)
-            end
-            grid on
-            title('Triplet trans rand seqs sorted by freq of occurrence in all seqs','FontSize' , 14)
-            figCount = figCount +1;
-            
-            subplot(9,3,figCount)
-            errorbar(xcoordA_3{h},PLOTA_3{h},ERRORA_3{h}, 'LineWidth' , 3);
-            set(gca , 'XTick' , T3(h).xtick_a , 'XTickLabels' , T3(h).xticklab_a, 'FontSize' , 4)
-            hold on
-            for i  =1:length(ChunkNum3)
-                line([ChunkNum3(i , 2) ChunkNum3(i , 2)] , [min(PLOTA_3{h}) max(PLOTA_3{h})] , 'color' , 'red' , 'LineWidth' , 1)
-            end
-            for i  =1:length(ChunkNum3_4)
-                line([ChunkNum3_4(i , 2) ChunkNum3_4(i , 2)] , [min(PLOTC_3{h}) max(PLOTC_3{h})] , 'color' , 'green' , 'LineWidth' , 1)
-            end
-            grid on
-            title('Triplet trans all seqs sorted by freq of occurrence in all seqs','FontSize' , 14)
-            figCount = figCount +1;
-        end
-        
-        
-        figCount = 1;
-        figure('color' , 'white')
-        for h = [1:8 , 13]
-            subplot(9,3,figCount)
-            errorbar(xcoordC_4{h},PLOTC_4{h},ERRORC_4{h} , 'LineWidth' , 3);
-            set(gca , 'XTick' , T4(h).xtick_c , 'XTickLabels' , T4(h).xticklab_c, 'FontSize' , 4)
-            hold on
-            for i  =1:length(ChunkNum4)
-                line([ChunkNum4(i , 2) ChunkNum4(i , 2)] , [min(PLOTC_4{h}) max(PLOTC_4{h})] , 'color' , 'red' , 'LineWidth' , 1)
-            end
-            grid on
-            title('Quad trans chunked seqs sorted by freq of occurrence in all seqs','FontSize' , 14)
-            figCount = figCount +1;
-            
-            
-            subplot(9,3,figCount)
-            errorbar(xcoordR_4{h},PLOTR_4{h},ERRORR_4{h}, 'LineWidth' , 3);
-            set(gca , 'XTick' , T4(h).xtick_r , 'XTickLabels' , T4(h).xticklab_r, 'FontSize' , 4)
-            hold on
-            for i  =1:length(ChunkNum4)
-                line([ChunkNum4(i , 2) ChunkNum4(i , 2)] , [min(PLOTR_4{h}) max(PLOTR_4{h})] , 'color' , 'red' , 'LineWidth' , 1)
-            end
-            grid on
-            title('Quad trans rand seqs sorted by freq of occurrence in all seqs','FontSize' , 14)
-            figCount = figCount +1;
-            
-            
-            subplot(9,3,figCount)
-            errorbar(xcoordA_4{h},PLOTA_4{h},ERRORA_4{h}, 'LineWidth' , 3);
-            set(gca , 'XTick' , T4(h).xtick_a , 'XTickLabels' , T4(h).xticklab_a, 'FontSize' , 4)
-            hold on
-            for i  =1:length(ChunkNum4)
-                line([ChunkNum4(i , 2) ChunkNum4(i , 2)] , [min(PLOTA_4{h}) max(PLOTA_4{h})] , 'color' , 'red' , 'LineWidth' , 1)
-            end
-            grid on
-            title('Quad trans all seqs sorted by freq of occurrence in all seqs','FontSize' , 14)
-            figCount = figCount +1;
-        end
-        
-        
-        
-        
-        
-        figCount = 1;
-        figure('color' , 'white')
-        subplot(3,3,figCount)
-        plot([1:8 , 13] , C2_chunked([1:8 , 13]) , 'LineWidth' , 3)
-        set(gca , 'XTick' , [1:8 , 13],'YLim' , [-.2 , .1])
-        xlabel('Horizon size')
-        ylabel('Correlation')
-        title('Correlation between Freq of occurrence and double IPI - Chunked seq')
-        grid on
-        figCount = figCount +1;
-        
-        subplot(3,3,figCount)
-        plot([1:8 , 13] , C2_random([1:8 , 13]) , 'LineWidth' , 3)
-        set(gca , 'XTick' , [1:8 , 13],'YLim' , [-.2 , .1])
-        xlabel('Horizon size')
-        ylabel('Correlation')
-        title('Correlation between Freq of occurrence and double IPI - Ransom seq')
-        grid on
-        figCount = figCount +1;
-        
-        subplot(3,3,figCount)
-        plot([1:8 , 13] , C2_all([1:8 , 13]) , 'LineWidth' , 3)
-        set(gca , 'XTick' , [1:8 , 13])
-        xlabel('Horizon size')
-        ylabel('Correlation')
-        title('Correlation between Freq of occurrence and double IPI - All seq')
-        grid on
-        figCount = figCount +1;
-        
-        
-        subplot(3,3,figCount)
-        plot([1:8 , 13] , C3_chunked([1:8 , 13]) , 'LineWidth' , 3)
-        set(gca , 'XTick' , [1:8 , 13])
-        xlabel('Horizon size')
-        ylabel('Correlation')
-        title('Correlation between Freq of occurrence and triplet IPI - Chunked seq')
-        grid on
-        figCount = figCount +1;
-        
-        
-        subplot(3,3,figCount)
-        plot([1:8 , 13] , C3_random([1:8 , 13]) , 'LineWidth' , 3)
-        set(gca , 'XTick' , [1:8 , 13])
-        xlabel('Horizon size')
-        ylabel('Correlation')
-        title('Correlation between Freq of occurrence and triplet IPI - Ransom seq')
-        grid on
-        figCount = figCount +1;
-        
-        subplot(3,3,figCount)
-        plot([1:8 , 13] , C3_all([1:8 , 13]) , 'LineWidth' , 3)
-        set(gca , 'XTick' , [1:8 , 13])
-        xlabel('Horizon size')
-        ylabel('Correlation')
-        title('Correlation between Freq of occurrence and triplet IPI - All seq')
-        grid on
-        figCount = figCount +1;
-        
-        
-        subplot(3,3,figCount)
-        plot([1:8 , 13] , C4_chunked([1:8 , 13]) , 'LineWidth' , 3)
-        set(gca , 'XTick' , [1:8 , 13])
-        xlabel('Horizon size')
-        ylabel('Correlation')
-        title('Correlation between Freq of occurrence and quad IPI - Chunked seq')
-        grid on
-        figCount = figCount +1;
-        
-        
-        subplot(3,3,figCount)
-        plot([1:8 , 13] , C4_random([1:8 , 13]) , 'LineWidth' , 3)
-        set(gca , 'XTick' , [1:8 , 13])
-        xlabel('Horizon size')
-        ylabel('Correlation')
-        title('Correlation between Freq of occurrence and quad IPI - Ransom seq')
-        grid on
-        figCount = figCount +1;
-        
-        subplot(3,3,figCount)
-        plot([1:8 , 13] , C4_all([1:8 , 13]) , 'LineWidth' , 3)
-        set(gca , 'XTick' , [1:8 , 13])
-        xlabel('Horizon size')
-        ylabel('Correlation')
-        title('Correlation between Freq of occurrence and quad IPI - All seq')
-        grid on
-        figCount = figCount +1;
-        %%%%%%%%%%%%%%%************************************* 1st order
-        for p1 = 1:5
-            for p2 = 1:5
-                i = find(ismember(CMB.comb2 , [p1 p2] , 'rows'));
-                PoC2(p1 , p2) = t2_Nums_allh.All(i);
-                for h = [1:8 13]
-                    MT2_C{h}(p1, p2) = t2_Nums(h).MeanChunked_IPI(i);
-                    MT2_R{h}(p1, p2) = t2_Nums(h).MeanRand_IPI(i);
-                    MT2_A{h}(p1, p2) = t2_Nums(h).MeanAll_IPI(i);
-                end
-            end
-            PoC2(p1, :) = PoC2(p1, :)/sum(PoC2(p1, :)); % sets the sum of every row to 1
-        end
-        figure('color' , 'white')
-        subplot(4,3,2)
-        imagesc(PoC2);
-        ylabel('Press 1')
-        xlabel('Press 2')
-        axis square
-        colorbar
-        set(gca , 'XTick'  , [1:5] , 'YTick' , [1:5] , 'XTickLabels' , {'Thumb' , 'Index' , 'Middle' , 'Forth' , 'Pinkie'} , ...
-            'Box' , 'off' , 'YTickLabels' , {'Thumb' , 'Index' , 'Middle' , 'Forth' , 'Pinkie'}  , 'LineWidth', 0.001)
-        title('Probability of Occurence for fist-order transitions in All sequences')
-        for j = 1:length(ChunkNum2)
-            y = CMB.comb2(ChunkNum2(j,1) , 1);
-            x = CMB.comb2(ChunkNum2(j,1) , 2);
-            rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'red')
-        end
-        imcount = 4;
-        for h = [1:8 , 13]
-            subplot(4,3,imcount)
-            imagesc(MT2_C{h} , [200 600]);
-            ylabel('Press 1')
-            xlabel('Press 2')
-            axis square
-            set(gca , 'XTick'  , [1:5] , 'YTick' , [1:5] , 'XTickLabels' , {'Thumb' , 'Index' , 'Middle' , 'Forth' , 'Pinkie'} , ...
-                'Box' , 'off' , 'YTickLabels' , {'Thumb' , 'Index' , 'Middle' , 'Forth' , 'Pinkie'}  , 'LineWidth', 0.001)
-            title(['Average Movement time (Chunked) H = ' , num2str(h)])
-            for j = 1:length(ChunkNum2)
-                y = CMB.comb2(ChunkNum2(j,1) , 1);
-                x = CMB.comb2(ChunkNum2(j,1) , 2);
-                rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'red')
-            end
-            colorbar
-            
-            imcount = imcount+1;
-        end
-        
-        figure('color' , 'white')
-        subplot(4,3,2)
-        imagesc(PoC2);
-        ylabel('Press 1')
-        xlabel('Press 2')
-        axis square
-        colorbar
-        set(gca , 'XTick'  , [1:5] , 'YTick' , [1:5] , 'XTickLabels' , {'Thumb' , 'Index' , 'Middle' , 'Forth' , 'Pinkie'} , ...
-            'Box' , 'off' , 'YTickLabels' , {'Thumb' , 'Index' , 'Middle' , 'Forth' , 'Pinkie'}  , 'LineWidth', 0.001)
-        title('Probability of Occurence for fist-order transitions in All sequences')
-        for j = 1:length(ChunkNum2)
-            y = CMB.comb2(ChunkNum2(j,1) , 1);
-            x = CMB.comb2(ChunkNum2(j,1) , 2);
-            rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'red')
-        end
-        imcount = 4;
-        for h = [1:8 , 13]
-            subplot(4,3,imcount)
-            imagesc(MT2_R{h} , [200 600]);
-            ylabel('Press 1')
-            xlabel('Press 2')
-            axis square
-            set(gca , 'XTick'  , [1:5] , 'YTick' , [1:5] , 'XTickLabels' , {'Thumb' , 'Index' , 'Middle' , 'Forth' , 'Pinkie'} , ...
-                'Box' , 'off' , 'YTickLabels' , {'Thumb' , 'Index' , 'Middle' , 'Forth' , 'Pinkie'}  , 'LineWidth', 0.001)
-            title(['Average Movement time (Random) H = ' , num2str(h)])
-            for j = 1:length(ChunkNum2)
-                y = CMB.comb2(ChunkNum2(j,1) , 1);
-                x = CMB.comb2(ChunkNum2(j,1) , 2);
-                rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'red')
-            end
-            colorbar
-            imcount = imcount+1;
-        end
-        
-        
-        figure('color' , 'white')
-        subplot(4,3,2)
-        imagesc(PoC2);
-        ylabel('Press 1')
-        xlabel('Press 2')
-        axis square
-        colorbar
-        set(gca , 'XTick'  , [1:5] , 'YTick' , [1:5] , 'XTickLabels' , {'Thumb' , 'Index' , 'Middle' , 'Forth' , 'Pinkie'} , ...
-            'Box' , 'off' , 'YTickLabels' , {'Thumb' , 'Index' , 'Middle' , 'Forth' , 'Pinkie'}  , 'LineWidth', 0.001)
-        title('Probability of Occurence for fist-order transitions in All sequences')
-        for j = 1:length(ChunkNum2)
-            y = CMB.comb2(ChunkNum2(j,1) , 1);
-            x = CMB.comb2(ChunkNum2(j,1) , 2);
-            rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'red')
-        end
-        imcount = 4;
-        for h = [1:8 , 13]
-            subplot(4,3,imcount)
-            imagesc(MT2_A{h} , [200 600]);
-            ylabel('Press 1')
-            xlabel('Press 2')
-            axis square
-            set(gca , 'XTick'  , [1:5] , 'YTick' , [1:5] , 'XTickLabels' , {'Thumb' , 'Index' , 'Middle' , 'Forth' , 'Pinkie'} , ...
-                'Box' , 'off' , 'YTickLabels' , {'Thumb' , 'Index' , 'Middle' , 'Forth' , 'Pinkie'}  , 'LineWidth', 0.001)
-            title(['Average Movement time (All) H = ' , num2str(h)])
-            for j = 1:length(ChunkNum2)
-                y = CMB.comb2(ChunkNum2(j,1) , 1);
-                x = CMB.comb2(ChunkNum2(j,1) , 2);
-                rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'red')
-            end
-            colorbar
-            imcount = imcount+1;
-        end
-        
-        %%%%%%%%%%%%%%%************************************* 2nd order
-        
-        for p1 = 1:5
-            for p23 = 1:25
-                i = find(ismember(CMB.comb3 , [p1 CMB.comb2(p23 , :)] , 'rows'));
-                PoC3(p1 , p23) = t3_Nums_allh.All(i);
-                for h = [1:8 13]
-                    MT3_C{h}(p1, p23) = t3_Nums(h).MeanChunked_IPI(i);
-                    MT3_R{h}(p1, p23) = t3_Nums(h).MeanRand_IPI(i);
-                    MT3_A{h}(p1, p23) = t3_Nums(h).MeanAll_IPI(i);
-                end
-            end
-            PoC3(p1, :) = PoC3(p1, :)/sum(PoC3(p1, :)); % sets the sum of every row to 1
-        end
-        
-        figure('color' , 'white')
-        subplot(4,3,2)
-        imagesc(PoC3);
-        ylabel('Press 1')
-        xlabel('Press 2 3')
-        %         axis square
-        colorbar
-        set(gca , 'XTick'  , [1:25] , 'YTick' , [1:5] , 'YTickLabels' , {'1' , '2' , '3' , '4' , '5'} , ...
-            'Box' , 'off' , 'XTickLabels' , cellfun(@num2str , num2cell(CMB.comb2,2),'UniformOutput', false)  , 'LineWidth', 0.001,...
-            'XTickLabelRotation' , 45)
-        title('Probability of Occurence for 2nd-order transitions in All sequences')
-        for j = 1:length(ChunkNum3)
-            y = CMB.comb3(ChunkNum3(j,1) , 1);
-            x = find(ismember(CMB.comb2 , CMB.comb3(ChunkNum3(j,1) , 2:3) , 'rows'));
-            rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'red')
-        end
-        for j = 1:length(ChunkNum3_4)
-            y = CMB.comb3(ChunkNum3_4(j,1) , 1);
-            x = find(ismember(CMB.comb2 , CMB.comb3(ChunkNum3_4(j,1) , 2:3) , 'rows'));
-            rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'green')
-        end
-        imcount = 4;
-        for h = [1:8 , 13]
-            subplot(4,3,imcount)
-            if ~LastIPI
-                imagesc(MT3_C{h} , [500 , 1300]); % for sum of IPIS
-            else
-                imagesc(MT3_C{h},[200 600]);  % for the last IPIS
-            end
-            ylabel('Press 1')
-            xlabel('Press 2 3')
-            %             axis square
-            set(gca , 'XTick'  , [1:25] , 'YTick' , [1:5] , 'YTickLabels' , {'1' , '2' , '3' , '4' , '5'} , ...
-                'Box' , 'off' , 'XTickLabels' , cellfun(@num2str , num2cell(CMB.comb2,2),'UniformOutput', false)  , 'LineWidth', 0.001,...
-                'XTickLabelRotation' , 45)
-            title(['Average Movement time (Chunked) H = ' , num2str(h)])
-            
-            for j = 1:length(ChunkNum3)
-                y = CMB.comb3(ChunkNum3(j,1) , 1);
-                x = find(ismember(CMB.comb2 , CMB.comb3(ChunkNum3(j,1) , 2:3) , 'rows'));
-                rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'red')
-            end
-            for j = 1:length(ChunkNum3_4)
-                y = CMB.comb3(ChunkNum3_4(j,1) , 1);
-                x = find(ismember(CMB.comb2 , CMB.comb3(ChunkNum3_4(j,1) , 2:3) , 'rows'));
-                rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'green')
-            end
-            
-            colorbar
-            
-            imcount = imcount+1;
-        end
-        
-        
-        figure('color' , 'white')
-        subplot(4,3,2)
-        imagesc(PoC3);
-        ylabel('Press 1')
-        xlabel('Press 2 3')
-        %         axis square
-        colorbar
-        set(gca , 'XTick'  , [1:25] , 'YTick' , [1:5] , 'YTickLabels' , {'1' , '2' , '3' , '4' , '5'} , ...
-            'Box' , 'off' , 'XTickLabels' , cellfun(@num2str , num2cell(CMB.comb2,2),'UniformOutput', false)  , 'LineWidth', 0.001,...
-            'XTickLabelRotation' , 45)
-        title('Probability of Occurence for 2nd-order transitions in All sequences')
-        for j = 1:length(ChunkNum3)
-            y = CMB.comb3(ChunkNum3(j,1) , 1);
-            x = find(ismember(CMB.comb2 , CMB.comb3(ChunkNum3(j,1) , 2:3) , 'rows'));
-            rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'red')
-        end
-        for j = 1:length(ChunkNum3_4)
-            y = CMB.comb3(ChunkNum3_4(j,1) , 1);
-            x = find(ismember(CMB.comb2 , CMB.comb3(ChunkNum3_4(j,1) , 2:3) , 'rows'));
-            rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'green')
-        end
-        imcount = 4;
-        for h = [1:8 , 13]
-            subplot(4,3,imcount)
-            if ~LastIPI
-                imagesc(MT3_R{h} , [500 , 1300]);% for sum of IPIS
-            else
-                imagesc(MT3_R{h},[200 600]);  % for the last IPIS
-            end
-            ylabel('Press 1')
-            xlabel('Press 2 3')
-            %             axis square
-            set(gca , 'XTick'  , [1:25] , 'YTick' , [1:5] , 'YTickLabels' , {'1' , '2' , '3' , '4' , '5'} , ...
-                'Box' , 'off' , 'XTickLabels' , cellfun(@num2str , num2cell(CMB.comb2,2),'UniformOutput', false)  , 'LineWidth', 0.001,...
-                'XTickLabelRotation' , 45)
-            title(['Average Movement time (Random) H = ' , num2str(h)])
-            
-            for j = 1:length(ChunkNum3)
-                y = CMB.comb3(ChunkNum3(j,1) , 1);
-                x = find(ismember(CMB.comb2 , CMB.comb3(ChunkNum3(j,1) , 2:3) , 'rows'));
-                rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'red')
-            end
-            for j = 1:length(ChunkNum3_4)
-                y = CMB.comb3(ChunkNum3_4(j,1) , 1);
-                x = find(ismember(CMB.comb2 , CMB.comb3(ChunkNum3_4(j,1) , 2:3) , 'rows'));
-                rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'green')
-            end
-            
-            colorbar
-            
-            imcount = imcount+1;
-        end
-        
-        
-        figure('color' , 'white')
-        subplot(4,3,2)
-        imagesc(PoC3);
-        ylabel('Press 1')
-        xlabel('Press 2 3')
-        %         axis square
-        colorbar
-        set(gca , 'XTick'  , [1:25] , 'YTick' , [1:5] , 'YTickLabels' , {'1' , '2' , '3' , '4' , '5'} , ...
-            'Box' , 'off' , 'XTickLabels' , cellfun(@num2str , num2cell(CMB.comb2,2),'UniformOutput', false)  , 'LineWidth', 0.001,...
-            'XTickLabelRotation' , 45)
-        title('Probability of Occurence for 2nd-order transitions in All sequences')
-        for j = 1:length(ChunkNum3)
-            y = CMB.comb3(ChunkNum3(j,1) , 1);
-            x = find(ismember(CMB.comb2 , CMB.comb3(ChunkNum3(j,1) , 2:3) , 'rows'));
-            rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'red')
-        end
-        for j = 1:length(ChunkNum3_4)
-            y = CMB.comb3(ChunkNum3_4(j,1) , 1);
-            x = find(ismember(CMB.comb2 , CMB.comb3(ChunkNum3_4(j,1) , 2:3) , 'rows'));
-            rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'green')
-        end
-        imcount = 4;
-        for h = [1:8 , 13]
-            subplot(4,3,imcount)
-            if ~LastIPI
-                imagesc(MT3_A{h} , [500 , 1300]);% for sum of IPIS
-            else
-                imagesc(MT3_A{h},[200 600]);  % for the last IPIS
-            end
-            ylabel('Press 1')
-            xlabel('Press 2 3')
-            %             axis square
-            set(gca , 'XTick'  , [1:25] , 'YTick' , [1:5] , 'YTickLabels' , {'1' , '2' , '3' , '4' , '5'} , ...
-                'Box' , 'off' , 'XTickLabels' , cellfun(@num2str , num2cell(CMB.comb2,2),'UniformOutput', false)  , 'LineWidth', 0.001,...
-                'XTickLabelRotation' , 45)
-            title(['Average Movement time (All) H = ' , num2str(h)])
-            
-            for j = 1:length(ChunkNum3)
-                y = CMB.comb3(ChunkNum3(j,1) , 1);
-                x = find(ismember(CMB.comb2 , CMB.comb3(ChunkNum3(j,1) , 2:3) , 'rows'));
-                rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'red')
-            end
-            for j = 1:length(ChunkNum3_4)
-                y = CMB.comb3(ChunkNum3_4(j,1) , 1);
-                x = find(ismember(CMB.comb2 , CMB.comb3(ChunkNum3_4(j,1) , 2:3) , 'rows'));
-                rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'green')
-            end
-            
-            colorbar
-            
-            imcount = imcount+1;
-        end
-        
-        %%%%%%%%%%%%%%%************************************* 3rd order
-        
-        for p12 = 1:25
-            for p34 = 1:25
-                i = find(ismember(CMB.comb4 , [CMB.comb2(p12 , :) CMB.comb2(p34 , :)] , 'rows'));
-                PoC4(p12 , p34) = t4_Nums_allh.All(i);
-                for h = [1:8 13]
-                    MT4_C{h}(p12, p34) = t4_Nums(h).MeanChunked_IPI(i);
-                    MT4_R{h}(p12, p34) = t4_Nums(h).MeanRand_IPI(i);
-                    MT4_A{h}(p12, p34) = t4_Nums(h).MeanAll_IPI(i);
-                end
-            end
-            PoC4(p12, :) = PoC4(p12, :)/sum(PoC4(p12, :)); % sets the sum of every row to 1
-        end
-        
-        figure('color' , 'white')
-        subplot(4,3,2)
-        imagesc(PoC4);
-        ylabel('Press 1 2')
-        xlabel('Press 3 4')
-        axis square
-        colorbar
-        set(gca , 'XTick'  , [1:25] , 'YTick' , [1:25] , 'YTickLabels' , cellfun(@num2str , num2cell(CMB.comb2,2),'UniformOutput', false) , ...
-            'Box' , 'off' , 'XTickLabels' , cellfun(@num2str , num2cell(CMB.comb2,2),'UniformOutput', false)  , 'LineWidth', 0.001,...
-            'XTickLabelRotation' , 45)
-        title('Probability of Occurence for 3rd-order transitions in All sequences')
-        for j = 1:length(ChunkNum4)
-            y = find(ismember(CMB.comb2 , CMB.comb4(ChunkNum4(j,1) , 1:2) , 'rows'));
-            x = find(ismember(CMB.comb2 , CMB.comb4(ChunkNum4(j,1) , 3:4) , 'rows'));
-            rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'red')
-        end
-        imcount = 4;
-        for h = [1:8 , 13]
-            subplot(4,3,imcount)
-            if ~LastIPI
-                imagesc(MT4_C{h},[800 2700]);  % for sum of IPIS
-            else
-                imagesc(MT4_C{h},[200 600]);  % for the last IPIS
-            end
-            ylabel('Press1')
-            xlabel('Press2')
-            axis square
-            set(gca , 'XTick'  , [1:25] , 'YTick' , [1:25] , 'YTickLabels' ,cellfun(@num2str , num2cell(CMB.comb2,2),'UniformOutput', false) , ...
-                'Box' , 'off' , 'XTickLabels' , cellfun(@num2str , num2cell(CMB.comb2,2),'UniformOutput', false)  , 'LineWidth', 0.001,...
-                'XTickLabelRotation' , 45)
-            title(['Average Movement time (Chunked) H = ' , num2str(h)])
-            
-            for j = 1:length(ChunkNum4)
-                y = find(ismember(CMB.comb2 , CMB.comb4(ChunkNum4(j,1) , 1:2) , 'rows'));
-                x = find(ismember(CMB.comb2 , CMB.comb4(ChunkNum4(j,1) , 3:4) , 'rows'));
-                rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'red')
-            end
-            
-            colorbar
-            
-            imcount = imcount+1;
-        end
-        
-        figure('color' , 'white')
-        subplot(4,3,2)
-        imagesc(PoC4);
-        ylabel('Press 1 2')
-        xlabel('Press 3 4')
-        axis square
-        colorbar
-        set(gca , 'XTick'  , [1:25] , 'YTick' , [1:25] , 'YTickLabels' , cellfun(@num2str , num2cell(CMB.comb2,2),'UniformOutput', false) , ...
-            'Box' , 'off' , 'XTickLabels' , cellfun(@num2str , num2cell(CMB.comb2,2),'UniformOutput', false)  , 'LineWidth', 0.001,...
-            'XTickLabelRotation' , 45)
-        title('Probability of Occurence for 3rd-order transitions in All sequences')
-        for j = 1:length(ChunkNum4)
-            y = find(ismember(CMB.comb2 , CMB.comb4(ChunkNum4(j,1) , 1:2) , 'rows'));
-            x = find(ismember(CMB.comb2 , CMB.comb4(ChunkNum4(j,1) , 3:4) , 'rows'));
-            rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'red')
-        end
-        imcount = 4;
-        for h = [1:8 , 13]
-            subplot(4,3,imcount)
-            if ~LastIPI
-                imagesc(MT4_R{h},[800 2700]);% for sum of IPIS
-            else
-                imagesc(MT4_R{h},[200 600]);  % for the last IPIS
-            end
-            
-            ylabel('Press1')
-            xlabel('Press2')
-            axis square
-            set(gca , 'XTick'  , [1:25] , 'YTick' , [1:25] , 'YTickLabels' ,cellfun(@num2str , num2cell(CMB.comb2,2),'UniformOutput', false) , ...
-                'Box' , 'off' , 'XTickLabels' , cellfun(@num2str , num2cell(CMB.comb2,2),'UniformOutput', false)  , 'LineWidth', 0.001,...
-                'XTickLabelRotation' , 45)
-            title(['Average Movement time (Random) H = ' , num2str(h)])
-            
-            for j = 1:length(ChunkNum4)
-                y = find(ismember(CMB.comb2 , CMB.comb4(ChunkNum4(j,1) , 1:2) , 'rows'));
-                x = find(ismember(CMB.comb2 , CMB.comb4(ChunkNum4(j,1) , 3:4) , 'rows'));
-                rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'red')
-            end
-            
-            colorbar
-            
-            imcount = imcount+1;
-        end
-        
-        
-        figure('color' , 'white')
-        subplot(4,3,2)
-        imagesc(PoC4);
-        ylabel('Press 1 2')
-        xlabel('Press 3 4')
-        axis square
-        colorbar
-        set(gca , 'XTick'  , [1:25] , 'YTick' , [1:25] , 'YTickLabels' , cellfun(@num2str , num2cell(CMB.comb2,2),'UniformOutput', false) , ...
-            'Box' , 'off' , 'XTickLabels' , cellfun(@num2str , num2cell(CMB.comb2,2),'UniformOutput', false)  , 'LineWidth', 0.001,...
-            'XTickLabelRotation' , 45)
-        title('Probability of Occurence for 3rd-order transitions in All sequences')
-        for j = 1:length(ChunkNum4)
-            y = find(ismember(CMB.comb2 , CMB.comb4(ChunkNum4(j,1) , 1:2) , 'rows'));
-            x = find(ismember(CMB.comb2 , CMB.comb4(ChunkNum4(j,1) , 3:4) , 'rows'));
-            rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'red')
-        end
-        imcount = 4;
-        for h = [1:8 , 13]
-            subplot(4,3,imcount)
-            if ~LastIPI
-                imagesc(MT4_A{h} , [800 2700]);% for sum of IPIS
-            else
-                imagesc(MT4_A{h},[200 600]);  % for the last IPIS
-            end
-            ylabel('Press1')
-            xlabel('Press2')
-            axis square
-            set(gca , 'XTick'  , [1:25] , 'YTick' , [1:25] , 'YTickLabels' ,cellfun(@num2str , num2cell(CMB.comb2,2),'UniformOutput', false) , ...
-                'Box' , 'off' , 'XTickLabels' , cellfun(@num2str , num2cell(CMB.comb2,2),'UniformOutput', false)  , 'LineWidth', 0.001,...
-                'XTickLabelRotation' , 45)
-            title(['Average Movement time (All) H = ' , num2str(h)])
-            
-            for j = 1:length(ChunkNum4)
-                y = find(ismember(CMB.comb2 , CMB.comb4(ChunkNum4(j,1) , 1:2) , 'rows'));
-                x = find(ismember(CMB.comb2 , CMB.comb4(ChunkNum4(j,1) , 3:4) , 'rows'));
-                rectangle('Position',[x - .5,y - .5,1,1],'LineWidth',2,'LineStyle',':' , 'EdgeColor' , 'red')
-            end
-            
-            colorbar
-            
-            imcount = imcount+1;
-        end
-        
-        
-        
-        out = [];
     case 'glm_IPIs'
         N1 = input('Use Conditional Transition Probabilities? (y/n)' , 's');
         switch N1
@@ -5092,1103 +3914,6 @@ switch what
         N3 = input('look into Chunked/Random/All sequences? (c/r/a)'  , 's');
         N4 = input('Use normalized IPIs? (Y/N)'  , 's');
         N5 = input('Analyse Medians, or raw IPIs? (M/R)' , 's');
-        if calc
-            for subjnum = 1:length(subj_name)-1
-                Dall.isWrong = Dall.AllPress ~=Dall.AllResponse;
-                
-                ANA_allh = getrow(Dall , ismember(Dall.SN , subjnum));
-                ANA1_allh = getrow(Dall ,ismember(Dall.seqNumb , [1:2]) & ismember(Dall.SN , subjnum));
-                ANA0_allh = getrow(Dall ,ismember(Dall.seqNumb , 0) & ismember(Dall.SN , subjnum));
-                
-                
-                
-                allT2 = [length(ANA1_allh.AllPress)*(size(ANA1_allh.AllPress , 2)-1) length(ANA0_allh.AllPress)*(size(ANA0_allh.AllPress , 2)-1) ...
-                    sum(ismember(ANA_allh.seqNumb , [0:2]))*(size(ANA_allh.AllPress , 2)-1) + sum(ismember(ANA_allh.seqNumb , [103 203 303]))*2 + sum(ismember(ANA_allh.seqNumb , [104 204 304]))*3];
-                t2_Nums_allh(subjnum).Chunked = zeros(length(CMB.comb2) , 1);
-                t2_Nums_allh(subjnum).Rand    = zeros(length(CMB.comb2) , 1);
-                t2_Nums_allh(subjnum).All     = zeros(length(CMB.comb2) , 1);
-                
-                ANA1_allh.t2_Nums = zeros(length(ANA1_allh.AllPress) , size(ANA1_allh.AllPress , 2) -1);
-                ANA0_allh.t2_Nums = zeros(length(ANA0_allh.AllPress) , size(ANA0_allh.AllPress , 2) -1);
-                ANA_allh.t2_Nums = zeros(length(ANA_allh.AllPress) , size(ANA_allh.AllPress , 2) -1);
-                for t2 = 1:length(CMB.comb2)
-                    
-                    t2_Nums_allh(subjnum).TranNumb(t2 , 1) = t2;
-                    t2_Nums_allh(subjnum).Transition(t2 , 1:2) = CMB.comb2(t2,:);
-                    for p = 1:size(ANA1_allh.AllPress , 2) -1
-                        t2_Nums_allh(subjnum).Chunked(t2,1) =  t2_Nums_allh(subjnum).Chunked(t2,1) + sum(ismember(ANA1_allh.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows'));
-                        t2_Nums_allh(subjnum).Rand(t2,1) =  t2_Nums_allh(subjnum).Rand(t2,1) + sum(ismember(ANA0_allh.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows'));
-                        t2_Nums_allh(subjnum).All(t2,1) =  t2_Nums_allh(subjnum).All(t2,1) + sum(ismember(ANA_allh.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows'));
-                        
-                        ANA1_allh.t2_Nums(ismember(ANA1_allh.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows') , p) = t2;
-                        ANA0_allh.t2_Nums(ismember(ANA0_allh.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows') , p) = t2;
-                        ANA_allh.t2_Nums(ismember(ANA_allh.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows') , p) = t2;
-                    end
-                end
-                t2_Nums_allh(subjnum).Chunked = t2_Nums_allh(subjnum).Chunked/allT2(1);
-                t2_Nums_allh(subjnum).Rand    = t2_Nums_allh(subjnum).Rand/allT2(2);
-                t2_Nums_allh(subjnum).All    = t2_Nums_allh(subjnum).All/allT2(3);
-                
-                for p1 = 1:5
-                    for p2 = 1:5
-                        i = find(ismember(CMB.comb2 , [p1 p2] , 'rows'));
-                        PoC2(p1 , p2) = t2_Nums_allh(subjnum).All(i);
-                    end
-                    PoC2_n(p1, :) = PoC2(p1, :)/sum(PoC2(p1, :)); % sets the sum of every row to 1
-                    for p2 = 1:5
-                        i = find(ismember(CMB.comb2 , [p1 p2] , 'rows'));
-                        t2_Nums_allh(subjnum).All_normalized(i,1) = PoC2_n(p1, p2);
-                    end
-                end
-                
-                allT3 = [length(ANA1_allh.AllPress)*(size(ANA1_allh.AllPress , 2)-2) length(ANA0_allh.AllPress)*(size(ANA0_allh.AllPress , 2)-2) ...
-                    sum(ismember(ANA_allh.seqNumb , [0:2]))*(size(ANA_allh.AllPress , 2)-2) + sum(ismember(ANA_allh.seqNumb , [103 203 303])) + sum(ismember(ANA_allh.seqNumb , [104 204 304]))*2];
-                t3_Nums_allh(subjnum).Chunked = zeros(length(CMB.comb3) , 1);
-                t3_Nums_allh(subjnum).Rand    = zeros(length(CMB.comb3) , 1);
-                t3_Nums_allh(subjnum).All    = zeros(length(CMB.comb3) , 1);
-                
-                ANA1_allh.t3_Nums = zeros(length(ANA1_allh.AllPress) , size(ANA1_allh.AllPress , 2) -2);
-                ANA0_allh.t3_Nums = zeros(length(ANA0_allh.AllPress) , size(ANA0_allh.AllPress , 2) -2);
-                ANA_allh.t3_Nums = zeros(length(ANA_allh.AllPress) , size(ANA_allh.AllPress , 2) -2);
-                for t3 = 1:length(CMB.comb3)
-                    
-                    
-                    t3_Nums_allh(subjnum).TranNumb(t3 , 1) = t3;
-                    t3_Nums_allh(subjnum).Transition(t3 , :) = CMB.comb3(t3,:);
-                    for p = 1:size(ANA1_allh.AllPress , 2) -2
-                        t3_Nums_allh(subjnum).Chunked(t3,1) =  t3_Nums_allh(subjnum).Chunked(t3,1) + sum(ismember(ANA1_allh.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows'));
-                        t3_Nums_allh(subjnum).Rand(t3,1) =  t3_Nums_allh(subjnum).Rand(t3,1) + sum(ismember(ANA0_allh.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows'));
-                        t3_Nums_allh(subjnum).All(t3,1) =  t3_Nums_allh(subjnum).All(t3,1) + sum(ismember(ANA_allh.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows'));
-                        
-                        ANA1_allh.t3_Nums(ismember(ANA1_allh.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows') , p) = t3;
-                        ANA0_allh.t3_Nums(ismember(ANA0_allh.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows') , p) = t3;
-                        ANA_allh.t3_Nums(ismember(ANA_allh.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows') , p) = t3;
-                    end
-                end
-                t3_Nums_allh(subjnum).Chunked = t3_Nums_allh(subjnum).Chunked/allT3(1);
-                t3_Nums_allh(subjnum).Rand = t3_Nums_allh(subjnum).Rand/allT3(2);
-                t3_Nums_allh(subjnum).All = t3_Nums_allh(subjnum).All/allT3(3);
-                for p12 = 1:25
-                    for p3 = 1:5
-                        i = find(ismember(CMB.comb3 , [CMB.comb2(p12 , :) , p3] , 'rows'));
-                        PoC3(p12 , p3) = t3_Nums_allh(subjnum).All(i);
-                    end
-                    PoC3_n(p12, :) = PoC3(p12, :)/sum(PoC3(p12, :)); % sets the sum of every row to 1
-                    PoC3_n(isnan(PoC3_n)) = 0;
-                    for p3 = 1:5
-                        i = find(ismember(CMB.comb3 , [CMB.comb2(p12 , :) p3] , 'rows'));
-                        t3_Nums_allh(subjnum).All_normalized(i,1) = PoC3_n(p12, p3);
-                    end
-                end
-                
-                allT4 = [length(ANA1_allh.AllPress)*(size(ANA1_allh.AllPress , 2)-3) length(ANA0_allh.AllPress)*(size(ANA0_allh.AllPress , 2)-3) ...
-                    sum(ismember(ANA_allh.seqNumb , [0:2]))*(size(ANA_allh.AllPress , 2)-3)+sum(ismember(ANA_allh.seqNumb , [104 204 304]))];
-                t4_Nums_allh(subjnum).Chunked = zeros(length(CMB.comb4) , 1);
-                t4_Nums_allh(subjnum).Rand    = zeros(length(CMB.comb4) , 1);
-                t4_Nums_allh(subjnum).All    = zeros(length(CMB.comb4) , 1);
-                
-                ANA1_allh.t4_Nums = zeros(length(ANA1_allh.AllPress) , size(ANA1_allh.AllPress , 2) -3);
-                ANA0_allh.t4_Nums = zeros(length(ANA0_allh.AllPress) , size(ANA0_allh.AllPress , 2) -3);
-                ANA_allh.t4_Nums = zeros(length(ANA_allh.AllPress) , size(ANA_allh.AllPress , 2) -3);
-                for t4 = 1:length(CMB.comb4)
-                    t4_Nums_allh(subjnum).TranNumb(t4 , 1) = t4;
-                    t4_Nums_allh(subjnum).Transition(t4 , :) = CMB.comb4(t4,:);
-                    for p = 1:size(ANA1_allh.AllPress , 2) -3
-                        t4_Nums_allh(subjnum).Chunked(t4,1) =  t4_Nums_allh(subjnum).Chunked(t4,1) + sum(ismember(ANA1_allh.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows'));
-                        t4_Nums_allh(subjnum).Rand(t4,1) =  t4_Nums_allh(subjnum).Rand(t4,1) + sum(ismember(ANA0_allh.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows'));
-                        t4_Nums_allh(subjnum).All(t4,1) =  t4_Nums_allh(subjnum).All(t4,1) + sum(ismember(ANA_allh.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows'));
-                        
-                        ANA1_allh.t4_Nums(ismember(ANA1_allh.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows') , p) = t4;
-                        ANA0_allh.t4_Nums(ismember(ANA0_allh.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows') , p) = t4;
-                        ANA_allh.t4_Nums(ismember(ANA_allh.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows') , p) = t4;
-                    end
-                end
-                t4_Nums_allh(subjnum).Chunked = t4_Nums_allh(subjnum).Chunked/allT4(1);
-                t4_Nums_allh(subjnum).Rand = t4_Nums_allh(subjnum).Rand/allT4(2);
-                t4_Nums_allh(subjnum).All = t4_Nums_allh(subjnum).All/allT4(3);
-                for p123 = 1:125
-                    for p4 = 1:5
-                        i = find(ismember(CMB.comb4 , [CMB.comb3(p123 , :) p4] , 'rows'));
-                        PoC4(p123 , p4) = t4_Nums_allh(subjnum).All(i);
-                    end
-                    
-                    PoC4_n(p123, :) = PoC4(p123, :)/sum(PoC4(p123, :)); % sets the sum of every row to 1
-                    PoC4_n(isnan(PoC4_n)) = 0;
-                    for p4 = 1:5
-                        i = find(ismember(CMB.comb4 , [CMB.comb3(p123 , :) p4] , 'rows'));
-                        t4_Nums_allh(subjnum).All_normalized(i,1) = PoC4_n(p123, p4);
-                    end
-                end
-                t4_Nums_allh(subjnum).All_normalized(isnan(t4_Nums_allh(subjnum).All_normalized)) = 0;
-                
-                
-                
-                
-                %%
-                for h  = [1:8 13]
-                    id = ANA_allh.seqlength <=4;
-                    
-                    A = [ANA_allh.AllPress(id , :) ANA_allh.seqlength(id)];
-                    A(isnan(A)) = 0;
-                    A = unique(A , 'rows');
-                    for sl = 2:4
-                        id = A(:,end) == sl;
-                        CMB.Chunks{sl} = A(id,1:4);
-                    end
-                    
-                    ANA1 = getrow(Dall ,ismember(Dall.seqNumb , [1:2]) & ismember(Dall.SN , subjnum) & ismember(Dall.Horizon , h));
-                    ANA0 = getrow(Dall ,ismember(Dall.seqNumb , 0) & ismember(Dall.SN , subjnum) & ismember(Dall.Horizon , h));
-                    ANA = getrow(Dall ,ismember(Dall.SN , subjnum) & ismember(Dall.Horizon , h));
-                    
-                    allT2 = [length(ANA1.AllPress)*(size(ANA1.AllPress , 2)-1) length(ANA0.AllPress)*(size(ANA0.AllPress , 2)-1) length(ANA.AllPress)*(size(ANA.AllPress , 2)-1)];
-                    t2_Nums(subjnum,h).Chunked = zeros(length(CMB.comb2) , 1);
-                    t2_Nums(subjnum,h).Rand    = zeros(length(CMB.comb2) , 1);
-                    t2_Nums(subjnum,h).All    = zeros(length(CMB.comb2) , 1);
-                    
-                    ANA1.t2_Nums = zeros(length(ANA1.AllPress) , size(ANA1.AllPress , 2) -1);
-                    ANA0.t2_Nums = zeros(length(ANA0.AllPress) , size(ANA0.AllPress , 2) -1);
-                    ANA.t2_Nums = zeros(length(ANA.AllPress) , size(ANA.AllPress , 2) -1);
-                    for t2 = 1:length(CMB.comb2)
-                        t2_Nums(subjnum,h).Chunked_IPI{t2,1} = [];
-                        t2_Nums(subjnum,h).Rand_IPI{t2,1} = [];
-                        t2_Nums(subjnum,h).All_IPI{t2,1} = [];
-                        
-                        t2_Nums(subjnum,h).TranNumb(t2 , 1) = t2;
-                        t2_Nums(subjnum,h).Transition(t2 , 1:2) = CMB.comb2(t2,:);
-                        for p = 1:size(ANA1.AllPress , 2) -1
-                            t2_Nums(subjnum,h).Chunked(t2,1) =  t2_Nums(subjnum,h).Chunked(t2,1) + sum(ismember(ANA1.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows'));
-                            t2_Nums(subjnum,h).Rand(t2,1)    =  t2_Nums(subjnum,h).Rand(t2,1) + sum(ismember(ANA0.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows'));
-                            t2_Nums(subjnum,h).All(t2,1)     =  t2_Nums(subjnum,h).Rand(t2,1) + sum(ismember(ANA.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows'));
-                            
-                            ANA1.t2_Nums(ismember(ANA1.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows') , p) = t2;
-                            ANA0.t2_Nums(ismember(ANA0.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows') , p) = t2;
-                            ANA.t2_Nums(ismember(ANA.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows') , p) = t2;
-                            
-                            CorID = ismember(ANA1.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows') & ~sum(ANA1.isWrong(:,p:p+1) , 2);
-                            t2_Nums(subjnum,h).Chunked_IPI{t2} = [t2_Nums(subjnum,h).Chunked_IPI{t2} ; [ANA1.IPI(CorID , p) t2*ones(length(ANA1.IPI(CorID , p)) , 1) ANA1.SN(CorID) ANA1.Day(CorID) ANA1.Horizon(CorID)]];
-                            
-                            CorID = ismember(ANA0.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows') & ~sum(ANA0.isWrong(:,p:p+1) , 2);
-                            t2_Nums(subjnum,h).Rand_IPI{t2} = [t2_Nums(subjnum,h).Rand_IPI{t2} ; [ANA0.IPI(CorID , p) t2*ones(length(ANA0.IPI(CorID , p)) , 1) ANA0.SN(CorID) ANA0.Day(CorID) ANA0.Horizon(CorID)]];
-                            
-                            CorID = ismember(ANA.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows') & ~sum(ANA.isWrong(:,p:p+1) , 2);
-                            t2_Nums(subjnum,h).All_IPI{t2} = [t2_Nums(subjnum,h).All_IPI{t2} ; [ANA.IPI(CorID , p) t2*ones(length(ANA.IPI(CorID , p)) , 1) ANA.SN(CorID) ANA.Day(CorID) ANA.Horizon(CorID)]];
-                        end
-                        t2_Nums(subjnum,h).MeanChunked_IPI(t2,1) = nanmean(t2_Nums(subjnum,h).Chunked_IPI{t2}(:,1));
-                        t2_Nums(subjnum,h).MeanRand_IPI(t2,1) = nanmean(t2_Nums(subjnum,h).Rand_IPI{t2}(:,1));
-                        t2_Nums(subjnum,h).MeanAll_IPI(t2,1) = nanmean(t2_Nums(subjnum,h).All_IPI{t2}(:,1));
-                    end
-                    
-                    
-                    t2_Nums(subjnum,h).Chunked = t2_Nums_allh(subjnum).Chunked;%t2_Nums(h).Chunked/allT2(1);
-                    t2_Nums(subjnum,h).Rand = t2_Nums_allh(subjnum).Rand;%t2_Nums(h).Rand/allT2(2);
-                    t2_Nums(subjnum,h).All = t2_Nums_allh(subjnum).All;%t2_Nums(h).Rand/allT2(2);
-                    [~ , t2_Nums(subjnum,h).sort_ID] = sort(t2_Nums(subjnum,h).All , 'descend');
-                    t2_Nums(subjnum,h).All_normalized = t2_Nums_allh(subjnum).All_normalized;%t2_Nums(h).Rand/allT2(2);
-                    [~ , t2_Nums(subjnum,h).sort_norm_ID] = sort(t2_Nums(subjnum,h).All_normalized , 'descend');
-                    
-                    
-                    
-                    t2_Nums(subjnum,h).SortedMeanIPI_Chunked = t2_Nums(subjnum,h).MeanChunked_IPI(t2_Nums(subjnum,h).sort_ID);
-                    t2_Nums(subjnum,h).SortedIPI_Chunked = t2_Nums(subjnum,h).Chunked_IPI(t2_Nums(subjnum,h).sort_ID);
-                    t2_Nums(subjnum,h).ReadyToPlot_Chunked = cell2mat(t2_Nums(subjnum,h).SortedIPI_Chunked);
-                    clear xtick_r xtick_c xticklab_r xticklab_c
-                    counter = 1;
-                    counter_n = 1;
-                    ChunkNum2 = [];
-                    ChunkNum2_34 = [];
-                    for i = 1:length(CMB.comb2)
-                        idd = t2_Nums(subjnum,h).ReadyToPlot_Chunked(:,2) == t2_Nums(subjnum,h).sort_ID(i);
-                        if sum(ismember(CMB.Chunks{2}(:,1:2) , CMB.comb2(i,:) , 'rows'))
-                            ChunkNum2 = [ChunkNum2 ; [i , find(t2_Nums(subjnum,h).sort_ID == i)]];
-                        end
-                        if sum(ismember(CMB.Chunks{3}(:,1:2) , CMB.comb2(i,:) , 'rows')) | sum(ismember(CMB.Chunks{3}(:,2:3) , CMB.comb2(i,:) , 'rows'))
-                            ChunkNum2_34 = [ChunkNum2_34 ; [i , find(t2_Nums(subjnum,h).sort_ID == i)]];
-                        end
-                        if sum(ismember(CMB.Chunks{4}(:,1:2) , CMB.comb2(i,:) , 'rows')) | sum(ismember(CMB.Chunks{4}(:,2:3) , CMB.comb2(i,:) , 'rows')) | sum(ismember(CMB.Chunks{4}(:,3:4) , CMB.comb2(i,:) , 'rows'))
-                            ChunkNum2_34 = [ChunkNum2_34 ; [i , find(t2_Nums(subjnum,h).sort_ID == i)]];
-                        end
-                        if sum(idd)
-                            T2(subjnum,h).xticklab_c{counter} = num2str(unique(t2_Nums(subjnum,h).ReadyToPlot_Chunked(idd,2)));
-                            t2_Nums(subjnum,h).ReadyToPlot_Chunked(idd,7) = t2_Nums(subjnum,h).All(t2_Nums(subjnum,h).sort_ID(i));
-                            T2(subjnum,h).xtick_c(counter) = i;
-                            counter = counter + 1;
-                        end
-                        t2_Nums(subjnum,h).ReadyToPlot_Chunked(idd,6) = i; %rank the triplet numbers based on their frequency of occurence
-                        
-                        idd_norm = t2_Nums(subjnum,h).ReadyToPlot_Chunked(:,2) == t2_Nums(subjnum,h).sort_norm_ID(i);
-                        if sum(idd_norm)
-                            T2(subjnum,h).xticklab_a{counter_n} = num2str(unique(t2_Nums(subjnum,h).ReadyToPlot_Chunked(idd_norm,2)));
-                            t2_Nums(subjnum,h).ReadyToPlot_Chunked(idd_norm,9) = t2_Nums(subjnum,h).All_normalized(t2_Nums(subjnum,h).sort_norm_ID(i));
-                            T2(subjnum,h).xtick_a(counter_n) = i;
-                            counter_n = counter_n + 1;
-                        end
-                        t2_Nums(subjnum,h).ReadyToPlot_Chunked(idd_norm,8) = i; %rank the triplet numbers based on their frequency of occurence
-                    end
-                    
-                    t2_Nums(subjnum,h).SortedMeanIPI_Rand = t2_Nums(subjnum,h).MeanRand_IPI(t2_Nums(subjnum,h).sort_ID);
-                    t2_Nums(subjnum,h).SortedIPI_Rand = t2_Nums(subjnum,h).Rand_IPI(t2_Nums(subjnum,h).sort_ID);
-                    t2_Nums(subjnum,h).ReadyToPlot_Rand = cell2mat(t2_Nums(subjnum,h).SortedIPI_Rand);
-                    counter = 1;
-                    counter_n = 1;
-                    for i = 1:length(CMB.comb2)
-                        idd = t2_Nums(subjnum,h).ReadyToPlot_Rand(:,2) == t2_Nums(subjnum,h).sort_ID(i);
-                        if sum(idd)
-                            T2(subjnum,h).xticklab_r{counter} = num2str(unique(t2_Nums(subjnum,h).ReadyToPlot_Rand(idd,2)));
-                            t2_Nums(subjnum,h).ReadyToPlot_Rand(idd,7) = t2_Nums(subjnum,h).All(t2_Nums(subjnum,h).sort_ID(i));
-                            T2(subjnum,h).xtick_r(counter) = i;
-                            counter = counter + 1;
-                        end
-                        t2_Nums(subjnum,h).ReadyToPlot_Rand(idd,6) = i; %rank the triplet numbers based on their frequency of occurence
-                        
-                        idd_norm = t2_Nums(subjnum,h).ReadyToPlot_Rand(:,2) == t2_Nums(subjnum,h).sort_norm_ID(i);
-                        if sum(idd_norm)
-                            T2(subjnum,h).xticklab_a{counter_n} = num2str(unique(t2_Nums(subjnum,h).ReadyToPlot_Rand(idd_norm,2)));
-                            t2_Nums(subjnum,h).ReadyToPlot_Rand(idd_norm,9) = t2_Nums(subjnum,h).All_normalized(t2_Nums(subjnum,h).sort_norm_ID(i));
-                            T2(subjnum,h).xtick_a(counter_n) = i;
-                            counter_n = counter_n + 1;
-                        end
-                        t2_Nums(subjnum,h).ReadyToPlot_Rand(idd_norm,8) = i; %rank the triplet numbers based on their frequency of occurence
-                        
-                    end
-                    
-                    t2_Nums(subjnum,h).SortedMeanIPI_All= t2_Nums(subjnum,h).MeanAll_IPI(t2_Nums(subjnum,h).sort_ID);
-                    t2_Nums(subjnum,h).SortedIPI_All = t2_Nums(subjnum,h).All_IPI(t2_Nums(subjnum,h).sort_ID);
-                    t2_Nums(subjnum,h).ReadyToPlot_All = cell2mat(t2_Nums(subjnum,h).SortedIPI_All);
-                    counter = 1;
-                    counter_n = 1;
-                    for i = 1:length(CMB.comb2)
-                        idd = t2_Nums(subjnum,h).ReadyToPlot_All(:,2) == t2_Nums(subjnum,h).sort_ID(i);
-                        if sum(idd)
-                            T2(subjnum,h).xticklab_a{counter} = num2str(unique(t2_Nums(subjnum,h).ReadyToPlot_All(idd,2)));
-                            t2_Nums(subjnum,h).ReadyToPlot_All(idd,7) = t2_Nums(subjnum,h).All(t2_Nums(subjnum,h).sort_ID(i));
-                            T2(subjnum,h).xtick_a(counter) = i;
-                            counter = counter + 1;
-                        end
-                        t2_Nums(subjnum,h).ReadyToPlot_All(idd,6) = i; %rank the triplet numbers based on their frequency of occurence
-                        
-                        idd_norm = t2_Nums(subjnum,h).ReadyToPlot_All(:,2) == t2_Nums(subjnum,h).sort_norm_ID(i);
-                        if sum(idd_norm)
-                            T2(subjnum,h).xticklab_a{counter_n} = num2str(unique(t2_Nums(subjnum,h).ReadyToPlot_All(idd_norm,2)));
-                            t2_Nums(subjnum,h).ReadyToPlot_All(idd_norm,9) = t2_Nums(subjnum,h).All_normalized(t2_Nums(subjnum,h).sort_norm_ID(i));
-                            T2(subjnum,h).xtick_a(counter_n) = i;
-                            counter_n = counter_n + 1;
-                        end
-                        t2_Nums(subjnum,h).ReadyToPlot_All(idd_norm,8) = i; %rank the triplet numbers based on their frequency of occurence
-                    end
-                    
-                    
-                    h1 = figure;
-                    hold on
-                    subjnum
-                    [xcoordC_2{subjnum,h},PLOTC_2{subjnum,h},ERRORC_2{subjnum,h}]  = lineplot(t2_Nums(subjnum,h).ReadyToPlot_Chunked(:,6) , t2_Nums(subjnum,h).ReadyToPlot_Chunked(:,1), 'subset' , ismember(t2_Nums(subjnum,h).ReadyToPlot_Chunked(:,4) , [4 5]));
-                    [xcoordR_2{subjnum,h},PLOTR_2{subjnum,h},ERRORR_2{subjnum,h}]  = lineplot(t2_Nums(subjnum,h).ReadyToPlot_Rand(:,6) , t2_Nums(subjnum,h).ReadyToPlot_Rand(:,1), 'subset' , ismember(t2_Nums(subjnum,h).ReadyToPlot_Rand(:,4) , [4 5]));
-                    [xcoordA_2{subjnum,h},PLOTA_2{subjnum,h},ERRORA_2{subjnum,h}]  = lineplot(t2_Nums(subjnum,h).ReadyToPlot_All(:,6) , t2_Nums(subjnum,h).ReadyToPlot_All(:,1), 'subset' , ismember(t2_Nums(subjnum,h).ReadyToPlot_All(:,4) , [4 5]));
-                    close(h1)
-                    
-                    temp = corrcoef(t2_Nums(subjnum,h).ReadyToPlot_Chunked(:,1) , t2_Nums(subjnum,h).ReadyToPlot_Chunked(:,7));
-                    C2_chunked(subjnum,h) = temp(2);
-                    temp  = corrcoef(t2_Nums(subjnum,h).ReadyToPlot_Rand(:,1) , t2_Nums(subjnum,h).ReadyToPlot_Rand(:,7));
-                    C2_random(subjnum,h) = temp(2);
-                    temp  = corrcoef(t2_Nums(subjnum,h).ReadyToPlot_All(:,1) , t2_Nums(subjnum,h).ReadyToPlot_All(:,7));
-                    C2_all(subjnum,h) = temp(2);
-                    
-                    
-                    
-                    
-                    clear xtick_r xtick_c xticklab_r xticklab_c
-                    allT3 = [length(ANA1.AllPress)*(size(ANA1.AllPress , 2)-2) length(ANA0.AllPress)*(size(ANA0.AllPress , 2)-2) length(ANA.AllPress)*(size(ANA.AllPress , 2)-2)];
-                    t3_Nums(subjnum,h).Chunked = zeros(length(CMB.comb3) , 1);
-                    t3_Nums(subjnum,h).Rand    = zeros(length(CMB.comb3) , 1);
-                    t3_Nums(subjnum,h).All     = zeros(length(CMB.comb3) , 1);
-                    
-                    ANA1.t3_Nums = zeros(length(ANA1.AllPress) , size(ANA1.AllPress , 2) -2);
-                    ANA0.t3_Nums = zeros(length(ANA0.AllPress) , size(ANA0.AllPress , 2) -2);
-                    ANA.t3_Nums = zeros(length(ANA.AllPress) , size(ANA.AllPress , 2) -2);
-                    for t3 = 1:length(CMB.comb3)
-                        t3_Nums(subjnum,h).Chunked_IPI{t3,1} = [];
-                        t3_Nums(subjnum,h).Rand_IPI{t3,1} = [];
-                        t3_Nums(subjnum,h).All_IPI{t3,1} = [];
-                        
-                        t3_Nums(subjnum,h).TranNumb(t3 , 1) = t3;
-                        t3_Nums(subjnum,h).Transition(t3 , :) = CMB.comb3(t3,:);
-                        for p = 1:size(ANA1.AllPress , 2) -2
-                            t3_Nums(subjnum,h).Chunked(t3,1) =  t3_Nums(subjnum,h).Chunked(t3,1) + sum(ismember(ANA1.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows'));
-                            t3_Nums(subjnum,h).Rand(t3,1) =  t3_Nums(subjnum,h).Rand(t3,1) + sum(ismember(ANA0.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows'));
-                            t3_Nums(subjnum,h).All(t3,1) =  t3_Nums(subjnum,h).All(t3,1) + sum(ismember(ANA.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows'));
-                            
-                            ANA1.t3_Nums(ismember(ANA1.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows') , p) = t3;
-                            ANA0.t3_Nums(ismember(ANA0.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows') , p) = t3;
-                            ANA.t3_Nums(ismember(ANA.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows') , p) = t3;
-                            
-                            CorID = ismember(ANA1.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows') & ~sum(ANA1.isWrong(:,p:p+2) , 2);
-                            if ~LastIPI
-                                t3_Nums(subjnum,h).Chunked_IPI{t3} = [t3_Nums(subjnum,h).Chunked_IPI{t3} ; [sum(ANA1.IPI(CorID , p:p+1),2) t3*ones(length(ANA1.IPI(CorID , p)) , 1) ANA1.SN(CorID) ANA1.Day(CorID) ANA1.Horizon(CorID)]];
-                            else
-                                t3_Nums(subjnum,h).Chunked_IPI{t3} = [t3_Nums(subjnum,h).Chunked_IPI{t3} ; [sum(ANA1.IPI(CorID , p+1),2) t3*ones(length(ANA1.IPI(CorID , p)) , 1) ANA1.SN(CorID) ANA1.Day(CorID) ANA1.Horizon(CorID)]];
-                            end
-                            
-                            CorID = ismember(ANA0.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows') & ~sum(ANA0.isWrong(:,p:p+2) , 2);
-                            if ~LastIPI
-                                t3_Nums(subjnum,h).Rand_IPI{t3} = [t3_Nums(subjnum,h).Rand_IPI{t3} ; [sum(ANA0.IPI(CorID , p:p+1),2) t3*ones(length(ANA0.IPI(CorID , p)) , 1) ANA0.SN(CorID) ANA0.Day(CorID) ANA0.Horizon(CorID)]];
-                            else
-                                t3_Nums(subjnum,h).Rand_IPI{t3} = [t3_Nums(subjnum,h).Rand_IPI{t3} ; [sum(ANA0.IPI(CorID , p+1),2) t3*ones(length(ANA0.IPI(CorID , p)) , 1) ANA0.SN(CorID) ANA0.Day(CorID) ANA0.Horizon(CorID)]];
-                            end
-                            
-                            CorID = ismember(ANA.AllPress(:,p:p+2) ,CMB.comb3(t3,:), 'rows') & ~sum(ANA.isWrong(:,p:p+2) , 2);
-                            if ~LastIPI
-                                t3_Nums(subjnum,h).All_IPI{t3} = [t3_Nums(subjnum,h).All_IPI{t3} ; [sum(ANA.IPI(CorID , p:p+1),2) t3*ones(length(ANA.IPI(CorID , p)) , 1) ANA.SN(CorID) ANA.Day(CorID) ANA.Horizon(CorID)]];
-                            else
-                                t3_Nums(subjnum,h).All_IPI{t3} = [t3_Nums(subjnum,h).All_IPI{t3} ; [sum(ANA.IPI(CorID , p+1),2) t3*ones(length(ANA.IPI(CorID , p)) , 1) ANA.SN(CorID) ANA.Day(CorID) ANA.Horizon(CorID)]];
-                            end
-                        end
-                        t3_Nums(subjnum,h).MeanChunked_IPI(t3,1) = nanmean(t3_Nums(subjnum,h).Chunked_IPI{t3}(:,1));
-                        t3_Nums(subjnum,h).MeanRand_IPI(t3,1) = nanmean(t3_Nums(subjnum,h).Rand_IPI{t3}(:,1));
-                        t3_Nums(subjnum,h).MeanAll_IPI(t3,1) = nanmean(t3_Nums(subjnum,h).All_IPI{t3}(:,1));
-                    end
-                    t3_Nums(subjnum,h).Chunked = t3_Nums_allh(subjnum).Chunked;%t3_Nums(h).Chunked/allT3(1);
-                    t3_Nums(subjnum,h).Rand = t3_Nums_allh(subjnum).Rand;%t3_Nums(h).Rand/allT3(2);
-                    t3_Nums(subjnum,h).All = t3_Nums_allh(subjnum).All;%t3_Nums(h).Rand/allT3(2);
-                    [~ , t3_Nums(subjnum,h).sort_ID] = sort(t3_Nums(subjnum,h).All , 'descend');
-                    t3_Nums(subjnum,h).All_normalized = t3_Nums_allh(subjnum).All_normalized;%t3_Nums(h).Rand/allT3(2);
-                    [~ , t3_Nums(subjnum,h).sort_norm_ID] = sort(t3_Nums(subjnum,h).All_normalized , 'descend');
-                    
-                    t3_Nums(subjnum,h).SortedMeanIPI_Chunked = t3_Nums(subjnum,h).MeanChunked_IPI(t3_Nums(subjnum,h).sort_ID);
-                    t3_Nums(subjnum,h).SortedIPI_Chunked = t3_Nums(subjnum,h).Chunked_IPI(t3_Nums(subjnum,h).sort_ID);
-                    t3_Nums(subjnum,h).ReadyToPlot_Chunked = cell2mat(t3_Nums(subjnum,h).SortedIPI_Chunked);
-                    counter = 1;
-                    counter_n = 1;
-                    ChunkNum3 = [];
-                    ChunkNum3_4 = [];
-                    for i = 1:length(CMB.comb3)
-                        
-                        idd = t3_Nums(subjnum,h).ReadyToPlot_Chunked(:,2) == t3_Nums(subjnum,h).sort_ID(i);
-                        if sum(ismember(CMB.Chunks{3}(:,1:3) , CMB.comb3(i,:) , 'rows'))
-                            ChunkNum3 = [ChunkNum3 ; [i , find(t3_Nums(subjnum,h).sort_ID == i)]];
-                        end
-                        if sum(ismember(CMB.Chunks{4}(:,1:3) , CMB.comb3(i,:) , 'rows')) | sum(ismember(CMB.Chunks{4}(:,2:4) , CMB.comb3(i,:) , 'rows'))
-                            ChunkNum3_4 = [ChunkNum3_4 ; [i , find(t3_Nums(subjnum,h).sort_ID == i)]];
-                        end
-                        if sum(idd)
-                            T3(subjnum,h).xticklab_c{counter} = num2str(unique(t3_Nums(subjnum,h).ReadyToPlot_Chunked(idd,2)));
-                            t3_Nums(subjnum,h).ReadyToPlot_Chunked(idd,7) = t3_Nums(subjnum,h).All(t3_Nums(subjnum,h).sort_ID(i));
-                            T3(subjnum,h).xtick_c(counter) = i;
-                            counter = counter + 1;
-                        end
-                        t3_Nums(subjnum,h).ReadyToPlot_Chunked(idd,6) = i; %rank the triplet numbers based on their frequency of occurence
-                        
-                        idd_norm = t3_Nums(subjnum,h).ReadyToPlot_Chunked(:,2) == t3_Nums(subjnum,h).sort_norm_ID(i);
-                        if sum(idd_norm)
-                            T3(subjnum,h).xticklab_a{counter_n} = num2str(unique(t3_Nums(subjnum,h).ReadyToPlot_Chunked(idd_norm,2)));
-                            t3_Nums(subjnum,h).ReadyToPlot_Chunked(idd_norm,9) = t3_Nums(subjnum,h).All_normalized(t3_Nums(subjnum,h).sort_norm_ID(i));
-                            T3(subjnum,h).xtick_a(counter_n) = i;
-                            counter_n = counter_n + 1;
-                        end
-                        t3_Nums(subjnum,h).ReadyToPlot_Chunked(idd_norm,8) = i; %rank the triplet numbers based on their frequency of occurence
-                        
-                    end
-                    
-                    
-                    t3_Nums(subjnum,h).SortedMeanIPI_Rand = t3_Nums(subjnum,h).MeanRand_IPI(t3_Nums(subjnum,h).sort_ID);
-                    t3_Nums(subjnum,h).SortedIPI_Rand = t3_Nums(subjnum,h).Rand_IPI(t3_Nums(subjnum,h).sort_ID);
-                    t3_Nums(subjnum,h).ReadyToPlot_Rand = cell2mat(t3_Nums(subjnum,h).SortedIPI_Rand);
-                    counter = 1;
-                    counter_n = 1;
-                    for i = 1:length(CMB.comb3)
-                        idd = t3_Nums(subjnum,h).ReadyToPlot_Rand(:,2) == t3_Nums(subjnum,h).sort_ID(i);
-                        if sum(idd)
-                            T3(subjnum,h).xticklab_r{counter} = num2str(unique(t3_Nums(subjnum,h).ReadyToPlot_Rand(idd,2)));
-                            t3_Nums(subjnum,h).ReadyToPlot_Rand(idd,7) = t3_Nums(subjnum,h).All(t3_Nums(subjnum,h).sort_ID(i));
-                            T3(subjnum,h).xtick_r(counter) = i;
-                            counter = counter + 1;
-                        end
-                        t3_Nums(subjnum,h).ReadyToPlot_Rand(idd,6) = i; %rank the triplet numbers based on their frequency of occurence
-                        
-                        idd_norm = t3_Nums(subjnum,h).ReadyToPlot_Rand(:,2) == t3_Nums(subjnum,h).sort_norm_ID(i);
-                        if sum(idd_norm)
-                            T3(subjnum,h).xticklab_a{counter_n} = num2str(unique(t3_Nums(subjnum,h).ReadyToPlot_Rand(idd_norm,2)));
-                            t3_Nums(subjnum,h).ReadyToPlot_Rand(idd_norm,9) = t3_Nums(subjnum,h).All_normalized(t3_Nums(subjnum,h).sort_norm_ID(i));
-                            T3(subjnum,h).xtick_a(counter_n) = i;
-                            counter_n = counter_n + 1;
-                        end
-                        t3_Nums(subjnum,h).ReadyToPlot_Rand(idd_norm,8) = i; %rank the triplet numbers based on their frequency of occurence
-                        
-                    end
-                    
-                    
-                    t3_Nums(subjnum,h).SortedMeanIPI_All = t3_Nums(subjnum,h).MeanAll_IPI(t3_Nums(subjnum,h).sort_ID);
-                    t3_Nums(subjnum,h).SortedIPI_All = t3_Nums(subjnum,h).All_IPI(t3_Nums(subjnum,h).sort_ID);
-                    t3_Nums(subjnum,h).ReadyToPlot_All = cell2mat(t3_Nums(subjnum,h).SortedIPI_All);
-                    counter = 1;
-                    counter_n = 1;
-                    for i = 1:length(CMB.comb3)
-                        idd = t3_Nums(subjnum,h).ReadyToPlot_All(:,2) == t3_Nums(subjnum,h).sort_ID(i);
-                        if sum(idd)
-                            T3(subjnum,h).xticklab_a{counter} = num2str(unique(t3_Nums(subjnum,h).ReadyToPlot_All(idd,2)));
-                            t3_Nums(subjnum,h).ReadyToPlot_All(idd,7) = t3_Nums(subjnum,h).All(t3_Nums(subjnum,h).sort_ID(i));
-                            T3(subjnum,h).xtick_a(counter) = i;
-                            counter = counter + 1;
-                        end
-                        t3_Nums(subjnum,h).ReadyToPlot_All(idd,6) = i; %rank the triplet numbers based on their frequency of occurence
-                        
-                        idd_norm = t3_Nums(subjnum,h).ReadyToPlot_All(:,2) == t3_Nums(subjnum,h).sort_norm_ID(i);
-                        if sum(idd_norm)
-                            T3(subjnum,h).xticklab_a{counter_n} = num2str(unique(t3_Nums(subjnum,h).ReadyToPlot_All(idd_norm,2)));
-                            t3_Nums(subjnum,h).ReadyToPlot_All(idd_norm,9) = t3_Nums(subjnum,h).All_normalized(t3_Nums(subjnum,h).sort_norm_ID(i));
-                            T3(subjnum,h).xtick_a(counter_n) = i;
-                            counter_n = counter_n + 1;
-                        end
-                        t3_Nums(subjnum,h).ReadyToPlot_All(idd_norm,8) = i; %rank the triplet numbers based on their frequency of occurence
-                    end
-                    
-                    
-                    h1 = figure;
-                    hold on
-                    [xcoordC_3{subjnum,h},PLOTC_3{subjnum,h},ERRORC_3{subjnum,h}]  = lineplot(t3_Nums(subjnum,h).ReadyToPlot_Chunked(:,6) , t3_Nums(subjnum,h).ReadyToPlot_Chunked(:,1) , 'subset' , ismember(t3_Nums(subjnum,h).ReadyToPlot_Chunked(:,4) , [4 5]));
-                    [xcoordR_3{subjnum,h},PLOTR_3{subjnum,h},ERRORR_3{subjnum,h}]  = lineplot(t3_Nums(subjnum,h).ReadyToPlot_Rand(:,6) , t3_Nums(subjnum,h).ReadyToPlot_Rand(:,1) , 'subset' , ismember(t3_Nums(subjnum,h).ReadyToPlot_Rand(:,4) , [4 5]));
-                    [xcoordA_3{subjnum,h},PLOTA_3{subjnum,h},ERRORA_3{subjnum,h}]  = lineplot(t3_Nums(subjnum,h).ReadyToPlot_All(:,6) , t3_Nums(subjnum,h).ReadyToPlot_All(:,1) , 'subset' , ismember(t3_Nums(subjnum,h).ReadyToPlot_All(:,4) , [4 5]));
-                    close(h1)
-                    
-                    %
-                    %             anovan(t3_Nums(h).ReadyToPlot_Rand(:,1) , t3_Nums(h).ReadyToPlot_Rand(:,2))
-                    temp = corrcoef(t3_Nums(subjnum,h).ReadyToPlot_Chunked(:,1) , t3_Nums(subjnum,h).ReadyToPlot_Chunked(:,7));
-                    C3_chunked(subjnum,h) = temp(2);
-                    temp  = corrcoef(t3_Nums(subjnum,h).ReadyToPlot_Rand(:,1) , t3_Nums(subjnum,h).ReadyToPlot_Rand(:,7));
-                    C3_random(subjnum,h) = temp(2);
-                    temp  = corrcoef(t3_Nums(subjnum,h).ReadyToPlot_All(:,1) , t3_Nums(subjnum,h).ReadyToPlot_All(:,7));
-                    C3_all(subjnum,h) = temp(2);
-                    
-                    
-                    
-                    clear xtick_r xtick_c xticklab_r xticklab_c
-                    allt4 = [length(ANA1.AllPress)*(size(ANA1.AllPress , 2)-3) length(ANA0.AllPress)*(size(ANA0.AllPress , 2)-3) length(ANA.AllPress)*(size(ANA.AllPress , 2)-3)];
-                    t4_Nums(subjnum,h).Chunked = zeros(length(CMB.comb4) , 1);
-                    t4_Nums(subjnum,h).Rand    = zeros(length(CMB.comb4) , 1);
-                    t4_Nums(subjnum,h).All     = zeros(length(CMB.comb4) , 1);
-                    
-                    ANA1.t4_Nums = zeros(length(ANA1.AllPress) , size(ANA1.AllPress , 2) -3);
-                    ANA0.t4_Nums = zeros(length(ANA0.AllPress) , size(ANA0.AllPress , 2) -3);
-                    ANA.t4_Nums  = zeros(length(ANA.AllPress) , size(ANA.AllPress , 2) -3);
-                    for t4 = 1:length(CMB.comb4)
-                        t4_Nums(subjnum,h).Chunked_IPI{t4,1} = [];
-                        t4_Nums(subjnum,h).Rand_IPI{t4,1} = [];
-                        t4_Nums(subjnum,h).All_IPI{t4,1} = [];
-                        
-                        t4_Nums(subjnum,h).TranNumb(t4 , 1) = t4;
-                        t4_Nums(subjnum,h).Transition(t4 , :) = CMB.comb4(t4,:);
-                        for p = 1:size(ANA1.AllPress , 2) -3
-                            t4_Nums(subjnum,h).Chunked(t4,1) =  t4_Nums(subjnum,h).Chunked(t4,1) + sum(ismember(ANA1.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows'));
-                            t4_Nums(subjnum,h).Rand(t4,1) =  t4_Nums(subjnum,h).Rand(t4,1) + sum(ismember(ANA0.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows'));
-                            t4_Nums(subjnum,h).All(t4,1) =  t4_Nums(subjnum,h).All(t4,1) + sum(ismember(ANA.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows'));
-                            
-                            ANA1.t4_Nums(ismember(ANA1.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows') , p) = t4;
-                            ANA0.t4_Nums(ismember(ANA0.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows') , p) = t4;
-                            ANA.t4_Nums(ismember(ANA.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows') , p) = t4;
-                            
-                            CorID = ismember(ANA1.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows') & ~sum(ANA1.isWrong(:,p:p+3) , 2);
-                            if ~LastIPI
-                                t4_Nums(subjnum,h).Chunked_IPI{t4} = [t4_Nums(subjnum,h).Chunked_IPI{t4} ; [sum(ANA1.IPI(CorID , p:p+2),2) t4*ones(length(ANA1.IPI(CorID , p)) , 1) ANA1.SN(CorID) ANA1.Day(CorID) ANA1.Horizon(CorID)]];
-                            else
-                                t4_Nums(subjnum,h).Chunked_IPI{t4} = [t4_Nums(subjnum,h).Chunked_IPI{t4} ; [sum(ANA1.IPI(CorID , p+2),2) t4*ones(length(ANA1.IPI(CorID , p)) , 1) ANA1.SN(CorID) ANA1.Day(CorID) ANA1.Horizon(CorID)]];
-                            end
-                            
-                            CorID = ismember(ANA0.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows') & ~sum(ANA0.isWrong(:,p:p+3) , 2);
-                            if ~LastIPI
-                                t4_Nums(subjnum,h).Rand_IPI{t4} = [t4_Nums(subjnum,h).Rand_IPI{t4} ; [sum(ANA0.IPI(CorID , p:p+2),2) t4*ones(length(ANA0.IPI(CorID , p)) , 1) ANA0.SN(CorID) ANA0.Day(CorID) ANA0.Horizon(CorID)]];
-                            else
-                                t4_Nums(subjnum,h).Rand_IPI{t4} = [t4_Nums(subjnum,h).Rand_IPI{t4} ; [sum(ANA0.IPI(CorID , p+2),2) t4*ones(length(ANA0.IPI(CorID , p)) , 1) ANA0.SN(CorID) ANA0.Day(CorID) ANA0.Horizon(CorID)]];
-                            end
-                            
-                            CorID = ismember(ANA.AllPress(:,p:p+3) ,CMB.comb4(t4,:), 'rows') & ~sum(ANA.isWrong(:,p:p+3) , 2);
-                            if ~LastIPI
-                                t4_Nums(subjnum,h).All_IPI{t4} = [t4_Nums(subjnum,h).All_IPI{t4} ; [sum(ANA.IPI(CorID , p:p+2),2) t4*ones(length(ANA.IPI(CorID , p)) , 1) ANA.SN(CorID) ANA.Day(CorID) ANA.Horizon(CorID)]];
-                            else
-                                t4_Nums(subjnum,h).All_IPI{t4} = [t4_Nums(subjnum,h).All_IPI{t4} ; [sum(ANA.IPI(CorID , p+2),2) t4*ones(length(ANA.IPI(CorID , p)) , 1) ANA.SN(CorID) ANA.Day(CorID) ANA.Horizon(CorID)]];
-                            end
-                        end
-                        t4_Nums(subjnum,h).MeanChunked_IPI(t4,1) = nanmean(t4_Nums(subjnum,h).Chunked_IPI{t4}(:,1));
-                        t4_Nums(subjnum,h).MeanRand_IPI(t4,1) = nanmean(t4_Nums(subjnum,h).Rand_IPI{t4}(:,1));
-                        t4_Nums(subjnum,h).MeanAll_IPI(t4,1) = nanmean(t4_Nums(subjnum,h).All_IPI{t4}(:,1));
-                    end
-                    t4_Nums(subjnum,h).Chunked = t4_Nums_allh(subjnum).Chunked;%t4_Nums(h).Chunked/allt4(1);
-                    t4_Nums(subjnum,h).Rand = t4_Nums_allh(subjnum).Rand;%t4_Nums(h).Rand/allt4(2);
-                    t4_Nums(subjnum,h).All = t4_Nums_allh(subjnum).All;%t4_Nums(h).Rand/allt4(2);
-                    t4_Nums(subjnum,h).All_normalized = t4_Nums_allh(subjnum).All_normalized;%t4_Nums(h).Rand/allt4(2);
-                    [~ , t4_Nums(subjnum,h).sort_ID] = sort(t4_Nums(subjnum,h).All , 'descend');
-                    [~ , t4_Nums(subjnum,h).sort_norm_ID] = sort(t4_Nums(subjnum,h).All_normalized , 'descend');
-                    
-                    t4_Nums(subjnum,h).SortedMeanIPI_Chunked = t4_Nums(subjnum,h).MeanChunked_IPI(t4_Nums(subjnum,h).sort_ID);
-                    t4_Nums(subjnum,h).SortedIPI_Chunked = t4_Nums(subjnum,h).Chunked_IPI(t4_Nums(subjnum,h).sort_ID);
-                    t4_Nums(subjnum,h).ReadyToPlot_Chunked = cell2mat(t4_Nums(subjnum,h).SortedIPI_Chunked);
-                    counter = 1;
-                    counter_n = 1;
-                    ChunkNum4 = [];
-                    for i = 1:length(CMB.comb4)
-                        idd = t4_Nums(subjnum,h).ReadyToPlot_Chunked(:,2) == t4_Nums(subjnum,h).sort_ID(i);
-                        
-                        if sum(ismember(CMB.Chunks{4} , CMB.comb4(i,:)  , 'rows'))
-                            ChunkNum4 = [ChunkNum4 ; [i , find(t4_Nums(subjnum,h).sort_ID == i)]];
-                        end
-                        
-                        if sum(idd)
-                            T4(subjnum,h).xticklab_c{counter} = num2str(unique(t4_Nums(subjnum,h).ReadyToPlot_Chunked(idd,2)));
-                            t4_Nums(subjnum,h).ReadyToPlot_Chunked(idd,7) = t4_Nums(subjnum,h).All(t4_Nums(subjnum,h).sort_ID(i));
-                            T4(subjnum,h).xtick_c(counter) = i;
-                            counter = counter + 1;
-                        end
-                        idd_norm = t4_Nums(subjnum,h).ReadyToPlot_Chunked(:,2) == t4_Nums(subjnum,h).sort_norm_ID(i);
-                        if sum(idd_norm)
-                            T4(subjnum,h).xticklab_c{counter_n} = num2str(unique(t4_Nums(subjnum,h).ReadyToPlot_Chunked(idd_norm,2)));
-                            t4_Nums(subjnum,h).ReadyToPlot_Chunked(idd_norm,9) = t4_Nums(subjnum,h).All_normalized(t4_Nums(subjnum,h).sort_norm_ID(i));
-                            T4(subjnum,h).xtick_c(counter_n) = i;
-                            counter_n = counter_n + 1;
-                        end
-                        t4_Nums(subjnum,h).ReadyToPlot_Chunked(idd,6) = i; %rank the triplet numbers based on their frequency of occurence
-                        t4_Nums(subjnum,h).ReadyToPlot_Chunked(idd_norm,8) = i; %rank the triplet numbers based on their frequency of occurence
-                        
-                    end
-                    
-                    t4_Nums(subjnum,h).SortedMeanIPI_Rand = t4_Nums(subjnum,h).MeanRand_IPI(t4_Nums(subjnum,h).sort_ID);
-                    t4_Nums(subjnum,h).SortedIPI_Rand = t4_Nums(subjnum,h).Rand_IPI(t4_Nums(subjnum,h).sort_ID);
-                    t4_Nums(subjnum,h).ReadyToPlot_Rand = cell2mat(t4_Nums(subjnum,h).SortedIPI_Rand);
-                    counter = 1;
-                    counter_n = 1;
-                    for i = 1:length(CMB.comb4)
-                        idd = t4_Nums(subjnum,h).ReadyToPlot_Rand(:,2) == t4_Nums(subjnum,h).sort_ID(i);
-                        
-                        if sum(idd)
-                            T4(subjnum,h).xticklab_r{counter} = num2str(unique(t4_Nums(subjnum,h).ReadyToPlot_Rand(idd,2)));
-                            t4_Nums(subjnum,h).ReadyToPlot_Rand(idd,7) = t4_Nums(subjnum,h).All(t4_Nums(subjnum,h).sort_ID(i));
-                            T4(subjnum,h).xtick_r(counter) = i;
-                            counter = counter + 1;
-                        end
-                        t4_Nums(subjnum,h).ReadyToPlot_Rand(idd,6) = i; %rank the triplet numbers based on their frequency of occurence
-                        idd_norm = t4_Nums(subjnum,h).ReadyToPlot_Rand(:,2) == t4_Nums(subjnum,h).sort_norm_ID(i);
-                        if sum(idd_norm)
-                            T4(subjnum,h).xticklab_r{counter_n} = num2str(unique(t4_Nums(subjnum,h).ReadyToPlot_Rand(idd_norm,2)));
-                            t4_Nums(subjnum,h).ReadyToPlot_Rand(idd_norm,9) = t4_Nums(subjnum,h).All_normalized(t4_Nums(subjnum,h).sort_norm_ID(i));
-                            T4(subjnum,h).xtick_r(counter_n) = i;
-                            counter_n = counter_n + 1;
-                        end
-                        
-                        t4_Nums(subjnum,h).ReadyToPlot_Rand(idd_norm,8) = i; %rank the triplet numbers based on their frequency of occurence
-                    end
-                    
-                    t4_Nums(subjnum,h).SortedMeanIPI_All = t4_Nums(subjnum,h).MeanAll_IPI(t4_Nums(subjnum,h).sort_ID);
-                    t4_Nums(subjnum,h).SortedIPI_All = t4_Nums(subjnum,h).All_IPI(t4_Nums(subjnum,h).sort_ID);
-                    t4_Nums(subjnum,h).ReadyToPlot_All = cell2mat(t4_Nums(subjnum,h).SortedIPI_All);
-                    counter = 1;
-                    counter_n = 1;
-                    for i = 1:length(CMB.comb4)
-                        idd = t4_Nums(subjnum,h).ReadyToPlot_All(:,2) == t4_Nums(subjnum,h).sort_ID(i);
-                        idd_norm = t4_Nums(subjnum,h).ReadyToPlot_All(:,2) == t4_Nums(subjnum,h).sort_norm_ID(i);
-                        if sum(idd)
-                            T4(subjnum,h).xticklab_a{counter} = num2str(unique(t4_Nums(subjnum,h).ReadyToPlot_All(idd,2)));
-                            t4_Nums(subjnum,h).ReadyToPlot_All(idd,7) = t4_Nums(subjnum,h).All(t4_Nums(subjnum,h).sort_ID(i));
-                            T4(subjnum,h).xtick_a(counter) = i;
-                            counter = counter + 1;
-                        end
-                        if sum(idd_norm)
-                            T4(subjnum,h).xticklab_a{counter_n} = num2str(unique(t4_Nums(subjnum,h).ReadyToPlot_All(idd,2)));
-                            t4_Nums(subjnum,h).ReadyToPlot_All(idd_norm,9) = t4_Nums(subjnum,h).All_normalized(t4_Nums(subjnum,h).sort_norm_ID(i));
-                            T4(subjnum,h).xtick_a(counter_n) = i;
-                            counter_n = counter_n + 1;
-                        end
-                        t4_Nums(subjnum,h).ReadyToPlot_All(idd,6) = i; %rank the triplet numbers based on their frequency of occurence
-                        t4_Nums(subjnum,h).ReadyToPlot_All(idd_norm,8) = i; %rank the triplet numbers based on their frequency of occurence
-                        
-                    end
-                    
-                    h1 = figure;
-                    hold on
-                    [xcoordC_4{subjnum,h},PLOTC_4{subjnum,h},ERRORC_4{subjnum,h}]  = lineplot(t4_Nums(subjnum,h).ReadyToPlot_Chunked(:,6) , t4_Nums(subjnum,h).ReadyToPlot_Chunked(:,1) , 'subset' , ismember(t4_Nums(subjnum,h).ReadyToPlot_Chunked(:,4) , [4 5]));
-                    [xcoordR_4{subjnum,h},PLOTR_4{subjnum,h},ERRORR_4{subjnum,h}]  = lineplot(t4_Nums(subjnum,h).ReadyToPlot_Rand(:,6) , t4_Nums(subjnum,h).ReadyToPlot_Rand(:,1) , 'subset' , ismember(t4_Nums(subjnum,h).ReadyToPlot_Rand(:,4) , [4 5]));
-                    [xcoordA_4{subjnum,h},PLOTA_4{subjnum,h},ERRORA_4{subjnum,h}]  = lineplot(t4_Nums(subjnum,h).ReadyToPlot_All(:,6) , t4_Nums(subjnum,h).ReadyToPlot_All(:,1) , 'subset' , ismember(t4_Nums(subjnum,h).ReadyToPlot_All(:,4) , [4 5]));
-                    close(h1)
-                    
-                    %
-                    %             anovan(t4_Nums(h).ReadyToPlot_Rand(:,1) , t4_Nums(h).ReadyToPlot_Rand(:,2))
-                    temp = corrcoef(t4_Nums(subjnum,h).ReadyToPlot_Chunked(:,1) , t4_Nums(subjnum,h).ReadyToPlot_Chunked(:,7));
-                    C4_chunked(subjnum,h) = temp(2);
-                    temp  = corrcoef(t4_Nums(subjnum,h).ReadyToPlot_Rand(:,1) , t4_Nums(subjnum,h).ReadyToPlot_Rand(:,7));
-                    C4_random(subjnum,h) = temp(2);
-                    temp  = corrcoef(t4_Nums(subjnum,h).ReadyToPlot_All(:,1) , t4_Nums(subjnum,h).ReadyToPlot_All(:,7));
-                    C4_all(subjnum,h) = temp(2);
-                end
-            end
-            
-            %%
-            
-            
-            
-            C.IPI = [];
-            C.IPI_norm = [];
-            C.t2 = [];
-            C.SN =[];
-            C.BN =[];
-            C.Day = [];
-            C.Horizon  = [];
-            C.IPIarrangement = [];
-            C.estIPIarrangement = [];
-            C.t2Rank = [];
-            C.t2Prob = [];
-            C.t2Rank_n = [];
-            C.t2Prob_n = [];
-            C.t3 = [];
-            C.t4 = [];
-            C.T3Rank = [];
-            C.t3Prob = [];
-            C.T4Rank = [];
-            C.t4Prob = [];
-            C.T3Rank_n = [];
-            C.t3Prob_n = [];
-            C.T4Rank_n = [];
-            C.t4Prob_n = [];
-            R = C;
-            All = C;
-            for subjnum = 1:length(subj_name)-1
-                ANA1 = getrow(Dall ,ismember(Dall.seqNumb , [1:2]) & ismember(Dall.SN , subjnum) & ~Dall.isError);
-                for tn = 1:length(ANA1.TN)
-                    n = (ANA1.AllPressIdx(tn , sum(~isnan(ANA1.AllPressIdx(tn , :))))  - ANA1.AllPressIdx(tn , 1)) / 1000;
-                    nIdx(tn , :) = (ANA1.AllPressIdx(tn , :) - ANA1.AllPressIdx(tn , 1))/n;
-                    ANA1.IPI_norm(tn , :) = diff(nIdx(tn ,:) , 1 , 2);
-                end
-                [a,d]=find(isnan(ANA1.IPI) | (ANA1.IPI> 2000));
-                tns = ones(length(ANA1.TN),1);
-                tns(a) = 0;
-                ANA1 = getrow(ANA1 , logical(tns));
-                ANA0 = getrow(Dall ,ismember(Dall.seqNumb , 0) & ismember(Dall.SN , subjnum)  & ~Dall.isError);
-                for tn = 1:length(ANA0.TN)
-                    n = (ANA0.AllPressIdx(tn , sum(~isnan(ANA0.AllPressIdx(tn , :))))  - ANA0.AllPressIdx(tn , 1)) / 1000;
-                    nIdx(tn , :) = (ANA0.AllPressIdx(tn , :) - ANA0.AllPressIdx(tn , 1))/n;
-                    ANA0.IPI_norm(tn , :) = diff(nIdx(tn ,:) , 1 , 2);
-                end
-                [a,d]=find(isnan(ANA0.IPI) | (ANA0.IPI> 2000));
-                tns = ones(length(ANA0.TN),1);
-                tns(a) = 0;
-                ANA0 = getrow(ANA0 , logical(tns));
-                ANA  = addstruct(ANA1 , ANA0);
-                
-                
-                
-                
-                
-                allT2 = [length(ANA1.AllPress)*(size(ANA1.AllPress , 2)-1) length(ANA0.AllPress)*(size(ANA0.AllPress , 2)-1) length(ANA.AllPress)*(size(ANA.AllPress , 2)-1)];
-                
-                [t2sort_ID_n(:,1) , t2sort_ID_n(:,2)] = sort(t2_Nums_allh(subjnum).All_normalized , 'descend');
-                [t3sort_ID_n(:,1) , t3sort_ID_n(:,2)] = sort(t3_Nums_allh(subjnum).All_normalized , 'descend');
-                [t4sort_ID_n(:,1) , t4sort_ID_n(:,2)] = sort(t4_Nums_allh(subjnum).All_normalized , 'descend');
-                [t2sort_ID(:,1) , t2sort_ID(:,2)] = sort(t2_Nums_allh(subjnum).All , 'descend');
-                [t3sort_ID(:,1) , t3sort_ID(:,2)] = sort(t3_Nums_allh(subjnum).All , 'descend');
-                [t4sort_ID(:,1) , t4sort_ID(:,2)] = sort(t4_Nums_allh(subjnum).All , 'descend');
-                
-                for p = 3:11
-                    for t2 = 1:length(CMB.comb2)
-                        
-                        t2id = find(t2sort_ID(:,2) == t2);
-                        t2id_n = find(t2sort_ID_n(:,2) == t2);
-                        
-                        clear t3  t4 T3Rank T4Rank t4Prob t3Prob T4Rank_n T3Rank_n t4Prob_n t3Prob_n
-                        CorID = ismember(ANA1.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows');
-                        tempID = find(CorID);
-                        if ~isempty(tempID)
-                            C.IPI = [C.IPI ; ANA1.IPI(CorID , p)];
-                            C.IPI_norm = [C.IPI_norm ; ANA1.IPI_norm(CorID , p)];
-                            C.t2 = [C.t2 ; t2*ones(length(ANA1.IPI(CorID , p)) , 1)];
-                            C.SN = [C.SN ; ANA1.SN(CorID)];
-                            C.BN = [C.BN ; ANA1.BN(CorID)];
-                            C.Day = [C.Day ;ANA1.Day(CorID)];
-                            C.Horizon  = [C.Horizon ;ANA1.Horizon(CorID)];
-                            C.IPIarrangement = [C.IPIarrangement ;ANA1.IPIarrangement(CorID , p)];
-                            C.estIPIarrangement = [C.estIPIarrangement ;ANA1.estChnkBndry(CorID , p)];
-                            C.t2Rank = [C.t2Rank ; t2id*ones(length(ANA1.IPI(CorID , p)) , 1)];
-                            C.t2Prob = [C.t2Prob ; t2sort_ID(t2id,1)*ones(length(ANA1.IPI(CorID , p)) , 1)];
-                            
-                            C.t2Rank_n = [C.t2Rank_n ; t2id_n*ones(length(ANA1.IPI(CorID , p)) , 1)];
-                            C.t2Prob_n = [C.t2Prob_n ; t2sort_ID_n(t2id_n,1)*ones(length(ANA1.IPI(CorID , p)) , 1)];
-                            
-                            for jj = 1:length(tempID)
-                                t3(jj,:) = [find(ismember(CMB.comb3 , ANA1.AllPress(tempID(jj),p-1:p+1), 'rows'))   ,   find(ismember(CMB.comb3 , ANA1.AllPress(tempID(jj),p:p+2) ,'rows'))];
-                                T3Rank(jj , :) = [find(t3sort_ID(:,2) == t3(jj,1)) , find(t3sort_ID(:,2) == t3(jj,2))];
-                                t3Prob(jj,:) = [t3sort_ID(T3Rank(jj , 1),1) , t3sort_ID(T3Rank(jj , 2),1)];
-                                
-                                T3Rank_n(jj , :) = [find(t3sort_ID_n(:,2) == t3(jj,1)) , find(t3sort_ID_n(:,2) == t3(jj,2))];
-                                t3Prob_n(jj,:) = [t3sort_ID_n(T3Rank_n(jj , 1),1) , t3sort_ID_n(T3Rank_n(jj , 2),1)];
-                                
-                                
-                                t4(jj,:) = [find(ismember(CMB.comb4 , ANA1.AllPress(tempID(jj),p-2:p+1), 'rows'))   ,   find(ismember(CMB.comb4 , ANA1.AllPress(tempID(jj),p-1:p+2) ,'rows'))   ,   find(ismember(CMB.comb4 , ANA1.AllPress(tempID(jj),p:p+3) ,'rows'))];
-                                T4Rank(jj , :) = [find(t4sort_ID(:,2) == t4(jj,1))  , find(t4sort_ID(:,2) == t4(jj,2))  , find(t4sort_ID(:,2) == t4(jj,3))];
-                                t4Prob(jj,:) = [t4sort_ID(T4Rank(jj , 1),1) , t4sort_ID(T4Rank(jj , 2),1)  ,  t4sort_ID(T4Rank(jj , 3),1)];
-                                
-                                T4Rank_n(jj , :) = [find(t4sort_ID_n(:,2) == t4(jj,1))  , find(t4sort_ID_n(:,2) == t4(jj,2))  , find(t4sort_ID_n(:,2) == t4(jj,3))];
-                                t4Prob_n(jj,:) = [t4sort_ID_n(T4Rank_n(jj , 1),1) , t4sort_ID_n(T4Rank_n(jj , 2),1)  ,  t4sort_ID_n(T4Rank_n(jj , 3),1)];
-                            end
-                            C.t3 = [C.t3 ; t3];
-                            C.t4 = [C.t4 ; t4];
-                            C.T3Rank = [C.T3Rank ; T3Rank];
-                            C.t3Prob = [C.t3Prob ; t3Prob];
-                            C.T4Rank = [C.T4Rank ; T4Rank];
-                            C.t4Prob = [C.t4Prob ; t4Prob];
-                            
-                            C.T3Rank_n = [C.T3Rank_n ; T3Rank_n];
-                            C.t3Prob_n = [C.t3Prob_n ; t3Prob_n];
-                            C.T4Rank_n = [C.T4Rank_n ; T4Rank_n];
-                            C.t4Prob_n = [C.t4Prob_n ; t4Prob_n];
-                        end
-                        
-                        
-                        
-                        
-                        clear t3  t4 T3Rank T4Rank t4Prob t3Prob T4Rank_n T3Rank_n t4Prob_n t3Prob_n
-                        CorID = ismember(ANA0.AllPress(:,p:p+1) ,CMB.comb2(t2,:), 'rows');
-                        tempID = find(CorID);
-                        if ~isempty(tempID)
-                            R.IPI = [R.IPI ; ANA0.IPI(CorID , p)];
-                            R.IPI_norm = [R.IPI_norm ; ANA0.IPI_norm(CorID , p)];
-                            R.t2 = [R.t2 ; t2*ones(length(ANA0.IPI(CorID , p)) , 1)];
-                            R.SN = [R.SN ; ANA0.SN(CorID)];
-                            R.BN  = [R.BN ; ANA0.BN(CorID)];
-                            R.Day = [R.Day ;ANA0.Day(CorID)];
-                            R.Horizon  = [R.Horizon; ANA0.Horizon(CorID)];
-                            R.estIPIarrangement = [R.estIPIarrangement ;ANA0.estChnkBndry(CorID , p)];
-                            R.t2Rank = [R.t2Rank ; t2id*ones(length(ANA0.IPI(CorID , p)) , 1)];
-                            R.t2Prob = [R.t2Prob ; t2sort_ID(t2id,1)*ones(length(ANA0.IPI(CorID , p)) , 1)];
-                            R.t2Rank_n = [R.t2Rank_n ; t2id_n*ones(length(ANA0.IPI(CorID , p)) , 1)];
-                            R.t2Prob_n = [R.t2Prob_n ; t2sort_ID_n(t2id_n,1)*ones(length(ANA0.IPI(CorID , p)) , 1)];
-                            for jj = 1:length(tempID)
-                                % find chunks in raondom sequences and give them chunk arrangements
-                                CorID_findChunks = ismember(ANA0.AllPress(:,p-1:p+1) , CMB.Chunks{3}(:,1:3) , 'rows');
-                                ANA0.IPIarrangement(CorID_findChunks,p-1:p) = repmat([2 2] , sum(CorID_findChunks),1);
-                                t3(jj,:) = [find(ismember(CMB.comb3 , ANA0.AllPress(tempID(jj),p-1:p+1), 'rows'))   ,   find(ismember(CMB.comb3 , ANA0.AllPress(tempID(jj),p:p+2) ,'rows'))];
-                                T3Rank(jj , :) = [find(t3sort_ID(:,2) == t3(jj,1)) , find(t3sort_ID(:,2) == t3(jj,2))];
-                                t3Prob(jj,:) = [t3sort_ID(T3Rank(jj , 1),1) , t3sort_ID(T3Rank(jj , 2),1)];
-                                
-                                T3Rank_n(jj , :) = [find(t3sort_ID_n(:,2) == t3(jj,1)) , find(t3sort_ID_n(:,2) == t3(jj,2))];
-                                t3Prob_n(jj,:) = [t3sort_ID_n(T3Rank_n(jj , 1),1) , t3sort_ID_n(T3Rank_n(jj , 2),1)];
-                                
-                                % find chunks in raondom sequences and give them chunk arrangements
-                                CorID_findChunks = ismember(ANA0.AllPress(:,p-2:p+1) , CMB.Chunks{3},  'rows');
-                                ANA0.IPIarrangement(CorID_findChunks,p-2:p) = repmat([2 2 2] , sum(CorID_findChunks),1);
-                                t4(jj,:) = [find(ismember(CMB.comb4 , ANA0.AllPress(tempID(jj),p-2:p+1), 'rows'))   ,   find(ismember(CMB.comb4 , ANA0.AllPress(tempID(jj),p-1:p+2) ,'rows'))   ,   find(ismember(CMB.comb4 , ANA0.AllPress(tempID(jj),p:p+3) ,'rows'))];
-                                T4Rank(jj , :) = [find(t4sort_ID(:,2) == t4(jj,1))  , find(t4sort_ID(:,2) == t4(jj,2))  , find(t4sort_ID(:,2) == t4(jj,3))];
-                                t4Prob(jj,:) = [t4sort_ID(T4Rank(jj , 1),1) , t4sort_ID(T4Rank(jj , 2),1)  ,  t4sort_ID(T4Rank(jj , 3),1)];
-                                
-                                T4Rank_n(jj , :) = [find(t4sort_ID_n(:,2) == t4(jj,1))  , find(t4sort_ID_n(:,2) == t4(jj,2))  , find(t4sort_ID_n(:,2) == t4(jj,3))];
-                                t4Prob_n(jj,:) = [t4sort_ID_n(T4Rank_n(jj , 1),1) , t4sort_ID_n(T4Rank_n(jj , 2),1)  ,  t4sort_ID_n(T4Rank_n(jj , 3),1)];
-                            end
-                            R.IPIarrangement = [R.IPIarrangement ;ANA0.IPIarrangement(CorID , p)];
-                            R.t3 = [R.t3 ; t3];
-                            R.t4 = [R.t4 ; t4];
-                            R.T3Rank = [R.T3Rank ; T3Rank];
-                            R.t3Prob = [R.t3Prob ; t3Prob];
-                            R.T4Rank = [R.T4Rank ; T4Rank];
-                            R.t4Prob = [R.t4Prob ; t4Prob];
-                            
-                            R.T3Rank_n = [R.T3Rank_n ; T3Rank_n];
-                            R.t3Prob_n = [R.t3Prob_n ; t3Prob_n];
-                            R.T4Rank_n = [R.T4Rank_n ; T4Rank_n];
-                            R.t4Prob_n = [R.t4Prob_n ; t4Prob_n];
-                        end
-                        
-                    end
-                    
-                end
-            end
-            All = addstruct(C,R);
-        else
-            load([baseDir , '/se2_TranProb.mat'])
-        end
-        %% Define the pressess for every IPI based on the transition nummber
-        for count = 1:length(C.BN)
-            C.Presses(count , 1:2) = CMB.comb2(C.t2(count),:);
-        end
-        for count = 1:length(R.BN)
-            R.Presses(count , 1:2) = CMB.comb2(R.t2(count),:);
-        end
-        All = addstruct(C,R);
-        
-        %% bin the probabilities into 5 classes of probability and test the effect of probability on IPIs in Random sequences
-        C.t2Rank_n_binned = C.t2Rank_n;
-        rr = 1;
-        for j = 0:5:25
-            C.t2Rank_n_binned(C.t2Rank_n_binned>=j & C.t2Rank_n_binned<j+5) = rr;
-            rr = rr+1;
-        end
-        R.t2Rank_n_binned = R.t2Rank_n;
-        rr = 1;
-        for j = 0:6:25
-            R.t2Rank_n_binned(R.t2Rank_n_binned>=j & R.t2Rank_n_binned<j+6) = rr;
-            rr = rr+1;
-        end
-        
-        C.T3Rank_n_binned = C.T3Rank_n(:,1);
-        rr = 1;
-        for j = 0:20:125
-            C.T3Rank_n_binned(C.T3Rank_n_binned>=j & C.T3Rank_n_binned<j+20) = rr;
-            rr = rr+1;
-        end
-        R.T3Rank_n_binned = R.T3Rank_n(:,1);
-        rr = 1;
-        for j = 0:25:125
-            R.T3Rank_n_binned(R.T3Rank_n_binned>=j & R.T3Rank_n_binned<j+25) = rr;
-            rr = rr+1;
-        end
-        
-        C.T4Rank_n_binned = C.T4Rank_n(:,1);
-        rr = 1;
-        for j = 0:60:625
-            C.T4Rank_n_binned(C.T4Rank_n_binned>=j & C.T4Rank_n_binned<j+60) = rr;
-            rr = rr+1;
-        end
-        R.T4Rank_n_binned = R.T4Rank_n(:,1);
-        rr = 1;
-        for j = 0:80:625
-            R.T4Rank_n_binned(R.T4Rank_n_binned>=j & R.T4Rank_n_binned<j+80) = rr;
-            rr = rr+1;
-        end
-        % map the block to less / half per day / so bin every 4 blocks to 1
-        C.seqNumb(1:length(C.SN) , :) =1;
-        R.seqNumb(1:length(R.SN) , :) =0;
-        All = addstruct(C,R);
-        dd = unique(All.Day);
-        for db= 1:length(dd)
-            T = getrow(All , All.Day == dd(db));
-            bls = unique(T.BN);
-            id1 = ismember(All.BN , bls(1:floor(length(bls)/2)));
-            id2 = ismember(All.BN , bls(floor(length(bls)/2):end));
-            All.BN(id1) = 2*db -1;
-            All.BN(id2) = 2*db;
-        end
-        C = getrow(All,All.seqNumb == 1);
-        R = getrow(All,All.seqNumb == 0);
-        switch N5
-            case {'M' , 'm'}
-                CC = getrow(All,All.seqNumb == 1);
-                RR = getrow(All,All.seqNumb == 0);
-                if calc
-                    C  = tapply(CC , {'Horizon' ,'SN' , 'IPIarrangement' , 'BN' ,'t2Rank_n_binned' , 'T3Rank_n_binned' , 'T4Rank_n_binned'} , {'IPI' , 'nanmedian(x)'} , {'IPI_norm' , 'nanmedian(x)'} , {'Day' , 'nanmedian(x)'});
-                    R  = tapply(RR , {'Horizon' ,'SN' , 'IPIarrangement' , 'BN' ,'t2Rank_n_binned' , 'T3Rank_n_binned' , 'T4Rank_n_binned'} , {'IPI' , 'nanmedian(x)'} , {'IPI_norm' , 'nanmedian(x)'} , {'Day' , 'nanmedian(x)'});
-                else
-                    load([baseDir , '/se2_Summarized_TranProb_Conditional_LastIPI.mat'])
-                end
-            otherwise
-                C = getrow(All,All.seqNumb == 1);
-                R = getrow(All,All.seqNumb == 0);
-        end
-        
-        %% Significance F-tests
-        %-------- 1st order transitions
-        
-        for h  = 1:5
-            temp = anovaMixed(C.IPI_norm ,C.SN ,'within',C.t2Rank_n_binned,{'DoubleTrans'},'intercept',1,'subset' , ismember(C.Day , [3:5]) & ismember(C.Horizon , h));% & C.t2Rank_n(:,1)<=25);
-            out.chunked.probEffect_N(h,1) = temp.eff(2).p;
-        end
-        temp = anovaMixed(C.IPI_norm ,C.SN ,'within',C.t2Rank_n_binned,{'DoubleTrans'},'intercept',1,'subset' , ismember(C.Day , [3:5]) & ismember(C.Horizon , [3 13]));% & C.t2Rank_n(:,1)<=25);
-        out.chunked.probEffect_N(h+1,1) = temp.eff(2).p;
-        
-        %-------- 2nd order transitions
-        
-        for h = 1:5
-            temp= anovaMixed(C.IPI_norm ,C.SN ,'within',C.T3Rank_n_binned(:,1),{'tripTrans'},'intercept',1,'subset' , ismember(C.Day , [3:5]) & ismember(C.Horizon , h));% & C.T3Rank_n(:,1)<=10);
-            out.chunked.probEffect_N(h,2) = temp.eff(2).p;
-        end
-        temp= anovaMixed(C.IPI_norm ,C.SN ,'within',C.T3Rank_n_binned(:,1),{'tripTrans'},'intercept',1,'subset' , ismember(C.Day , [3:5]) & ismember(C.Horizon , [3 13]));% & C.T3Rank_n(:,1)<=10);
-        out.chunked.probEffect_N(h+1,2) = temp.eff(2).p;
-        
-        %-------- 3rd order transitions
-        
-        for h = 1:5
-            temp = anovaMixed(C.IPI_norm ,C.SN ,'within',C.T4Rank_n_binned,{'QuadTrans'},'intercept',1,'subset' , ismember(C.Day , [3:5]) & ismember(C.Horizon , h));% & C.T4Rank_n(:,1)<=20);
-            out.chunked.probEffect_N(h,3)=temp.eff(2).p;
-        end
-        
-        temp = anovaMixed(C.IPI_norm ,C.SN ,'within',C.T4Rank_n_binned,{'QuadTrans'},'intercept',1,'subset' , ismember(C.Day , [3:5]) & ismember(C.Horizon , [3 13]));% & C.T4Rank_n(:,1)<=20);
-        out.chunked.probEffect_N(h+1,3)=temp.eff(2).p;
-        
-        %-------- chunk placement
-        for h  = 1:5
-            temp = anovaMixed(C.IPI_norm ,C.SN ,'within',C.IPIarrangement,{'DoubleTrans'},'intercept',1,'subset' , ismember(C.Day , [3:5]) & ismember(C.Horizon , h));% & C.t2Rank_n(:,1)<=25);
-            out.chunked.chnkEffect_N(h,1) = temp.eff(2).p;
-        end
-        temp = anovaMixed(C.IPI_norm ,C.SN ,'within',C.IPIarrangement,{'DoubleTrans'},'intercept',1,'subset' , ismember(C.Day , [3:5]) & ismember(C.Horizon , [3 13]));% & C.t2Rank_n(:,1)<=25);
-        out.chunked.chnkEffect_N(h+1,1) = temp.eff(2).p;
-        
-        %-------- 1st order transitions
-        
-        
-        for h =1:5
-            temp = anovaMixed(R.IPI_norm ,R.SN ,'within',R.t2Rank_n_binned,{'DoubleTrans'},'intercept',1,'subset' , ismember(R.Day , [3:5]) & ismember(R.Horizon , h));
-            out.Random.probEffect_N(h,1)=temp.eff(2).p;
-        end
-        
-        temp = anovaMixed(R.IPI_norm ,R.SN ,'within',R.t2Rank_n_binned,{'DoubleTrans'},'intercept',1,'subset' , ismember(R.Day , [3:5]) & ismember(R.Horizon , [6 13]));
-        out.Random.probEffect_N(h+1,1)=temp.eff(2).p;
-        
-        %-------- 2nd order transitions
-        
-        for h =1:5
-            temp = anovaMixed(R.IPI_norm ,R.SN ,'within',R.T3Rank_n_binned(:,1),{'tripTrans'},'intercept',1,'subset' , ismember(R.Day , [3:5]) & ismember(R.Horizon , h));
-            out.Random.probEffect_N(h,2) = temp.eff(2).p;
-        end
-        temp = anovaMixed(R.IPI_norm ,R.SN ,'within',R.T3Rank_n_binned(:,1),{'tripTrans'},'intercept',1,'subset' , ismember(R.Day , [3:5]) & ismember(R.Horizon , [6 13]));
-        out.Random.probEffect_N(h+1,2) = temp.eff(2).p;
-        
-        %-------- 3rd order transitions
-        
-        for h = 1:5
-            temp = anovaMixed(R.IPI_norm ,R.SN ,'within',R.T4Rank_n_binned(:,1),{'QuadTrans'},'intercept',1,'subset' , ismember(R.Day , [3:5]) & ismember(R.Horizon , h));
-            out.Random.probEffect_N(h,3)=temp.eff(2).p;
-        end
-        temp = anovaMixed(R.IPI_norm ,R.SN ,'within',R.T4Rank_n_binned(:,1),{'QuadTrans'},'intercept',1,'subset' , ismember(R.Day , [3:5]) & ismember(R.Horizon , [6 13]));
-        out.Random.probEffect_N(h+1,3)=temp.eff(2).p;
-        
-        %-------- chunk placement
-        for h =1:5
-            temp = anovaMixed(R.IPI_norm ,R.SN ,'within',R.IPIarrangement,{'DoubleTrans'},'intercept',1,'subset' , ismember(R.Day , [3:5]) & ismember(R.Horizon , h));
-            out.Random.chnkEffect_N(h,1)=temp.eff(2).p;
-        end
-        
-        temp = anovaMixed(R.IPI_norm ,R.SN ,'within',R.IPIarrangement,{'DoubleTrans'},'intercept',1,'subset' , ismember(R.Day , [3:5]) & ismember(R.Horizon , [6 13]));
-        out.Random.chnkEffect_N(h+1,1)=temp.eff(2).p;
-        
-        %% Visualize by rank and not by transitions cz most probable ones are different for every subject
-        for h = [1:8 13]
-            
-            h1 = figure;
-            hold on
-            [XC2_n{h},PC2_n{h},EC2_n{h}] = lineplot(C.t2Rank_n_binned , C.IPI_norm ,'plotfcn' , 'nanmean', 'subset' , ismember(C.Day , [2:5]) & ismember(C.Horizon , h));
-            [XC3_n{h},PC3_n{h},EC3_n{h}] = lineplot(C.T3Rank_n_binned(:,1) , C.IPI_norm ,'plotfcn' , 'nanmean', 'subset' , ismember(C.Day , [2:5]) & ismember(C.Horizon , h));
-            [XC4_n{h},PC4_n{h},EC4_n{h}] = lineplot(C.T4Rank_n_binned(:,1) , C.IPI_norm ,'plotfcn' , 'nanmean', 'subset' , ismember(C.Day , [2:5]) & ismember(C.Horizon , h));
-            [XCA{h},PCA{h},ECA{h}] = lineplot(C.IPIarrangement , C.IPI_norm ,'plotfcn' , 'nanmean', 'subset' , ismember(C.Day , [2:5]) & ismember(C.Horizon , h));
-            
-            
-            [XR2_n{h},PR2_n{h},ER2_n{h}] = lineplot(R.t2Rank_n_binned , R.IPI_norm , 'plotfcn' , 'nanmean','subset' , ismember(R.Day , [2:5]) & ismember(R.Horizon , h));
-            [XR3_n{h},PR3_n{h},ER3_n{h}] = lineplot(R.T3Rank_n_binned(:,1) , R.IPI_norm , 'plotfcn' , 'nanmean','subset' , ismember(R.Day , [2:5]) & ismember(R.Horizon , h));
-            [XR4_n{h},PR4_n{h},ER4_n{h}] = lineplot(R.T4Rank_n_binned(:,1) , R.IPI_norm ,'plotfcn' , 'nanmean','subset' , ismember(R.Day , [2:5]) & ismember(R.Horizon , h));
-            [XRA{h},PRA{h},ERA{h}] = lineplot(R.IPIarrangement , R.IPI_norm ,'plotfcn' , 'nanmean', 'subset' , ismember(R.Day , [2:5]) & ismember(R.Horizon , h));
-            close(h1)
-            
-        end
-        
-        %%
-        cCount = 1;
-        figure('color' , 'white')
-        for h = [1:8 13]
-            subplot(121)
-            errorbar(XCA{h},PCA{h},ECA{h}, 'LineWidth' , 3, 'color' , colors(cCount , :));
-            hold on
-            grid on
-            title('chunk placement in chunked seqs','FontSize' , 14)
-            cCount = cCount+1;
-        end
-        set(gca,'YLim' , [70 90],'XTick' , [1 2] , 'FontSize' , 16 , 'XTickLabel' , {'Between' , 'Within'},...
-            'GridAlpha' , 1 , 'Box' , 'off')
-        xlabel('Chunk placement')
-        ylabel('norm time')
-        cCount = 1;
-        for h = [1:8 13]
-            subplot(122)
-            errorbar(XRA{h},PRA{h},ERA{h}, 'LineWidth' , 3, 'color' , colors(cCount , :));
-            hold on
-            grid on
-            title('chunk placement in random seqs','FontSize' , 14)
-            cCount = cCount+1;
-        end
-        set(gca,'XTick' , [0 2],'YLim' , [70 90] , 'FontSize' , 16 , 'XTickLabel' , {'Random' , 'Within'},...
-            'GridAlpha' , 1 , 'Box' , 'off')
-        xlabel('Probability Class')
-        ylabel('norm time')
-        legend({'H = 1' , 'H = 2','H = 3','H = 4','H = 5','H = 6','H = 7','H = 8','H = 13'})
-        R_w = getrow(R , R.IPIarrangement == 2);
-        R_w.IPIarrangement =  R_w.IPIarrangement+1; % to distinguish from IPIarrangement in Chunked
-        C_w = getrow(C , C.IPIarrangement == 2);
-        RC = addstruct(R_w , C_w);
-        temp = anovaMixed(RC.IPI_norm , RC.SN , 'within' , RC.IPIarrangement , {'withinRandom/withinChunked'} , 'intercept' , 1, 'subset' , ismember(RC.Horizon , [4:13]));
-        
-        
-        
-        figure('color' , 'white')
-        cCount = 1;
-        for h = [1:8 13]
-            subplot(3,2,1)
-            errorbar(XC2_n{h},PC2_n{h},EC2_n{h}, 'LineWidth' , 3 , 'color' , colors(cCount , :));
-            hold on
-            grid on
-            title('Double trans chunked seqs sorted by norm-prob','FontSize' , 14)
-            cCount = cCount+1;
-        end
-        set(gca,'XTick' , [1:5] , 'FontSize' , 16,'GridAlpha' , 1 , 'Box' , 'off','YLim' ,[60 130])
-        xlabel('Probability Class')
-        ylabel('norm time')
-        cCount = 1;
-        for h = [1:8 13]
-            subplot(3,2,2)
-            errorbar(XR2_n{h},PR2_n{h},ER2_n{h}, 'LineWidth' , 3 , 'color' , colors(cCount , :));
-            hold on
-            grid on
-            title('Double trans rand seqs sorted by norm-prob','FontSize' , 14)
-            cCount = cCount+1;
-        end
-        set(gca,'XTick' , [1:5] , 'FontSize' , 16,'GridAlpha' , 1 , 'Box' , 'off','YLim' ,[60 130])
-        xlabel('Probability Class')
-        ylabel('norm time')
-        %         legend({'H = 1' , 'H = 2','H = 3','H = 4','H = 5','H = 6','H = 7','H = 8','H = 13'})
-        
-        
-        cCount = 1;
-        %         figure('color' , 'white')
-        for h = [1:8 13]
-            subplot(323)
-            errorbar(XC3_n{h},PC3_n{h},EC3_n{h}, 'LineWidth' , 3 , 'color' , colors(cCount , :));
-            hold on
-            grid on
-            title('Trip trans chunked seqs sorted by norm-prob','FontSize' , 14)
-            cCount = cCount+1;
-        end
-        set(gca,'XTick' , [1:5] , 'FontSize' , 16,'GridAlpha' , 1 , 'Box' , 'off','YLim' ,[60 130])
-        xlabel('Probability Class')
-        ylabel('norm time')
-        cCount = 1;
-        for h = [1:8 13]
-            subplot(324)
-            errorbar(XR3_n{h},PR3_n{h},ER3_n{h}, 'LineWidth' , 3 , 'color' , colors(cCount , :));
-            hold on
-            grid on
-            title('Double trans rand seqs sorted by norm-prob','FontSize' , 14)
-            cCount = cCount+1;
-        end
-        set(gca,'XTick' , [1:5] , 'FontSize' , 16,'GridAlpha' , 1 , 'Box' , 'off','YLim' ,[60 130])
-        xlabel('Probability Class')
-        ylabel('norm time')
-        %         legend({'H = 1' , 'H = 2','H = 3','H = 4','H = 5','H = 6','H = 7','H = 8','H = 13'})
-        
-        
-        
-        cCount = 1;
-        %         figure('color' , 'white')
-        for h = [1:8 13]
-            subplot(325)
-            errorbar(XC4_n{h},PC4_n{h},EC4_n{h}, 'LineWidth' , 3, 'color' , colors(cCount , :));
-            hold on
-            grid on
-            title('Quad trans chunked seqs sorted by norm-prob','FontSize' , 14)
-            cCount = cCount +1;
-        end
-        set(gca,'XTick' , [1:5] , 'FontSize' , 16,'GridAlpha' , 1 , 'Box' , 'off','YLim' ,[60 130])
-        xlabel('Probability Class')
-        ylabel('norm time')
-        cCount = 1;
-        for h = [1:8 13]
-            subplot(326)
-            errorbar(XR4_n{h},PR4_n{h},ER4_n{h}, 'LineWidth' , 3, 'color' , colors(cCount , :));
-            hold on
-            grid on
-            title('Quad trans rand seqs sorted by norm-prob','FontSize' , 14)
-            cCount = cCount +1;
-        end
-        set(gca,'XTick' , [1:5] , 'FontSize' , 16,'GridAlpha' , 1 , 'Box' , 'off','YLim' ,[60 130])
-        xlabel('Probability Class')
-        ylabel('norm time')
-        legend({'H = 1' , 'H = 2','H = 3','H = 4','H = 5','H = 6','H = 7','H = 8','H = 13'})
         
         %%
         
@@ -6236,8 +3961,8 @@ switch what
                                 case 1
                                     %                                 X4 = T.t3Prob_n(:,1);
                                     %                                 X5 = T.t4Prob_n(:,1);
-                                    X4 = T.T3Rank_n_binned;
-                                    X5 = T.T4Rank_n_binned;
+                                    X4 = T.t3Rank_n_binned;
+                                    X5 = T.t4Rank_n_binned;
                                 otherwise
                                     X4 = mean(T.t3Prob_n , 2);
                                     X5 = mean(T.t4Prob_n , 2);
@@ -6278,16 +4003,16 @@ switch what
                     Res  = Y-Ypred;
                     TSS = sum(Y.^2); % Total Variance
                     FSS1 = sum(Ypred.^2); % Fitted Variance of the Null Model (just the intercept)
-                    RSS1 = sum((Y-Ypred).^2); % Residual Variance of the Null Model
+                    SSR1 = sum((Y-Ypred).^2); % Residual Variance of the Null Model
                     for k = 1:length(xx)
                         Xnew = X(:,xx{k});
                         Bnew = pinv(Xnew'*Xnew)*Xnew'*Y;
                         Ypred_new = Xnew*Bnew;
                         FSS0(k) = sum(Ypred_new.^2);  % Fitted Variance of the partial model
-                        RSS0(k) = sum((Y-Ypred_new).^2); % Residual Variance of the partial Model
+                        SSR0(k) = sum((Y-Ypred_new).^2); % Residual Variance of the partial Model
                     end
                     % ___________________________      R_squared = 1 - (Residual variance of the partial model/Residual variance of the null model)
-                    R2{h,dd}(sn , :) = 1 - (RSS0./RSS1);
+                    R2{h,dd}(sn , :) = 1 - (SSR0./SSR1);
                     xlab{h,dd}(sn , :) = 1:length(xx);
                     % ___________________________
                 end
@@ -6340,8 +4065,658 @@ switch what
         imagesc(ePLOT)
         colorbar
         set(gca , 'XTick' , [1 :length(xx)] , 'XTickLabels' , label , 'FontSize' , 20 ,...
-            'XTickLabelRotation',45,'YTick' , [1 :5])
+            'XTickLabelRotation',45,'YTick' , [1 :5])        
+    case 'Crossval_GLM_ridge'
+%         N1 = input('Use Conditional Transition Probabilities? (y/n)' , 's');
+%         switch N1
+%             case 'y'
+%                 norm = 1;
+%             otherwise
+%                 norm = 0;
+%         end
+%         N2 = input('Use the last IPI for 2nd/3rd order transitions? (y/n)' , 's');
+%         switch N2
+%             case 'y'
+%                 LastIPI = 1;
+%             otherwise
+%                 LastIPI = 0;
+%         end
+        norm = 1;
+        LastIPI = 1;
+        N3 = input('look into Chunked/Random/All sequences? (c/r/a)'  , 's');
+        N4 = input('Use normalized IPIs? (Y/N)'  , 's');
+        N5 = input('Analyse Medians, or raw IPIs? (M/R)' , 's');
         
+        if GroupCode == 1
+            load([baseDir , '/CMB_34_1.mat'])
+            CMB = CMB_34_1;
+        elseif GroupCode == 1
+            load([baseDir , '/CMB_34_2.mat'])
+            CMB = CMB_34_2;
+        end
+        
+        load([baseDir , '/se2_TranProb.mat'])
+        for count = 1:length(C.BN)
+            C.Presses(count , 1:2) = CMB.comb2(C.t2(count),:);
+        end
+        for count = 1:length(R.BN)
+            R.Presses(count , 1:2) = CMB.comb2(R.t2(count),:);
+        end
+        All = addstruct(C,R);
+        
+        switch N5
+            case {'M' , 'm'}
+                C = C_Summarized;
+                R = R_Summarized;
+        end
+        
+        
+        
+        %% develope the GLM
+        
+        switch N3
+            case 'c'
+                M = C;
+                titleSuffix = 'Chunked';
+                hor = {1,2,3,4,5,6,7,8,13,[5:13]};
+                legHor = {'H = 1', 'H = 2','H = 3','H = 4','H = 5','H = 6','H = 7','H = 8','H = 13' , 'H = 5-13'};
+            case 'r'
+                M = R;
+                titleSuffix = 'Random';
+                hor = {1,2,3,4,5,6,7,8,13,[5:13]};
+                legHor = {'H = 1', 'H = 2','H = 3','H = 4','H = 5','H = 6','H = 7','H = 8','H = 13' , 'H = 5-13'};
+            case 'a'
+                M = All;
+                titleSuffix = 'All Sequences';
+        end
+        % =================== Form Design Matrix
+        L = length(M.IPI);
+        M.IPIarrangement(M.IPIarrangement == 0) = 1;
+        M.X1 = ones(L , 1); % intercept
+        M.X2 = M.IPIarrangement;
+        %             T.X2 = T.estIPIarrangement;
+        
+        M.X2(M.X2==1) = 1; % between
+        M.X2(M.X2==0) = 1; % Random = between
+        M.X2(M.X2==2) = -1;  % within
+        
+        switch norm
+            case 1
+                M.X3 = M.t2Rank_n_binned;
+                switch LastIPI
+                    case 1
+                        %                                 T.X4 = T.t3Prob_n(:,1);
+                        %                                 T.X5 = T.t4Prob_n(:,1);
+                        M.X4 = M.t3Rank_n_binned;
+                        M.X5 = M.t4Rank_n_binned;
+                    otherwise
+                        M.X4 = mean(M.t3Prob_n , 2);
+                        M.X5 = mean(M.t4Prob_n , 2);
+                end
+            case 0
+                M.X3 = M.t2Prob;
+                switch LastIPI
+                    case 1
+                        M.X4 = M.t3Prob(:,1);
+                        M.X5 = M.t4Prob(:,1);
+                    otherwise
+                        M.X4 = mean(M.t3Prob , 2);
+                        M.X5 = mean(M.t4Prob , 2);
+                end
+        end
+        nB = fliplr(round(linspace(1 , 20  ,max(M.BN))));
+        M.X6 = M.BN;
+        for q = 1:length(nB)
+            M.X6(M.X6 == q) = nB(q); 
+        end
+        
+        M.X7 = ismember(M.t2 , [21:25])  +1;
+        M.X = [M.X1 M.X2 M.X3 M.X4 M.X5 M.X6 M.X7];
+        xx =     {[1] [1 6]   [1 6:7]    [1:2 6:7] ,   [1,3 6:7] ,   [1,4 6:7]        [1,3:5,6:7]          ,[1:3  , 6:7] ,      [1,2:4,6:7]  ,    [1:7]};
+        label = {'I'  'I+L'    'I+L+R'  'I+C+L+R',     'I+1st+L+R' ,'I+1st+2nd+L+R'    'I+1st+2nd+3rd+L+R' , 'I+C+1st+L+R'  ,  'I+C+1st+2nd+L+R'  ,  'Full'};
+        switch N4
+            case {'n' 'N'}
+                Y = M.IPI;
+            otherwise
+                Y_test = M.IPI_norm;
+        end
+        reglabel = {'intercept' , 'learning' ,'within/between chunk', '1st order probability (1:5)' ,'2nd order probability (1:5)' ,'3rd order probability (1:5)' ,'repetition of the same finger'};
+        % =================== % =================== % =================== % =================== Make Modelzzzzz BITCH!
+        
+        CVfol = 3;
+        if calc
+            count = 1;
+            for h = 1:length(hor)
+                for dd = 1:5
+                    for sn = 1:length(subj_name) - 1
+                        T = getrow(M , ismember(M.SN , sn) & ismember(M.Horizon , hor{h}) & ismember(M.Day , dd));
+                        L = length(T.IPI);
+                        CVI = crossvalind('Kfold', L, CVfol);
+                        for cvl = 1:CVfol
+                            Test = getrow(T , CVI==cvl);
+                            Train = getrow(T , CVI~=cvl);
+                            params  = xx{1};   % Null Model
+                            % Deviation  = -2*ln[(likelihood of fitted model)/(likelihood of saturated model)]
+                            Mdl = fitglm(Train.X(:,params) , Train.IPI,'Intercept',false);
+                            [Ypred,Posterior] = predict(Mdl,Train.X(:,params));
+                            
+                            sum(log(binopdf(y,n,yfit./n))) - sum(log(binopdf(y,n,y./n)))
+                            
+                            
+                            
+                            pdf_Sat    = pdf('normal',Train.IPI , mean(Train.IPI) , std(Train.IPI));
+                            pdf_fitted = pdf('normal',Train.IPI , mean(Ypred) , std(Ypred));
+                            
+                            
+                            dev =  -2*(sum(log(pdf_Sat)) - sum(log(pdf_fitted)));
+                            
+                            
+                            
+                            
+                            
+                            CVM = fitrlinear(T.X,T.IPI,'Lambda',.2,'Regularization','ridge' , 'FitBias' , false);
+                            B = ridge(T.IPI,T.X,.1)
+                            Mdl = fitglm(T.X , T.IPI,'Intercept',false);
+                            
+                            mu  = glmval(B, T.X(:,2:end) , 'log');
+                            posterior(CVM , T.X)
+                            
+                            %                             Mdl = fitglm(Train.X(:,params) , Train.IPI,'Intercept',false);
+                            [Ypred,Posterior] = predict(CVM,T.X);
+                            Ypred0 = Ypred;
+                            for ml = 1:length(xx)
+                                params  = xx{ml};
+                                %                                 if sum(T.X7~=1) == 0
+                                %                                     params  = (xx{ml}(xx{ml}~=7));
+                                %                                 end
+                                % Deviation  = -2*ln[(likelihood of fitted model)/(likelihood of saturated model)]
+                                Mdl = fitglm(Train.X(:,params) , Train.IPI,'Intercept',false);
+                                [Ypred,Posterior] = predict(Mdl,Test.X(:,params));
+                                out.R2(count,:)   = se2_R2ModelComp(Test.IPI , Ypred0 , Ypred);
+                                out.R2_adjusted(count , 1) = se2_R2Adjusted(Test.IPI , Ypred , length(params) + 1);
+                                out.B{count,:} = Mdl.Coefficients.Estimate;
+                                out.Dev(count , 1) = Mdl.Deviance;
+                                out.hor(count , 1) = h;
+                                out.subj(count , 1) = sn;
+                                out.day(count , 1) = dd;
+                                out.xx(count , 1) = ml;
+                                out.cv (count , 1) = cvl;
+                                count = count+1;
+                                disp(['Model ' , num2str(ml) , ' - Day ' , num2str(dd) , ' - Subject ' , num2str(sn) , ' - Horizon ' , num2str(h)])
+                            end
+                        end
+                    end
+                end
+            end
+            Mdl = out;
+            save([baseDir , '/se2_CrossvalIPI_',titleSuffix,'_OLS.mat'] , 'Mdl' , '-v7.3')
+        else
+            load([baseDir , '/se2_CrossvalIPI_',titleSuffix,'_OLS.mat']);
+            out =  Mdl;
+        end
+        
+        clear Mdl
+        % =================== % =================== % =================== % =================== Compare Modelzzzzz BITCH!
+        dayz = {[1] [2],[3] [4] [5]};
+        K = tapply(out , {'hor' , 'subj' , 'day' , 'xx'} , {'R2' , 'nanmean'} ,{'R2_adjusted' , 'nanmean'} ,  {'Dev' , 'nanmean'}); % average over cv loops
+        K1 = getrow(K  , K.hor == 100);
+        for h = 1:length(hor)
+            for dd = 1:length(dayz)
+                for sn = 1:length(subj_name) - 1
+                    a = getrow(K , K.hor == h & ismember(K.day , dayz{dd}) & K.subj == sn);
+                    a.normDev = a.Dev(1)- a.Dev;
+                    K1 = addstruct(K1 , a);
+                end
+            end
+        end
+        clear xp_dev pp_dev ep_dev xp_r2 pp_r2 ep_r2 xp_r2a pp_r2a ep_r2a dev_image R2_image xp_dn  pp_dn ep_dn dvn_image
+        h1 = figure;
+        for h = 1:length(hor)
+            for dd = 1:length(dayz)
+                [xp_dev{dd}(h, :) , pp_dev{dd}(h,:) , ep_dev{dd}(h,:)]  = lineplot(K1.xx, K1.Dev , 'plotfcn','nanmean' ,  'subset' , K1.hor == h & ismember(K1.day , dayz{dd}));
+                hold on
+                [xp_r2{dd}(h, :) , pp_r2{dd}(h,:) , ep_r2{dd}(h,:)]  = lineplot(K1.xx, K1.R2 , 'plotfcn','nanmean' , 'subset' , K1.hor == h & ismember(K1.day , dayz{dd}));
+                [xp_r2a{dd}(h, :) , pp_r2a{dd}(h,:) , ep_r2a{dd}(h,:)]  = lineplot(K1.xx, K1.R2_adjusted , 'plotfcn','nanmean' , 'subset' , K1.hor == h & ismember(K1.day , dayz{dd}));
+                [xp_dn{dd}(h, :) , pp_dn{dd}(h,:) , ep_dn{dd}(h,:)]  = lineplot(K1.xx, K1.normDev ,  'plotfcn','nanmean' ,'subset' , K1.hor == h & ismember(K1.day , dayz{dd}));
+                dev_image(dd,h,:) = pp_dev{dd}(h,:);
+                R2_image(dd,h,:) = pp_r2{dd}(h,:);
+                dvn_image(dd,h,:) = pp_dn{dd}(h,:);
+                hold on
+            end
+        end
+        close(h1)
+        % =================== % =================== % =================== % =================== Visualize model R2 comparisons!
+        
+        
+        
+        figure('color' , 'white')
+        
+        for dd = 1:length(dayz)
+            subplot(2,5,dd)
+            for h = 1:length(hor)-1
+                %   errorbar(xp{g}(h, :) , pp{g}(h,:) , ep{g}(h,:) , 'color' , colors(cCount,:) , 'LineWidth' , 3)
+                hold on
+                eval(['h' , num2str(h) , ' = plotshade(xp_r2{dd}(h, :) , pp_r2{dd}(h,:) , ep_r2{dd}(h,:),''transp'' , .2 , ''patchcolor'' , colors(h,:) , ''linecolor'' , colors(h,:) , ''linewidth'' , 3 , ''linestyle'' , '':'')']);
+                hold on
+            end
+            ylabel('R^2 nomarlized to the Null model')
+             set(gca , 'XLim' , [1 length(xx)+1],'XTick' , [1: length(xx)] , 'XTickLabels' , label , 'FontSize' , 20 ,...
+                'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
+            title([titleSuffix , ' , Days ' , num2str(dayz{dd})])
+            
+            grid on
+        end
+        legend([h1,h2,h3,h4,h5,h6,h7,h8,h9] ,legHor(1:end-1), 'Box' , 'off')
+        
+        
+        for dd = 1:length(dayz) 
+            subplot(2,5,dd+length(dayz))
+            for h = length(hor)
+                %   errorbar(xp{g}(h, :) , pp{g}(h,:) , ep{g}(h,:) , 'color' , colors(cCount,:) , 'LineWidth' , 3)
+                hold on
+                eval(['h' , num2str(h) , ' = plotshade(xp_r2{dd}(h, :) , pp_r2{dd}(h,:) , ep_r2{dd}(h,:),''transp'' , .2 , ''patchcolor'' , colors(h,:) , ''linecolor'' , colors(h,:) , ''linewidth'' , 3 , ''linestyle'' , '':'')']);
+                hold on
+            end
+            ylabel('R^2 nomarlized to the Null model')
+            set(gca , 'XLim' , [1 length(xx)+1],'XTick' , [1: length(xx)] , 'XTickLabels' , label , 'FontSize' , 20 ,...
+                'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
+            title([titleSuffix , ' , Days ' , num2str(dayz{dd})])
+            grid on
+        end
+        legend([h10] ,legHor(end), 'Box' , 'off')
+        
+        % =================== % =================== % =================== % =================== Visualize model R2_adjusted comparisons!
+        
+        
+        
+        figure('color' , 'white')
+        
+        for dd = 1:length(dayz) 
+            subplot(2,5,dd)
+            for h = 1:length(hor)-1
+                %   errorbar(xp{g}(h, :) , pp{g}(h,:) , ep{g}(h,:) , 'color' , colors(cCount,:) , 'LineWidth' , 3)
+                hold on
+                eval(['h' , num2str(h) , ' = plotshade(xp_r2a{dd}(h, :) , pp_r2a{dd}(h,:) , ep_r2a{dd}(h,:),''transp'' , .2 , ''patchcolor'' , colors(h,:) , ''linecolor'' , colors(h,:) , ''linewidth'' , 3 , ''linestyle'' , '':'')']);
+                hold on
+            end
+            ylabel('Adjusted R^2 nomarlized to the Null model')
+             set(gca , 'XLim' , [1 length(xx)+1],'XTick' , [1: length(xx)] , 'XTickLabels' , label , 'FontSize' , 20 ,...
+                'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
+            title([titleSuffix , ' , Days ' , num2str(dayz{dd})])
+            
+            grid on
+        end
+        legend([h1,h2,h3,h4,h5,h6,h7,h8,h9] ,legHor(1:end-1), 'Box' , 'off')
+        
+        
+        for dd = 1:length(dayz) 
+            subplot(2,5,dd+length(dayz))
+            for h = length(hor)
+                %   errorbar(xp{g}(h, :) , pp{g}(h,:) , ep{g}(h,:) , 'color' , colors(cCount,:) , 'LineWidth' , 3)
+                hold on
+                eval(['h' , num2str(h) , ' = plotshade(xp_r2a{dd}(h, :) , pp_r2a{dd}(h,:) , ep_r2a{dd}(h,:),''transp'' , .2 , ''patchcolor'' , colors(h,:) , ''linecolor'' , colors(h,:) , ''linewidth'' , 3 , ''linestyle'' , '':'')']);
+                hold on
+            end
+            ylabel('Adjusted R^2 nomarlized to the Null model')
+            set(gca , 'XLim' , [1 length(xx)+1],'XTick' , [1: length(xx)] , 'XTickLabels' , label , 'FontSize' , 20 ,...
+                'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
+            title([titleSuffix , ' , Days ' , num2str(dayz{dd})])
+            
+            grid on
+        end
+        legend([h10] ,legHor(end), 'Box' , 'off')
+        % =================== % =================== % =================== % =================== Visualize model deviance comparisons!
+        
+        
+        figure('color' , 'white')
+        
+        for dd = 1:length(dayz) 
+            subplot(2,5,dd)
+            for h = 1:length(hor)-1
+                %   errorbar(xp{g}(h, :) , pp{g}(h,:) , ep{g}(h,:) , 'color' , colors(cCount,:) , 'LineWidth' , 3)
+                hold on
+                eval(['h' , num2str(h) , ' = plotshade(xp_dn{dd}(h, :) , pp_dn{dd}(h,:) , ep_dn{dd}(h,:),''transp'' , .2 , ''patchcolor'' , colors(h,:) , ''linecolor'' , colors(h,:) , ''linewidth'' , 3 , ''linestyle'' , '':'')']);
+                hold on
+            end
+            ylabel('Deviance nomarlized to the Saturated  model')
+             set(gca , 'XLim' , [1 length(xx)+1],'XTick' , [1: length(xx)] , 'XTickLabels' , label , 'FontSize' , 20 ,...
+                'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
+            title([titleSuffix , ' , Days ' , num2str(dayz{dd})])
+            
+            grid on
+        end
+        legend([h1,h2,h3,h4,h5,h6,h7,h8,h9] ,legHor(1:end-1), 'Box' , 'off')
+        
+        for dd = 1:length(dayz) 
+            subplot(2,5,dd+length(dayz))
+            for h = length(hor)
+                %   errorbar(xp{g}(h, :) , pp{g}(h,:) , ep{g}(h,:) , 'color' , colors(cCount,:) , 'LineWidth' , 3)
+                hold on
+                eval(['h' , num2str(h) , ' = plotshade(xp_dn{dd}(h, :) , pp_dn{dd}(h,:) , ep_dn{dd}(h,:),''transp'' , .2 , ''patchcolor'' , colors(h,:) , ''linecolor'' , colors(h,:) , ''linewidth'' , 3 , ''linestyle'' , '':'')']);
+                hold on
+            end
+            ylabel('Deviance nomarlized to the Saturated model')
+            set(gca , 'XLim' , [1 length(xx)+1],'XTick' , [1: length(xx)] , 'XTickLabels' , label , 'FontSize' , 20 ,...
+                'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
+            title([titleSuffix , ' , Days ' , num2str(dayz{dd})])
+            
+            grid on
+        end
+        legend([h10] ,legHor(end), 'Box' , 'off')
+
+    case 'Crossval_GLM_ols'
+%         N1 = input('Use Conditional Transition Probabilities? (y/n)' , 's');
+%         switch N1
+%             case 'y'
+%                 norm = 1;
+%             otherwise
+%                 norm = 0;
+%         end
+%         N2 = input('Use the last IPI for 2nd/3rd order transitions? (y/n)' , 's');
+%         switch N2
+%             case 'y'
+%                 LastIPI = 1;
+%             otherwise
+%                 LastIPI = 0;
+%         end
+        norm = 1;
+        LastIPI = 1;
+        N3 = input('look into Chunked/Random/All sequences? (c/r/a)'  , 's');
+        N4 = input('Use normalized IPIs? (Y/N)'  , 's');
+        N5 = input('Analyse Medians, or raw IPIs? (M/R)' , 's');
+        
+        if GroupCode == 1
+            load([baseDir , '/CMB_34_1.mat'])
+            CMB = CMB_34_1;
+        elseif GroupCode == 1
+            load([baseDir , '/CMB_34_2.mat'])
+            CMB = CMB_34_2;
+        end
+        
+        load([baseDir , '/se2_TranProb.mat'])
+        for count = 1:length(C.BN)
+            C.Presses(count , 1:2) = CMB.comb2(C.t2(count),:);
+        end
+        for count = 1:length(R.BN)
+            R.Presses(count , 1:2) = CMB.comb2(R.t2(count),:);
+        end
+        All = addstruct(C,R);
+        
+        switch N5
+            case {'M' , 'm'}
+                C = C_Summarized;
+                R = R_Summarized;
+        end
+        
+        
+        
+        %% develope the GLM
+        
+        switch N3
+            case 'c'
+                M = C;
+                titleSuffix = 'Chunked';
+                hor = {1,2,3,4,5,6,7,8,13,[5:13]};
+                legHor = {'H = 1', 'H = 2','H = 3','H = 4','H = 5','H = 6','H = 7','H = 8','H = 13' , 'H = 5-13'};
+            case 'r'
+                M = R;
+                titleSuffix = 'Random';
+                hor = {1,2,3,4,5,6,7,8,13,[5:13]};
+                legHor = {'H = 1', 'H = 2','H = 3','H = 4','H = 5','H = 6','H = 7','H = 8','H = 13' , 'H = 5-13'};
+            case 'a'
+                M = All;
+                titleSuffix = 'All Sequences';
+        end
+        % =================== Form Design Matrix
+        L = length(M.IPI);
+        M.IPIarrangement(M.IPIarrangement == 0) = 1;
+        M.X1 = ones(L , 1); % intercept
+        M.X2 = M.IPIarrangement;
+        %             T.X2 = T.estIPIarrangement;
+        
+        M.X2(M.X2==1) = 1; % between
+        M.X2(M.X2==0) = 1; % Random = between
+        M.X2(M.X2==2) = -1;  % within
+        
+        switch norm
+            case 1
+                M.X3 = M.t2Rank_n_binned;
+                switch LastIPI
+                    case 1
+                        %                                 T.X4 = T.t3Prob_n(:,1);
+                        %                                 T.X5 = T.t4Prob_n(:,1);
+                        M.X4 = M.t3Rank_n_binned;
+                        M.X5 = M.t4Rank_n_binned;
+                    otherwise
+                        M.X4 = mean(M.t3Prob_n , 2);
+                        M.X5 = mean(M.t4Prob_n , 2);
+                end
+            case 0
+                M.X3 = M.t2Prob;
+                switch LastIPI
+                    case 1
+                        M.X4 = M.t3Prob(:,1);
+                        M.X5 = M.t4Prob(:,1);
+                    otherwise
+                        M.X4 = mean(M.t3Prob , 2);
+                        M.X5 = mean(M.t4Prob , 2);
+                end
+        end
+        nB = fliplr(round(linspace(1 , 20  ,max(M.BN))));
+        M.X6 = M.BN;
+        for q = 1:length(nB)
+            M.X6(M.X6 == q) = nB(q); 
+        end
+        
+        M.X7 = ismember(M.t2 , [21:25])  +1;
+        M.X = [M.X1 M.X2 M.X3 M.X4 M.X5 M.X6 M.X7];
+        xx =     {[1] [1 6]   [1 6:7]    [1:2 6:7] ,   [1,3 6:7] ,   [1,4 6:7]        [1,3:5,6:7]          ,[1:3  , 6:7] ,      [1,2:4,6:7]  ,    [1:7]};
+        label = {'I'  'I+L'    'I+L+R'  'I+C+L+R',     'I+1st+L+R' ,'I+1st+2nd+L+R'    'I+1st+2nd+3rd+L+R' , 'I+C+1st+L+R'  ,  'I+C+1st+2nd+L+R'  ,  'Full'};
+        switch N4
+            case {'n' 'N'}
+                Y = M.IPI;
+            otherwise
+                Y_test = M.IPI_norm;
+        end
+        reglabel = {'intercept' , 'learning' ,'within/between chunk', '1st order probability (1:5)' ,'2nd order probability (1:5)' ,'3rd order probability (1:5)' ,'repetition of the same finger'};
+        % =================== % =================== % =================== % =================== Make Modelzzzzz BITCH!
+        
+        CVfol = 3;
+        if calc
+            count = 1;
+            for h = 1:length(hor)
+                for dd = 1:5
+                    for sn = 1:length(subj_name) - 1
+                        T = getrow(M , ismember(M.SN , sn) & ismember(M.Horizon , hor{h}) & ismember(M.Day , dd));
+                        L = length(T.IPI);
+                        CVI = crossvalind('Kfold', L, CVfol);
+                        for cvl = 1:CVfol
+                            Test = getrow(T , CVI==cvl);
+                            Train = getrow(T , CVI~=cvl);
+                            params  = xx{1};   % Null Model
+                            Mdl = fitglm(Train.X(:,params) , Train.IPI,'Intercept',false);
+                            [Ypred,Posterior] = predict(Mdl,Test.X(:,params));
+                            Ypred0 = Ypred;
+                            for ml = 1:length(xx)
+                                params  = xx{ml};
+                                %                                 if sum(T.X7~=1) == 0
+                                %                                     params  = (xx{ml}(xx{ml}~=7));
+                                %                                 end
+                                % Deviation  = -2*ln[(likelihood of fitted model)/(likelihood of saturated model)]
+                                Mdl = fitglm(Train.X(:,params) , Train.IPI,'Intercept',false);
+                                [Ypred,Posterior] = predict(Mdl,Test.X(:,params));
+                                out.R2(count,:)   = se2_R2ModelComp(Test.IPI , Ypred0 , Ypred);
+                                out.R2_adjusted(count , 1) = se2_R2Adjusted(Test.IPI , Ypred , length(params) + 1);
+                                out.B{count,:} = Mdl.Coefficients.Estimate;
+                                out.Dev(count , 1) = Mdl.Deviance;
+                                out.hor(count , 1) = h;
+                                out.subj(count , 1) = sn;
+                                out.day(count , 1) = dd;
+                                out.xx(count , 1) = ml;
+                                out.cv (count , 1) = cvl;
+                                count = count+1;
+                                disp(['Model ' , num2str(ml) , ' - Day ' , num2str(dd) , ' - Subject ' , num2str(sn) , ' - Horizon ' , num2str(h)])
+                            end
+                        end
+                    end
+                end
+            end
+            Mdl = out;
+            save([baseDir , '/se2_CrossvalIPI_',titleSuffix,'_OLS.mat'] , 'Mdl' , '-v7.3')
+        else
+            load([baseDir , '/se2_CrossvalIPI_',titleSuffix,'_OLS.mat']);
+            out =  Mdl;
+        end
+            
+        clear Mdl
+        % =================== % =================== % =================== % =================== Compare Modelzzzzz BITCH!
+        dayz = {[1] [2],[3] [4] [5]};
+        K = tapply(out , {'hor' , 'subj' , 'day' , 'xx'} , {'R2' , 'nanmean'} ,{'R2_adjusted' , 'nanmean'} ,  {'Dev' , 'nanmean'}); % average over cv loops
+        K1 = getrow(K  , K.hor == 100);
+       for h = 1:length(hor)
+            for dd = 1:length(dayz)
+                for sn = 1:length(subj_name) - 1
+                    a = getrow(K , K.hor == h & ismember(K.day , dayz{dd}) & K.subj == sn);
+                    a.normDev = a.Dev(1)- a.Dev;
+                    K1 = addstruct(K1 , a);
+                end
+            end
+        end
+        clear xp_dev pp_dev ep_dev xp_r2 pp_r2 ep_r2 xp_r2a pp_r2a ep_r2a dev_image R2_image xp_dn  pp_dn ep_dn dvn_image
+        h1 = figure;
+        for h = 1:length(hor)
+            for dd = 1:length(dayz)
+                [xp_dev{dd}(h, :) , pp_dev{dd}(h,:) , ep_dev{dd}(h,:)]  = lineplot(K1.xx, K1.Dev , 'plotfcn','nanmean' ,  'subset' , K1.hor == h & ismember(K1.day , dayz{dd}));
+                hold on 
+                [xp_r2{dd}(h, :) , pp_r2{dd}(h,:) , ep_r2{dd}(h,:)]  = lineplot(K1.xx, K1.R2 , 'plotfcn','nanmean' , 'subset' , K1.hor == h & ismember(K1.day , dayz{dd}));
+                [xp_r2a{dd}(h, :) , pp_r2a{dd}(h,:) , ep_r2a{dd}(h,:)]  = lineplot(K1.xx, K1.R2_adjusted , 'plotfcn','nanmean' , 'subset' , K1.hor == h & ismember(K1.day , dayz{dd}));
+                [xp_dn{dd}(h, :) , pp_dn{dd}(h,:) , ep_dn{dd}(h,:)]  = lineplot(K1.xx, K1.normDev ,  'plotfcn','nanmean' ,'subset' , K1.hor == h & ismember(K1.day , dayz{dd}));
+                dev_image(dd,h,:) = pp_dev{dd}(h,:);
+                R2_image(dd,h,:) = pp_r2{dd}(h,:);
+                dvn_image(dd,h,:) = pp_dn{dd}(h,:);
+                hold on
+            end
+        end
+        close(h1)
+        % =================== % =================== % =================== % =================== Visualize model R2 comparisons!
+        
+        
+        
+        figure('color' , 'white')
+        
+        for dd = 1:length(dayz) 
+            subplot(2,5,dd)
+            for h = 1:length(hor)-1
+                %   errorbar(xp{g}(h, :) , pp{g}(h,:) , ep{g}(h,:) , 'color' , colors(cCount,:) , 'LineWidth' , 3)
+                hold on
+                eval(['h' , num2str(h) , ' = plotshade(xp_r2{dd}(h, :) , pp_r2{dd}(h,:) , ep_r2{dd}(h,:),''transp'' , .2 , ''patchcolor'' , colors(h,:) , ''linecolor'' , colors(h,:) , ''linewidth'' , 3 , ''linestyle'' , '':'')']);
+                hold on
+            end
+            ylabel('R^2 nomarlized to the Null model')
+             set(gca , 'XLim' , [1 length(xx)+1],'XTick' , [1: length(xx)] , 'XTickLabels' , label , 'FontSize' , 20 ,...
+                'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
+            title([titleSuffix , ' , Days ' , num2str(dayz{dd})])
+            
+            grid on
+        end
+        legend([h1,h2,h3,h4,h5,h6,h7,h8,h9] ,legHor(1:end-1), 'Box' , 'off')
+        
+        
+        for dd = 1:length(dayz) 
+            subplot(2,5,dd+length(dayz))
+            for h = length(hor)
+                %   errorbar(xp{g}(h, :) , pp{g}(h,:) , ep{g}(h,:) , 'color' , colors(cCount,:) , 'LineWidth' , 3)
+                hold on
+                eval(['h' , num2str(h) , ' = plotshade(xp_r2{dd}(h, :) , pp_r2{dd}(h,:) , ep_r2{dd}(h,:),''transp'' , .2 , ''patchcolor'' , colors(h,:) , ''linecolor'' , colors(h,:) , ''linewidth'' , 3 , ''linestyle'' , '':'')']);
+                hold on
+            end
+            ylabel('R^2 nomarlized to the Null model')
+            set(gca , 'XLim' , [1 length(xx)+1],'XTick' , [1: length(xx)] , 'XTickLabels' , label , 'FontSize' , 20 ,...
+                'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
+            title([titleSuffix , ' , Days ' , num2str(dayz{dd})])
+            grid on
+        end
+        legend([h10] ,legHor(end), 'Box' , 'off')
+        
+        % =================== % =================== % =================== % =================== Visualize model R2_adjusted comparisons!
+        
+        
+        
+        figure('color' , 'white')
+        
+        for dd = 1:length(dayz) 
+            subplot(2,5,dd)
+            for h = 1:length(hor)-1
+                %   errorbar(xp{g}(h, :) , pp{g}(h,:) , ep{g}(h,:) , 'color' , colors(cCount,:) , 'LineWidth' , 3)
+                hold on
+                eval(['h' , num2str(h) , ' = plotshade(xp_r2a{dd}(h, :) , pp_r2a{dd}(h,:) , ep_r2a{dd}(h,:),''transp'' , .2 , ''patchcolor'' , colors(h,:) , ''linecolor'' , colors(h,:) , ''linewidth'' , 3 , ''linestyle'' , '':'')']);
+                hold on
+            end
+            ylabel('Adjusted R^2 nomarlized to the Null model')
+             set(gca , 'XLim' , [1 length(xx)+1],'XTick' , [1: length(xx)] , 'XTickLabels' , label , 'FontSize' , 20 ,...
+                'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
+            title([titleSuffix , ' , Days ' , num2str(dayz{dd})])
+            
+            grid on
+        end
+        legend([h1,h2,h3,h4,h5,h6,h7,h8,h9] ,legHor(1:end-1), 'Box' , 'off')
+        
+        
+        for dd = 1:length(dayz) 
+            subplot(2,5,dd+length(dayz))
+            for h = length(hor)
+                %   errorbar(xp{g}(h, :) , pp{g}(h,:) , ep{g}(h,:) , 'color' , colors(cCount,:) , 'LineWidth' , 3)
+                hold on
+                eval(['h' , num2str(h) , ' = plotshade(xp_r2a{dd}(h, :) , pp_r2a{dd}(h,:) , ep_r2a{dd}(h,:),''transp'' , .2 , ''patchcolor'' , colors(h,:) , ''linecolor'' , colors(h,:) , ''linewidth'' , 3 , ''linestyle'' , '':'')']);
+                hold on
+            end
+            ylabel('Adjusted R^2 nomarlized to the Null model')
+            set(gca , 'XLim' , [1 length(xx)+1],'XTick' , [1: length(xx)] , 'XTickLabels' , label , 'FontSize' , 20 ,...
+                'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
+            title([titleSuffix , ' , Days ' , num2str(dayz{dd})])
+            
+            grid on
+        end
+        legend([h10] ,legHor(end), 'Box' , 'off')
+        % =================== % =================== % =================== % =================== Visualize model deviance comparisons!
+        
+        
+        figure('color' , 'white')
+        
+        for dd = 1:length(dayz) 
+            subplot(2,5,dd)
+            for h = 1:length(hor)-1
+                %   errorbar(xp{g}(h, :) , pp{g}(h,:) , ep{g}(h,:) , 'color' , colors(cCount,:) , 'LineWidth' , 3)
+                hold on
+                eval(['h' , num2str(h) , ' = plotshade(xp_dn{dd}(h, :) , pp_dn{dd}(h,:) , ep_dn{dd}(h,:),''transp'' , .2 , ''patchcolor'' , colors(h,:) , ''linecolor'' , colors(h,:) , ''linewidth'' , 3 , ''linestyle'' , '':'')']);
+                hold on
+            end
+            ylabel('Deviance nomarlized to the Saturated  model')
+             set(gca , 'XLim' , [1 length(xx)+1],'XTick' , [1: length(xx)] , 'XTickLabels' , label , 'FontSize' , 20 ,...
+                'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
+            title([titleSuffix , ' , Days ' , num2str(dayz{dd})])
+            
+            grid on
+        end
+        legend([h1,h2,h3,h4,h5,h6,h7,h8,h9] ,legHor(1:end-1), 'Box' , 'off')
+        
+        for dd = 1:length(dayz) 
+            subplot(2,5,dd+length(dayz))
+            for h = length(hor)
+                %   errorbar(xp{g}(h, :) , pp{g}(h,:) , ep{g}(h,:) , 'color' , colors(cCount,:) , 'LineWidth' , 3)
+                hold on
+                eval(['h' , num2str(h) , ' = plotshade(xp_dn{dd}(h, :) , pp_dn{dd}(h,:) , ep_dn{dd}(h,:),''transp'' , .2 , ''patchcolor'' , colors(h,:) , ''linecolor'' , colors(h,:) , ''linewidth'' , 3 , ''linestyle'' , '':'')']);
+                hold on
+            end
+            ylabel('Deviance nomarlized to the Saturated model')
+            set(gca , 'XLim' , [1 length(xx)+1],'XTick' , [1: length(xx)] , 'XTickLabels' , label , 'FontSize' , 20 ,...
+                'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
+            title([titleSuffix , ' , Days ' , num2str(dayz{dd})])
+            
+            grid on
+        end
+        legend([h10] ,legHor(end), 'Box' , 'off')
+
     case 'crossvaldist_chunk'
         %% chunk distances
         h = input('Which horizon?');
@@ -6574,283 +4949,7 @@ switch what
         
         
         
-        out = [];
-    case 'Crossval_GLM'
-        N1 = input('Use Conditional Transition Probabilities? (y/n)' , 's');
-        switch N1
-            case 'y'
-                norm = 1;
-            otherwise
-                norm = 0;
-        end
-        N2 = input('Use the last IPI for 2nd/3rd order transitions? (y/n)' , 's');
-        switch N2
-            case 'y'
-                LastIPI = 1;
-            otherwise
-                LastIPI = 0;
-        end
-        
-        if GroupCode == 1
-            load([baseDir , '/CMB_34_1.mat'])
-            CMB = CMB_34_1;
-        elseif GroupCode == 1
-            load([baseDir , '/CMB_34_2.mat'])
-            CMB = CMB_34_2;
-        end
-        N3 = input('look into Chunked/Random/All sequences? (c/r/a)'  , 's');
-        N4 = input('Use normalized IPIs? (Y/N)'  , 's');
-        N5 = input('Analyse Medians, or raw IPIs? (M/R)' , 's');
-        load([baseDir , '/se2_TranProb.mat'])
-        for count = 1:length(C.BN)
-            C.Presses(count , 1:2) = CMB.comb2(C.t2(count),:);
-        end
-        for count = 1:length(R.BN)
-            R.Presses(count , 1:2) = CMB.comb2(R.t2(count),:);
-        end
-        All = addstruct(C,R);
-        
-        %% bin the probabilities into 5 classes of probability and test the effect of probability on IPIs in Random sequences
-        C.t2Rank_n_binned = C.t2Rank_n;
-        rr = 1;
-        for j = 0:5:25
-            C.t2Rank_n_binned(C.t2Rank_n_binned>=j & C.t2Rank_n_binned<j+5) = rr;
-            rr = rr+1;
-        end
-        R.t2Rank_n_binned = R.t2Rank_n;
-        rr = 1;
-        for j = 0:6:25
-            R.t2Rank_n_binned(R.t2Rank_n_binned>=j & R.t2Rank_n_binned<j+6) = rr;
-            rr = rr+1;
-        end
-        
-        C.T3Rank_n_binned = C.T3Rank_n(:,1);
-        rr = 1;
-        for j = 0:20:125
-            C.T3Rank_n_binned(C.T3Rank_n_binned>=j & C.T3Rank_n_binned<j+20) = rr;
-            rr = rr+1;
-        end
-        R.T3Rank_n_binned = R.T3Rank_n(:,1);
-        rr = 1;
-        for j = 0:25:125
-            R.T3Rank_n_binned(R.T3Rank_n_binned>=j & R.T3Rank_n_binned<j+25) = rr;
-            rr = rr+1;
-        end
-        
-        C.T4Rank_n_binned = C.T4Rank_n(:,1);
-        rr = 1;
-        for j = 0:60:625
-            C.T4Rank_n_binned(C.T4Rank_n_binned>=j & C.T4Rank_n_binned<j+60) = rr;
-            rr = rr+1;
-        end
-        R.T4Rank_n_binned = R.T4Rank_n(:,1);
-        rr = 1;
-        for j = 0:80:625
-            R.T4Rank_n_binned(R.T4Rank_n_binned>=j & R.T4Rank_n_binned<j+80) = rr;
-            rr = rr+1;
-        end
-        % map the block to less / half per day / so bin every 4 blocks to 1
-        C.seqNumb(1:length(C.SN) , :) =1;
-        R.seqNumb(1:length(R.SN) , :) =0;
-        All = addstruct(C,R);
-        dd = unique(All.Day);
-        for db= 1:length(dd)
-            T = getrow(All , All.Day == dd(db));
-            bls = unique(T.BN);
-            id1 = ismember(All.BN , bls(1:floor(length(bls)/2)));
-            id2 = ismember(All.BN , bls(floor(length(bls)/2):end));
-            All.BN(id1) = 2*db -1;
-            All.BN(id2) = 2*db;
-        end
-        C = getrow(All,All.seqNumb == 1);
-        R = getrow(All,All.seqNumb == 0);
-        switch N5
-            case {'M' , 'm'}
-                CC = getrow(All,All.seqNumb == 1);
-                RR = getrow(All,All.seqNumb == 0);
-                if calc
-                    C  = tapply(CC , {'Horizon' ,'SN' , 'IPIarrangement' , 'BN' ,'t2Rank_n_binned' , 'T3Rank_n_binned' , 'T4Rank_n_binned'} , {'IPI' , 'nanmedian(x)'} , {'IPI_norm' , 'nanmedian(x)'} , {'Day' , 'nanmedian(x)'});
-                    R  = tapply(RR , {'Horizon' ,'SN' , 'IPIarrangement' , 'BN' ,'t2Rank_n_binned' , 'T3Rank_n_binned' , 'T4Rank_n_binned'} , {'IPI' , 'nanmedian(x)'} , {'IPI_norm' , 'nanmedian(x)'} , {'Day' , 'nanmedian(x)'});
-                else
-                    load([baseDir , '/se2_Summarized_TranProb_Conditional_LastIPI.mat'])
-                end
-            otherwise
-                C = getrow(All,All.seqNumb == 1);
-                R = getrow(All,All.seqNumb == 0);
-        end
-        %% develope the GLM
-        
-        switch N3
-            case 'c'
-                M = C;
-                titleSuffix = 'Chunked';
-                hor = {1,2,3,4,5,6,7,8,13,[5:13]};
-                legHor = {'H = 1', 'H = 2','H = 3','H = 4','H = 5','H = 6','H = 7','H = 8','H = 13' , 'H = 5-13'};
-            case 'r'
-                M = R;
-                titleSuffix = 'Random';
-                hor = {1,2,3,4,5,6,7,8,13,[5:13]};
-                legHor = {'H = 1', 'H = 2','H = 3','H = 4','H = 5','H = 6','H = 7','H = 8','H = 13' , 'H = 5-13'};
-            case 'a'
-                M = All;
-                titleSuffix = 'All Sequences';
-        end
-        
-        
-        for dd = 1:5
-            
-            for sn = 1:length(subj_name) - 1
-                for h = 1:length(hor)
-                    M.IPIarrangement(M.IPIarrangement == 0) = 1;
-                    
-                    T = getrow(M , ismember(M.SN , sn) & ismember(M.Horizon , hor{h}) & ismember(M.Day , dd));
-                    T.Indices = crossvalind('Kfold', length(T.Horizon), 10);
-                    
-                    
-                    
-                    L = length(T.IPI);
-                    T.X1 = ones(L , 1); % intercept
-                    T.X2 = T.IPIarrangement;
-                    %             T.X2 = T.estIPIarrangement;
-                    
-                    T.X2(T.X2==1) = -1; % between
-                    T.X2(T.X2==0) = -1; % Random = between
-                    T.X2(T.X2==2) = 1;  % within
-                    
-                    
-                    
-                    switch norm
-                        case 1
-                            T.X3 = T.t2Rank_n_binned;
-                            switch LastIPI
-                                case 1
-                                    %                                 T.X4 = T.t3Prob_n(:,1);
-                                    %                                 T.X5 = T.t4Prob_n(:,1);
-                                    T.X4 = T.T3Rank_n_binned;
-                                    T.X5 = T.T4Rank_n_binned;
-                                otherwise
-                                    T.X4 = mean(T.t3Prob_n , 2);
-                                    T.X5 = mean(T.t4Prob_n , 2);
-                            end
-                        case 0
-                            T.X3 = T.t2Prob;
-                            switch LastIPI
-                                case 1
-                                    T.X4 = T.t3Prob(:,1);
-                                    T.X5 = T.t4Prob(:,1);
-                                otherwise
-                                    T.X4 = mean(T.t3Prob , 2);
-                                    T.X5 = mean(T.t4Prob , 2);
-                            end
-                    end
-                    
-                    T.X6 = max(T.BN) - [T.BN] +1;
-                    T.X7 = ismember(T.t2 , [21:25])  +1;
-                    for ind = 1:10
-                        clear Test Train TSS RSS0 RSS1 FSS1 FSS0
-                        Test  = getrow(T , T.Indices == ind);
-                        Train = getrow(T , T.Indices ~= ind);
-                        switch N4
-                            case {'n' 'N'}
-                                X_train = [Train.X1 Train.X2 Train.X3 Train.X4 Train.X5 Train.X6 Train.X7];
-                                X_test = [Test.X1 Test.X2 Test.X3 Test.X4 Test.X5 Test.X6 Test.X7];
-                                xx    = {[1 6:7] , [1 2 6:7] ,  [1 3 6:7]  , [1,3:4,6:7]           ,[1 3:7] ,      [1:3,6:7]  ,        [1:4,6:7]          [1:7]};
-                                Y_test = Test.IPI;
-                                Y_train = Train.IPI;
-                                label = {'I+L' '  I+C+L', 'I+1st+L' ,'I+1st+2nd+L'    'I+1st+2nd+3rd+L' , 'I+C+1st+L'  ,  'I+C+1st+2nd+L'  ,  'Full'};
-                            otherwise
-                                %                         X = [Train.X1 Train.X2 Train.X3 Train.X4 Train.X5];
-                                %                         xx    = {[1 2] ,  [1 3]  , [1,3:4]           ,[1 3:5] ,      [1:3]  ,        [1:4]          [1:5]};
-                                %                         Y = T.IPI_norm;
-                                %                         label = {'I+C', 'I+1st' ,'I+1st+2nd'    'I+1st+2nd+3rd' , 'I+C+1st'  ,  'I+C+1st+2nd'  ,  'Full'};
-                                X_train = [Train.X1 Train.X2 Train.X3 Train.X4 Train.X5 Train.X6 Train.X7];
-                                X_test = [Test.X1 Test.X2 Test.X3 Test.X4 Test.X5 Test.X6 Test.X7];
-                                xx    = {[1 6:7] , [1 2 6:7] ,  [1 3 6:7]  , [1,3:4,6:7]           ,[1 3:7] ,      [1:3,6,7]  ,        [1:4,6,7]          [1:7]};
-                                Y_test = Test.IPI_norm;
-                                Y_train = Train.IPI_norm;
-                                label = {'I+L' '  I+C+L', 'I+1st+L' ,'I+1st+2nd+L'    'I+1st+2nd+3rd+L' , 'I+C+1st+L'  ,  'I+C+1st+2nd+L'  ,  'Full'};
-                        end
-                        Xnew = [Train.X1];
-                        B = pinv(Xnew'*Xnew)*Xnew'*Y_train;
-                        % test it on unseen data
-                        Xnew = [Test.X1];
-                        Ypred = Xnew*B;
-                        Res  = Y_test-Ypred;
-                        TSS = sum(Y_test.^2); % Total Variance
-                        FSS1 = sum(Ypred.^2); % Fitted Variance of the Null Model (just the intercept)
-                        RSS1 = sum((Y_test-Ypred).^2); % Residual Variance of the Null Model
-                        for k = 1:length(xx)
-                            Xnew = X_train(:,xx{k});
-                            Bnew = pinv(Xnew'*Xnew)*Xnew'*Y_train;
-                            % test it on unseen data
-                            Xnew = X_test(:,xx{k});
-                            Ypred_new = Xnew*Bnew;
-                            FSS0(k) = sum(Ypred_new.^2);  % Fitted Variance of the partial model
-                            RSS0(k) = sum((Y_test-Ypred_new).^2); % Residual Variance of the partial Model
-                        end
-                        temp_R2(ind,:)   = 1 - (RSS0./RSS1);
-                    end
-                    % ___________________________      R_squared = 1 - (Residual variance of the partial model/Residual variance of the null model)
-                    R2{h,dd}(sn , :)   = mean(temp_R2);
-                    xlab{h,dd}(sn , :) = 1:length(xx);
-                    % ___________________________
-                end
-            end
-        end
-        
-        
-        
-        
-        
-        
-        clear ePLOT xcoord ERROR
-        figure('color' , 'white')
-        for dd = 1:5
-            subplot(2,5,dd)
-            cCount = 1;
-            for h = 1:length(hor)-1
-                f = figure;
-                [xcoordh,ePLOTh,ERRORh] = lineplot(reshape(xlab{h,dd} , numel(xlab{h,dd}) , 1) , reshape(R2{h,dd} , numel(R2{h,dd}) , 1) , 'plotfcn' , 'nanmean',...
-                    'linecolor' , colors(cCount,:) , 'markercolor' , colors(cCount,:) , 'errorcolor' , colors(cCount,:) , 'linewidth' , 3);
-                close(f)
-                errorbar(xcoordh,ePLOTh,ERRORh , 'color' , colors(cCount,:) , 'LineWidth' , 3)
-                hold on
-                %             plotshade(xcoord',ePLOT , ERROR,'transp' , .2 , 'patchcolor' , colors(cCount,:) , 'linecolor' , colors(cCount,:) , 'linewidth' , 3 , 'linestyle' , ':');
-                cCount = cCount+1;
-            end
-            ylabel('R^2')
-            set(gca , 'XLim' , [0 length(xx)+1],'XTick' , [1: length(xx)] , 'XTickLabels' ,[],'FontSize' , 20,...
-                'YLim' , [-.2 .4],'Box' , 'off' , 'GridAlpha' , 1)
-            title([titleSuffix , ' , Days ' , num2str(dd)])
-            grid on
-        end
-        legend(legHor(1:end-1), 'Box' , 'off')
-        for dd = 1:5
-            subplot(2,5,5+dd)
-            cCount = 1;
-            for h = length(hor)
-                f = figure;
-                [xcoord(dd,:),ePLOT(dd,:),ERROR(dd,:)] = lineplot(reshape(xlab{h,dd} , numel(xlab{h,dd}) , 1) , reshape(R2{h,dd} , numel(R2{h,dd}) , 1) , 'plotfcn' , 'nanmean',...
-                    'linecolor' , colors(cCount,:) , 'markercolor' , colors(cCount,:) , 'errorcolor' , colors(cCount,:) , 'linewidth' , 3);
-                close(f)
-                errorbar(xcoord(dd,:)',ePLOT(dd,:),ERROR(dd,:) , 'color' , colors(cCount,:) , 'LineWidth' , 3)
-                hold on
-                plotshade(xcoord(dd,:),ePLOT(dd,:) , ERROR(dd,:),'transp' , .2 , 'patchcolor' , colors(cCount,:) , 'linecolor' , colors(cCount,:) , 'linewidth' , 3 , 'linestyle' , ':');
-                cCount = cCount+1;
-            end
-            ylabel('R^2')
-            title([titleSuffix, ' , Days ' , num2str(dd)])
-            set(gca , 'XLim' , [0 length(xx)+1] , 'XTick' , [1: length(xx)] , 'XTickLabels' , label , 'FontSize' , 20 ,...
-                'XTickLabelRotation',45,'YLim' , [-.2 .3],'Box' , 'off' , 'GridAlpha' , 1)
-            grid on
-        end
-        legend(legHor(end) , 'Box' , 'off')
-        
-        figure('color' , 'white')
-        imagesc(ePLOT)
-        colorbar
-        set(gca , 'XTick' , [1 :length(xx)] , 'XTickLabels' , label , 'FontSize' , 20 ,...
-            'XTickLabelRotation',45,'YTick' , [1 :5])
+        out = [];    
 end
 
 
