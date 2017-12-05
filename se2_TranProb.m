@@ -1,4 +1,7 @@
 function se2_TranProb(Dall)
+
+% baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
+baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
 load([baseDir , '/CMB_34_1.mat'])
 CMB = CMB_34_1;
 snum = length(unique(Dall.SN));
