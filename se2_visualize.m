@@ -34,8 +34,8 @@ function out  = se2_visualize(Dall , subjnum, what, distance, calc , day ,rep, G
 %     case 'crossvaldist_chunk'
 %%
 prefix = 'se1_';
-% baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
-baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
+baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
+% baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
 subj_name = {'AT1' , 'CG1' , 'HB1' , 'JT1' , 'CB1' , 'YM1' , 'NL1' , 'SR1' , 'IB1' , 'MZ1' , 'DW1', 'All'};
 
 % subj_name = {'AT1' , 'CG1' , 'HB1' , 'JT1' , 'CB1' , 'YM1' , 'NL1' , 'SR1' , 'All'};
@@ -305,7 +305,7 @@ switch what
         MT  = tapply(ANA , {'Horizon' , 'Day' ,'SN' , 'seqNumb','BN'} , {'MT' , 'nanmedian(x)'});
         
         MT = getrow(MT , MT.MT <= 9000 );
-        dayz = {1 [2 3] [4 5] };
+        dayz = {1 [2 3] [4 5]};
         for d=  1:length(dayz)
             hc = 1;
             for h = [1:8 13]
@@ -326,12 +326,13 @@ switch what
         for d=  1:length(dayz)
             temp = anovaMixed(MT.MT  , MT.SN ,'within',[MT.Horizon MT.seqNumb] ,{'Horizon' 'Random/Chunked'},'intercept',1 ,...
                 'subset' , ismember(MT.Day , d))  ;
-            subplot(2,3,d)
+            subplot(1,3,d)
             h1 = plotshade(xcoords{d}',PLOTs{d} , ERRORs{d},'transp' , .2 , 'patchcolor' , 'b' , 'linecolor' , 'b' , 'linewidth' , 3 , 'linestyle' , ':');
             hold on
             h2 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .2 , 'patchcolor' , 'r' , 'linecolor' , 'r' , 'linewidth' , 3 , 'linestyle' , ':');
-            set(gca,'FontSize' , 16);
-            title(['MT - Day ' , num2str(d) , ' - Ch/R-H interac. = ' , ' p = ' , num2str(temp.eff(4).p)])
+            set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
+                'GridAlpha' , 1 , 'Box' , 'off');
+            title(['Execution time - Day(s) ' , num2str(dayz{d})])
             ylabel('msec' )
             xlabel('Horizon' )
             legend([h1 h2] ,{'Chunked' , 'Random'})
@@ -377,7 +378,7 @@ switch what
         subplot(221)
         imagesc(cell2mat(PLOTs_med') , [2500 7000])
         set(gca , 'XTick' , [1:5] , 'YTick', [1:9] , 'YTickLabels' , [1 :8 , 13],'FontSize' , 20)
-        title('Median MT across days and horizons in  Chunked Seqs')
+        title('Execution Time in  Chunked Sequences')
         ylabel('Horizon Size')
         xlabel('Days')
         
@@ -385,27 +386,40 @@ switch what
         imagesc(cell2mat(PLOTr_med'), [2500 7000])
         colorbar
         set(gca , 'XTick' , [1:5] , 'YTick', [1:9] , 'YTickLabels' , [1 :8 , 13],'FontSize' , 20)
-        title('Median MT across days and horizons in Random Seqs')
+        title('Execution Time in  Random Sequences')
         ylabel('Horizon Size')
         xlabel('Days')
         
         subplot(223)
-        errorbar(cell2mat(PLOTs_med')' , cell2mat(ERRORs_med')' , 'lineWidth' , 3)
+        A = cell2mat(PLOTs_med')';
+        B = cell2mat(ERRORs_med')';
+        for i = 1:9
+            errorbar(A(:,i) , B(:,i) , 'lineWidth' , 3,'color' , colors(i,:));
+            hold on
+        end
+        
         grid on
-        set(gca , 'XTick' , [1:5] , 'YLim', [2500 7000] ,'FontSize' , 20)
+        set(gca , 'XLim' , [0 6] ,'XTick' , [1:5] , 'YLim', [2500 7000] ,'FontSize' , 20, 'Box' , 'off',...
+            'GridAlpha' , 1)
         ylabel('msec')
         xlabel('Days')
-        title('Median MT across days and horizons in  Chunked Seqs')
+        title('Execution Time in  Chunked Sequences')
         %         legend(fliplr({'H = 13' 'H = 8' 'H = 7' 'H = 6' 'H = 5' 'H = 4' 'H = 3' 'H = 2' 'H = 1' }));
         
         subplot(224)
-        errorbar(cell2mat(PLOTr_med')' , cell2mat(ERRORr_med')' , 'lineWidth' , 3)
+        A = cell2mat(PLOTr_med')';
+        B = cell2mat(ERRORr_med')';
+        for i = 1:9
+            errorbar(A(:,i) , B(:,i) , 'lineWidth' , 3,'color' , colors(i,:));
+            hold on
+        end
         grid on
-        set(gca , 'XTick' , [1:5] , 'YLim', [2500 7000] ,'FontSize' , 20)
+        set(gca , 'XLim' , [0 6] , 'XTick' , [1:5] , 'YLim', [2500 7000] ,'FontSize' , 20 ,...
+            'GridAlpha' , 1, 'Box' , 'off')
         ylabel('msec')
         xlabel('Days')
-        title('MT across days and horizons in Random Seqs')
-        legend(fliplr({'H = 13' 'H = 8' 'H = 7' 'H = 6' 'H = 5' 'H = 4' 'H = 3' 'H = 2' 'H = 1' }));
+        title('Execution Time in  Random Sequences')
+        legend(fliplr({'H = 13' 'H = 8' 'H = 7' 'H = 6' 'H = 5' 'H = 4' 'H = 3' 'H = 2' 'H = 1' }) , 'Box' , 'off');
         
         
 % 
@@ -852,7 +866,7 @@ switch what
             subplot(2,3,d)
             errorbar(coo1(:,d)',plot1(:,d)',err1(:,d)' , 'LineWidth' , 3,'color','r');
             hold on
-            errorbar(coo1_pred(:,d)',plot1_pred(:,d)',err1_pred(:,d)' , 'LineWidth' , 3 ,'color','c','LineStyle',':', 'GridAlpha' , 1);
+            errorbar(coo1_pred(:,d)',plot1_pred(:,d)',err1_pred(:,d)' , 'LineWidth' , 3 ,'color','c','LineStyle',':');
             set(gca, 'YLim' , [3000 , 8000] , 'XTick' , [1:8 , 13], 'FontSize' , 20, 'GridAlpha' , 1 , 'Box' , 'off')
             hold on
             xlabel('Horizon')
@@ -867,7 +881,7 @@ switch what
             subplot(2,3,d)
             errorbar(coo0(:,d)',plot0(:,d)',err0(:,d)' , 'LineWidth' , 3,'color','r');
             hold on
-            errorbar(coo0_pred(:,d)',plot0_pred(:,d)',err0_pred(:,d)' , 'LineWidth' ,3,'color','c','LineStyle',':', 'GridAlpha' , 1);
+            errorbar(coo0_pred(:,d)',plot0_pred(:,d)',err0_pred(:,d)' , 'LineWidth' ,3,'color','c','LineStyle',':');
             set(gca, 'YLim' , [3000 , 8000] , 'XTick' , [1:8 , 13], 'FontSize' , 20, 'GridAlpha' , 1, 'Box' , 'off')
             hold on
             xlabel('Horizon')
@@ -4187,12 +4201,14 @@ switch what
                 xx =     {[6]   [6:7]    [2 6:7] ,   [3 6:7] ,   [4 6:7]        [3:5,6:7]          ,[2:3  , 6:7] ,      [2:4,6:7]  ,    [2:7]};
                 label = {'L'    'L+R'  'C+L+R',     '1st+L+R' ,'1st+2nd+L+R'    '1st+2nd+3rd+L+R' , 'C+1st+L+R'  ,  'C+1st+2nd+L+R'  ,  'Full'};
                 plotIND = [3:6 , 9];
+                ylim = [-0.001 .01];
             otherwise
                 M.IPI = M.IPI_norm;
                 titleSuffix = [titleSuffix , '-norm'];
                 xx =     {[7]    [2 7] ,   [3 7] ,   [4 7]        [3:5,7]          ,[2:3  , 7] ,      [2:4,7]  ,    [2:5 , 7]};
                 label = {'R'  'C+R',     '1st+R' ,'1st+2nd+R'    '1st+2nd+3rd+R' , 'C+1st+R'  ,  'C+1st+2nd+R'  ,  'Full'};
                 plotIND = [2:5 , 8];
+                ylim  =[-0.0055 .03];
         end
         cleanLabel = {'within/between Chunk', '1st order probability' ,'1st + 2nd order probability' ,'1st + 2nd + 3rd order probability' ,'Full Model'};
         cat_cleanLabel = categorical(repmat(cleanLabel , length(hor)-1 , 1));
@@ -4299,7 +4315,7 @@ switch what
                         hold on
                     end
                     ylabel('R^2 nomarlized to the Null model')
-                    set(gca ,'YLim' , [-0.001 .01], 'XLim' , [0 length(plotIND)+1] ,'XTick' , [1: length(plotIND)] , 'XTickLabels' , cleanLabel , 'FontSize' , 20 ,...
+                    set(gca ,'YLim' , ylim, 'XLim' , [0 length(plotIND)+1] ,'XTick' , [1: length(plotIND)] , 'XTickLabels' , cleanLabel , 'FontSize' , 20 ,...
                         'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
                     title([titleSuffix , ' , Days ' , num2str(dayz{dd})])
                     
@@ -4317,7 +4333,7 @@ switch what
                         hold on
                     end
                     ylabel('R^2 nomarlized to the Null model')
-                    set(gca ,'YLim' , [-0.001 .01], 'XLim' , [0 length(plotIND)+1],'XTick' , [1: length(plotIND)] , 'XTickLabels' , cleanLabel , 'FontSize' , 20 ,...
+                    set(gca ,'YLim' , ylim, 'XLim' , [0 length(plotIND)+1],'XTick' , [1: length(plotIND)] , 'XTickLabels' , cleanLabel , 'FontSize' , 20 ,...
                         'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
                     title([titleSuffix , ' , Days ' , num2str(dayz{dd})])
                     grid on
@@ -4329,26 +4345,26 @@ switch what
                 pp_ = reshape(cell2mat(pp_r2) , size(pp_r2{1} , 1) , size(pp_r2{1} , 2) , length(pp_r2));
                 ep_ = reshape(cell2mat(ep_r2) , size(ep_r2{1} , 1) , size(ep_r2{1} , 2) , length(ep_r2));
                 
-                figure('color' , 'white')
-                for i = 1:length(plotIND)
-                    subplot(length(plotIND) ,1, i)
-                    bar(squeeze(pp_(1:9,plotIND(i) , :))');
-                    grid on
-                    set(gca , 'FontSize' , 20 ,'Box' , 'off' , 'GridAlpha' , 1 , 'XTick' , [1:length(dayz)] , 'XTickLabel' , {'Day 1' 'Days 2, 3' 'Days 4, 5'} ,'YLim' , [-0.001 .01])
-                    title(['Model Crossvalidated R^2 for ' , cleanLabel{i}])
-                end
-                legend(legHor(1:end-1), 'Box' , 'off')
-                
+%                 figure('color' , 'white')
+%                 for i = 1:length(plotIND)
+%                     subplot(length(plotIND) ,1, i)
+%                     bar(squeeze(pp_(1:9,plotIND(i) , :))');
+%                     grid on
+%                     set(gca , 'FontSize' , 20 ,'Box' , 'off' , 'GridAlpha' , 1 , 'XTick' , [1:length(dayz)] , 'XTickLabel' , {'Day 1' 'Days 2, 3' 'Days 4, 5'} ,'YLim' , ylim)
+%                     title(['Model Crossvalidated R^2 for ' , cleanLabel{i}])
+%                 end
+%                 legend(legHor(1:end-1), 'Box' , 'off')
+%                 
                 
                 figure('color' , 'white')
                 for i = 1:length(dayz)
                     subplot(length(dayz) ,1, i)
                     bar(squeeze(pp_(1:9,plotIND , i)));
                     grid on
-                    set(gca , 'FontSize' , 20 ,'Box' , 'off' , 'GridAlpha' , 1 , 'XTick' , [1:length(legHor)-1] , 'XTickLabel' , legHor(1:end-1),'YLim' , [-0.001 .01])
-                    title(['Model Crossvalidated R^2 on Day(s) ' , num2str(dayz{i})])
+                    set(gca , 'FontSize' , 20 ,'Box' , 'off' , 'GridAlpha' , 1 , 'XTick' , [1:length(legHor)-1] , 'XTickLabel' , legHor(1:end-1),'YLim' , ylim)
+                    title([titleSuffix ,' - Model Crossvalidated R^2 on Day(s) ' , num2str(dayz{i})])
                 end
-                legend(cleanLabel, 'Box' , 'off')
+                legend(cleanLabel)
         end
         
         % =================== % =================== % =================== % =================== Visualize model correlation comparisons!
@@ -4397,15 +4413,15 @@ switch what
                 pp_ = reshape(cell2mat(pp_cor) , size(pp_cor{1} , 1) , size(pp_cor{1} , 2) , length(pp_cor));
                 ep_ = reshape(cell2mat(ep_cor) , size(ep_cor{1} , 1) , size(ep_cor{1} , 2) , length(ep_cor));
                 
-                figure('color' , 'white')
-                for i = 1:length(plotIND)
-                    subplot(length(plotIND) ,1, i)
-                    bar(squeeze(pp_(1:9,plotIND(i) , :))');
-                    grid on
-                    set(gca , 'FontSize' , 20 ,'Box' , 'off' , 'GridAlpha' , 1 , 'XTick' , [1:length(dayz)] , 'XTickLabel' , {'Day 1' 'Days 2, 3' 'Days 4, 5'} )
-                    title(['Model Prediction - Output Correlation for ' , cleanLabel{i}])
-                end
-                legend(legHor(1:end-1), 'Box' , 'off')
+%                 figure('color' , 'white')
+%                 for i = 1:length(plotIND)
+%                     subplot(length(plotIND) ,1, i)
+%                     bar(squeeze(pp_(1:9,plotIND(i) , :))');
+%                     grid on
+%                     set(gca , 'FontSize' , 20 ,'Box' , 'off' , 'GridAlpha' , 1 , 'XTick' , [1:length(dayz)] , 'XTickLabel' , {'Day 1' 'Days 2, 3' 'Days 4, 5'} )
+%                     title(['Model Prediction - Output Correlation for ' , cleanLabel{i}])
+%                 end
+%                 legend(legHor(1:end-1), 'Box' , 'off')
                 
                 
                 figure('color' , 'white')
@@ -4413,36 +4429,36 @@ switch what
                     subplot(length(dayz) ,1, i)
                     bar(squeeze(pp_(1:9,plotIND , i)));
                     grid on
-                    set(gca , 'FontSize' , 20 ,'Box' , 'off' , 'GridAlpha' , 1 , 'XTick' , [1:length(legHor)-1] , 'XTickLabel' , legHor(1:end-1))
-                    title(['Model Prediction - Output Correlation on Day(s) ' , num2str(dayz{i})])
+                    set(gca , 'FontSize' , 20 ,'Box' , 'off' , 'GridAlpha' , 1 , 'XTick' , [1:length(legHor)-1] , 'XTickLabel' , legHor(1:end-1),...
+                        'YLim' , [-.1 .4])
+                    title([titleSuffix , ' - Model Prediction - Output Correlation on Day(s) ' , num2str(dayz{i})])
                 end
-                legend(cleanLabel, 'Box' , 'off')
+                legend(cleanLabel)
         end
     case 'Crossval_GLM_ols'
-
-        
-        %  N1 = input('Use Conditional Transition Probabilities? (y/n)' , 's');
-        %         switch N1
-        %             case 'y'
-        %                 norm = 1;
-        %             otherwise
-        %                 norm = 0;
-        %         end
-        %         N2 = input('Use the last IPI for 2nd/3rd order transitions? (y/n)' , 's');
-        %         switch N2
-        %             case 'y'
-        %                 LastIPI = 1;
-        %             otherwise
-        %                 LastIPI = 0;
-        %         end
+        %             N1 = input('Use Conditional Transition Probabilities? (y/n)' , 's');
+%         switch N1
+%             case 'y'
+%                 norm = 1;
+%             otherwise
+%                 norm = 0;
+%         end
+%         N2 = input('Use the last IPI for 2nd/3rd order transitions? (y/n)' , 's');
+%         switch N2
+%             case 'y'
+%                 LastIPI = 1;
+%             otherwise
+%                 LastIPI = 0;
+%         end
         cond = 1;
         LastIPI = 1;
         N3 = input('look into Chunked/Random/All sequences? (c/r/a)'  , 's');
-%         N4 = input('Use normalized IPIs? (Y/N)'  , 's');
+        N4 = input('Use normalized IPIs? (Y/N)'  , 's');
+        N6 = input('Bar or Shade? (b/s)' , 's');
 %         N5 = input('Analyse Medians, or raw IPIs? (M/R)' , 's');
-%         N3 = 'c';
-        N4 = 'n';
+%         
         N5 = 'r';
+        
         if GroupCode == 1
             load([baseDir , '/CMB_34_1.mat'])
             CMB = CMB_34_1;
@@ -4496,28 +4512,36 @@ switch what
         M.X2(M.X2==0) = 1; % Random = between
         M.X2(M.X2==2) = -1;  % within
         
-        switch cond
+         switch cond
             case 1
-                M.X3 = M.t2Rank_n_binned;
+                temp = M.t2Prob_n;
+                M.X3 = ceil(1.5*(1 + mapminmax(temp')))';
                 switch LastIPI
                     case 1
-                        %                                 T.X4 = T.t3Prob_n(:,1);
-                        %                                 T.X5 = T.t4Prob_n(:,1);
-                        M.X4 = M.t3Rank_n_binned;
-                        M.X5 = M.t4Rank_n_binned;
+                        temp = M.t3Prob_n(:,1);
+                        M.X4 = ceil(1.5*(1 + mapminmax(temp')))';
+                        temp = M.t4Prob_n(:,1);
+                        M.X5 = ceil(1.5*(1 + mapminmax(temp')))';
                     otherwise
-                        M.X4 = mean(M.t3Prob_n , 2);
-                        M.X5 = mean(M.t4Prob_n , 2);
+                        temp = mean(M.t3Prob_n , 2);
+                        M.X4 = ceil(1.5*(1 + mapminmax(temp')))';
+                        temp = mean(M.t4Prob_n , 2);
+                        M.X5 = ceil(1.5*(1 + mapminmax(temp')))';
                 end
             case 0
-                M.X3 = M.t2Prob;
+                temp = M.t2Prob;
+                M.X3 = ceil(1.5*(1 + mapminmax(temp')))';
                 switch LastIPI
                     case 1
-                        M.X4 = M.t3Prob(:,1);
-                        M.X5 = M.t4Prob(:,1);
+                        temp = M.t3Prob(:,1);
+                        M.X4 = ceil(1.5*(1 + mapminmax(temp')))';
+                        temp = M.t4Prob(:,1);
+                        M.X5 = ceil(1.5*(1 + mapminmax(temp')))';
                     otherwise
-                        M.X4 = mean(M.t3Prob , 2);
-                        M.X5 = mean(M.t4Prob , 2);
+                        temp = mean(M.t3Prob , 2);
+                        M.X4 = ceil(1.5*(1 + mapminmax(temp')))';
+                        temp = mean(M.t4Prob , 2);
+                        M.X5 = ceil(1.5*(1 + mapminmax(temp')))';
                 end
         end
         nB = fliplr(round(linspace(1 , 20  ,max(M.BN))));
@@ -4528,23 +4552,30 @@ switch what
         
         M.X7 = ismember(M.t2 , [21:25])  +1;
         M.X = [M.X1 M.X2 M.X3 M.X4 M.X5 M.X6 M.X7];
-        xx =     {[1] [1 6]   [1 6:7]    [1:2 6:7] ,   [1,3 6:7] ,   [1,4 6:7]        [1,3:5,6:7]          ,[1:3  , 6:7] ,      [1,2:4,6:7]  ,    [1:7]};
-        label = {'I'  'I+L'    'I+L+R'  'I+C+L+R',     'I+1st+L+R' ,'I+1st+2nd+L+R'    'I+1st+2nd+3rd+L+R' , 'I+C+1st+L+R'  ,  'I+C+1st+2nd+L+R'  ,  'Full'};
         switch N4
             case {'n' 'N'}
-                Y = M.IPI;
+                xx =     {[6]   [6:7]    [2 6:7] ,   [3 6:7] ,   [4 6:7]        [3:5,6:7]          ,[2:3  , 6:7] ,      [2:4,6:7]  ,    [2:7]};
+                label = {'L'    'L+R'  'C+L+R',     '1st+L+R' ,'1st+2nd+L+R'    '1st+2nd+3rd+L+R' , 'C+1st+L+R'  ,  'C+1st+2nd+L+R'  ,  'Full'};
+                plotIND = [3:6 , 9];
+                ylim = [-0.001 .01];
             otherwise
-                Y_test = M.IPI_norm;
+                M.IPI = M.IPI_norm;
+                titleSuffix = [titleSuffix , '-norm'];
+                xx =     {[7]    [2 7] ,   [3 7] ,   [4 7]        [3:5,7]          ,[2:3  , 7] ,      [2:4,7]  ,    [2:5 , 7]};
+                label = {'R'  'C+R',     '1st+R' ,'1st+2nd+R'    '1st+2nd+3rd+R' , 'C+1st+R'  ,  'C+1st+2nd+R'  ,  'Full'};
+                plotIND = [2:5 , 8];
+                ylim  =[-0.0055 .03];
         end
-        reglabel = {'intercept' , 'learning' ,'within/between chunk', '1st order probability (1:5)' ,'2nd order probability (1:5)' ,'3rd order probability (1:5)' ,'repetition of the same finger'};
+        cleanLabel = {'within/between Chunk', '1st order probability' ,'1st + 2nd order probability' ,'1st + 2nd + 3rd order probability' ,'Full Model'};
+        cat_cleanLabel = categorical(repmat(cleanLabel , length(hor)-1 , 1));
         % =================== % =================== % =================== % =================== Make Modelzzzzz BITCH!
         
         CVfol = 3;
         if calc
             count = 1;
-            for h = 1:length(hor)
-                for dd = 1:5
-                    for sn = 1:length(subj_name) - 1
+            for h = 7%1:length(hor)
+                for dd = 2%1:5
+                    for sn = 3%1:length(subj_name) - 1
                         T = getrow(M , ismember(M.SN , sn) & ismember(M.Horizon , hor{h}) & ismember(M.Day , dd));
                         L = length(T.IPI);
                         CVI = crossvalind('Kfold', L, CVfol);
@@ -4552,13 +4583,35 @@ switch what
                             Test = getrow(T , CVI==cvl);
                             Train = getrow(T , CVI~=cvl);
                             params  = xx{1};   % Null Model
-                            Mdl = fitglm(Train.X(:,params) , Train.IPI,'Intercept',false);
-                            [Ypred,Posterior] = predict(Mdl,Test.X(:,params));
-                            Ypred0 = Ypred;
+                            X = Train.X(:,params);
+                            X = X - repmat(mean(X) , length(X) , 1); % mean subtract the design matrix
+                            Y = Train.IPI - mean(Train.IPI);  % mean subtract the output
+                            
+%                             Mdl = fitrlinear(X , Y,'Lambda',.4,'Regularization','ridge' , 'FitBias' , false);
+                            Mdl = fitglm(X , Y,'Intercept',false);
+                            
+                            X = Test.X(:,params);
+                            X = X - repmat(mean(X) , length(X) , 1); % mean subtract the design matrix
+                            Y = Test.IPI - mean(Test.IPI);  % mean subtract the output
+                            
+%                             Ypred = predict(Mdl,X);
+                            [Ypred0,Posterior] = predict(Mdl,X);
                             for ml = 1:length(xx)
                                 params  = xx{ml};
-                                Mdl = fitglm(Train.X(:,params) , Train.IPI,'Intercept',false);
-                                [Ypred,Posterior] = predict(Mdl,Test.X(:,params));
+                                X = Train.X(:,params);
+                                X = X - repmat(mean(X) , length(X) , 1); % mean subtract the design matrix
+                                Y = Train.IPI - mean(Train.IPI);  % mean subtract the output
+                                
+%                                 Mdl = fitrlinear(X , Y,'Lambda',.4,'Regularization','ridge' , 'FitBias' , false);
+                                Mdl = fitglm(X,Y,'Intercept',false);
+                                
+                                X = Test.X(:,params);
+                                X = X - repmat(mean(X) , length(X) , 1); % mean subtract the design matrix
+                                Y = Test.IPI - mean(Test.IPI);  % mean subtract the output
+                                
+%                                 Ypred = predict(Mdl,X);
+                                [Ypred,Posterior] = predict(Mdl,X);
+                                
                                 [cv_Dev , lh_comp] = se2_crossval_DEVandLH(Test.IPI , Ypred , Ypred0);
                                 out.R2(count,:)   = se2_R2ModelComp(Test.IPI , Ypred0 , Ypred);
                                 out.R2_adjusted(count , 1) = se2_R2Adjusted(Test.IPI , Ypred , length(params) + 1);
@@ -4572,6 +4625,8 @@ switch what
                                 out.day(count , 1) = dd;
                                 out.xx(count , 1) = ml;
                                 out.cv (count , 1) = cvl;
+                                temp = corrcoef(Y , Ypred);
+                                out.corYY (count , 1) = temp(2);
                                 count = count+1;
                                 disp(['Model ' , num2str(ml) , ' - Day ' , num2str(dd) , ' - Subject ' , num2str(sn) , ' - Horizon ' , num2str(h)])
                             end
@@ -4584,197 +4639,164 @@ switch what
         else
             load([baseDir , '/se2_CrossvalIPI_',titleSuffix,'_OLS.mat']);
             out =  Mdl;
-        end       
-        
-
+        end
+            
         clear Mdl
         % =================== % =================== % =================== % =================== Compare Modelzzzzz BITCH!
         dayz = {[1] [2 3] [4 5]};
-        K = tapply(out , {'hor' , 'subj' , 'day' , 'xx'} , {'R2' , 'nanmean'} ,{'R2_adjusted' , 'nanmean'} ,  {'Dev' , 'nanmean'}); % average over cv loops
-        K1 = getrow(K  , K.hor == 100);
-        for h = 1:length(hor)
-            for dd = 1:length(dayz)
-                for sn = 1:length(subj_name) - 1
-                    a = getrow(K , K.hor == h & ismember(K.day , dayz{dd}) & K.subj == sn);
-                    a.normDev = a.Dev(1)- a.Dev;
-                    K1 = addstruct(K1 , a);
-                end
-            end
-        end
-        clear xp_dev pp_dev ep_dev xp_r2 pp_r2 ep_r2 xp_r2a pp_r2a ep_r2a dev_image R2_image xp_dn  pp_dn ep_dn dvn_image
+        K = tapply(out , {'hor' , 'subj' , 'day' , 'xx'} , {'R2' , 'nanmean'} ,{'R2_adjusted' , 'nanmean'} ,  {'corYY' , 'nanmean'} ,  {'lh_comp' , 'nanmean'}); % average over cv loops
+      
+        clear xp_dev pp_dev ep_dev xp_r2 pp_r2 ep_r2 xp_r2a pp_r2a ep_r2a dev_image R2_image xp_dn  pp_dn ep_dn dvn_image xp_cor  pp_cor  ep_cor
         h1 = figure;
         for h = 1:length(hor)
             for dd = 1:length(dayz)
-                [xp_dev{dd}(h, :) , pp_dev{dd}(h,:) , ep_dev{dd}(h,:)]  = lineplot(K1.xx, K1.Dev , 'plotfcn','nanmean' ,  'subset' , K1.hor == h & ismember(K1.day , dayz{dd}));
+                [xp_cor{dd}(h, :) , pp_cor{dd}(h,:) , ep_cor{dd}(h,:)]  = lineplot(K.xx, K.corYY , 'plotfcn','nanmean' ,  'subset' , K.hor == h & ismember(K.day , dayz{dd}));
                 hold on
-                [xp_r2{dd}(h, :) , pp_r2{dd}(h,:) , ep_r2{dd}(h,:)]  = lineplot(K1.xx, K1.R2 , 'plotfcn','nanmean' , 'subset' , K1.hor == h & ismember(K1.day , dayz{dd}));
-                [xp_r2a{dd}(h, :) , pp_r2a{dd}(h,:) , ep_r2a{dd}(h,:)]  = lineplot(K1.xx, K1.R2_adjusted , 'plotfcn','nanmean' , 'subset' , K1.hor == h & ismember(K1.day , dayz{dd}));
-                [xp_dn{dd}(h, :) , pp_dn{dd}(h,:) , ep_dn{dd}(h,:)]  = lineplot(K1.xx, K1.normDev ,  'plotfcn','nanmean' ,'subset' , K1.hor == h & ismember(K1.day , dayz{dd}));
-                dev_image(dd,h,:) = pp_dev{dd}(h,:);
-                R2_image(dd,h,:) = pp_r2{dd}(h,:);
-                dvn_image(dd,h,:) = pp_dn{dd}(h,:);
+                [xp_r2{dd}(h, :) , pp_r2{dd}(h,:) , ep_r2{dd}(h,:)]  = lineplot(K.xx, K.R2 , 'plotfcn','nanmean' , 'subset' , K.hor == h & ismember(K.day , dayz{dd}));
+                [xp_r2a{dd}(h, :) , pp_r2a{dd}(h,:) , ep_r2a{dd}(h,:)]  = lineplot(K.xx, K.R2_adjusted , 'plotfcn','nanmean' , 'subset' , K.hor == h & ismember(K.day , dayz{dd}));
+                [xp_ml{dd}(h, :) , pp_ml{dd}(h,:) , ep_ml{dd}(h,:)]  = lineplot(K.xx, K.lh_comp ,  'plotfcn','nanmean' ,'subset' , K.hor == h & ismember(K.day , dayz{dd}));
                 hold on
             end
         end
         close(h1)
         % =================== % =================== % =================== % =================== Visualize model R2 comparisons!
         
-        
-        
-        figure('color' , 'white')
-        
-        for dd = 1:length(dayz)
-            subplot(2,length(dayz),dd)
-            for h = 1:length(hor)-1
-                %   errorbar(xp{g}(h, :) , pp{g}(h,:) , ep{g}(h,:) , 'color' , colors(cCount,:) , 'LineWidth' , 3)
-                hold on
-                eval(['h' , num2str(h) , ' = plotshade(xp_r2{dd}(h, 2:end) , pp_r2{dd}(h,2:end) , ep_r2{dd}(h,2:end),''transp'' , .2 , ''patchcolor'' , colors(h,:) , ''linecolor'' , colors(h,:) , ''linewidth'' , 3 , ''linestyle'' , '':'')']);
-                hold on
-            end
-            ylabel('R^2 nomarlized to the Null model')
-            set(gca , 'XLim' , [1 length(xx)+1],'XTick' , [2: length(xx)] , 'XTickLabels' , label(2:end) , 'FontSize' , 20 ,...
-                'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
-            title([titleSuffix , ' , Days ' , num2str(dayz{dd})])
-            
-            grid on
+        switch N6
+            case {'s'}
+                
+                figure('color' , 'white')
+                
+                for dd = 1:length(dayz)
+                    subplot(2,3,dd)
+                    for h = 1:length(hor)-1
+                        %   errorbar(xp{g}(h, :) , pp{g}(h,:) , ep{g}(h,:) , 'color' , colors(cCount,:) , 'LineWidth' , 3)
+                        hold on
+                        eval(['h' , num2str(h) , ' = plotshade([1:length(plotIND)] , pp_r2{dd}(h,plotIND) , ep_r2{dd}(h,plotIND),''transp'' , .2 , ''patchcolor'' , colors(h,:) , ''linecolor'' , colors(h,:) , ''linewidth'' , 3 , ''linestyle'' , '':'')']);
+                        hold on
+                    end
+                    ylabel('R^2 nomarlized to the Null model')
+                    set(gca ,'YLim' , ylim, 'XLim' , [0 length(plotIND)+1] ,'XTick' , [1: length(plotIND)] , 'XTickLabels' , cleanLabel , 'FontSize' , 20 ,...
+                        'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
+                    title([titleSuffix , ' , Days ' , num2str(dayz{dd})])
+                    
+                    grid on
+                end
+                legend([h1,h2,h3,h4,h5,h6,h7,h8,h9] ,legHor(1:end-1), 'Box' , 'off')
+                
+                
+                for dd = 1:length(dayz)
+                    subplot(2,3,dd+length(dayz))
+                    for h = length(hor)
+                        %   errorbar(xp{g}(h, :) , pp{g}(h,:) , ep{g}(h,:) , 'color' , colors(cCount,:) , 'LineWidth' , 3)
+                        hold on
+                        eval(['h' , num2str(h) , ' = plotshade([1:length(plotIND)] , pp_r2{dd}(h,plotIND) , ep_r2{dd}(h,plotIND),''transp'' , .2 , ''patchcolor'' , colors(h,:) , ''linecolor'' , colors(h,:) , ''linewidth'' , 3 , ''linestyle'' , '':'')']);
+                        hold on
+                    end
+                    ylabel('R^2 nomarlized to the Null model')
+                    set(gca ,'YLim' , ylim, 'XLim' , [0 length(plotIND)+1],'XTick' , [1: length(plotIND)] , 'XTickLabels' , cleanLabel , 'FontSize' , 20 ,...
+                        'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
+                    title([titleSuffix , ' , Days ' , num2str(dayz{dd})])
+                    grid on
+                end
+                legend([h10] ,legHor(end), 'Box' , 'off')
+            otherwise
+                % *******************barplot
+                xp_ = reshape(cell2mat(xp_r2) , size(xp_r2{1} , 1) , size(xp_r2{1} , 2) , length(xp_r2));
+                pp_ = reshape(cell2mat(pp_r2) , size(pp_r2{1} , 1) , size(pp_r2{1} , 2) , length(pp_r2));
+                ep_ = reshape(cell2mat(ep_r2) , size(ep_r2{1} , 1) , size(ep_r2{1} , 2) , length(ep_r2));
+                
+%                 figure('color' , 'white')
+%                 for i = 1:length(plotIND)
+%                     subplot(length(plotIND) ,1, i)
+%                     bar(squeeze(pp_(1:9,plotIND(i) , :))');
+%                     grid on
+%                     set(gca , 'FontSize' , 20 ,'Box' , 'off' , 'GridAlpha' , 1 , 'XTick' , [1:length(dayz)] , 'XTickLabel' , {'Day 1' 'Days 2, 3' 'Days 4, 5'} ,'YLim' , ylim)
+%                     title(['Model Crossvalidated R^2 for ' , cleanLabel{i}])
+%                 end
+%                 legend(legHor(1:end-1), 'Box' , 'off')
+%                 
+                
+                figure('color' , 'white')
+                for i = 1:length(dayz)
+                    subplot(length(dayz) ,1, i)
+                    bar(squeeze(pp_(1:9,plotIND , i)));
+                    grid on
+                    set(gca , 'FontSize' , 20 ,'Box' , 'off' , 'GridAlpha' , 1 , 'XTick' , [1:length(legHor)-1] , 'XTickLabel' , legHor(1:end-1),'YLim' , ylim)
+                    title([titleSuffix ,' - Model Crossvalidated R^2 on Day(s) ' , num2str(dayz{i})])
+                end
+                legend(cleanLabel)
         end
-        legend([h1,h2,h3,h4,h5,h6,h7,h8,h9] ,legHor(1:end-1), 'Box' , 'off')
         
+        % =================== % =================== % =================== % =================== Visualize model correlation comparisons!
         
-        for dd = 1:length(dayz)
-            subplot(2,length(dayz),dd+length(dayz))
-            for h = length(hor)
-                %   errorbar(xp{g}(h, :) , pp{g}(h,:) , ep{g}(h,:) , 'color' , colors(cCount,:) , 'LineWidth' , 3)
-                hold on
-                eval(['h' , num2str(h) , ' = plotshade(xp_r2{dd}(h, 2:end) , pp_r2{dd}(h,2:end) , ep_r2{dd}(h,2:end),''transp'' , .2 , ''patchcolor'' , colors(h,:) , ''linecolor'' , colors(h,:) , ''linewidth'' , 3 , ''linestyle'' , '':'')']);
-                hold on
-            end
-            ylabel('R^2 nomarlized to the Null model')
-            set(gca , 'XLim' , [1 length(xx)+1],'XTick' , [1: length(xx)-1] , 'XTickLabels' , label(2:end) , 'FontSize' , 20 ,...
-                'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
-            title([titleSuffix , ' , Days ' , num2str(dayz{dd})])
-            grid on
+        switch N6
+            case {'s'}
+                figure('color' , 'white')
+                
+                for dd = 1:length(dayz)
+                    subplot(2,3,dd)
+                    for h = 1:length(hor)-1
+                        %   errorbar(xp{g}(h, :) , pp{g}(h,:) , ep{g}(h,:) , 'color' , colors(cCount,:) , 'LineWidth' , 3)
+                        hold on
+                        eval(['h' , num2str(h) , ' = plotshade(xp_cor{dd}(h, 1:end) , pp_cor{dd}(h,1:end) , ep_cor{dd}(h,1:end),''transp'' , .2 , ''patchcolor'' , colors(h,:) , ''linecolor'' , colors(h,:) , ''linewidth'' , 3 , ''linestyle'' , '':'')']);
+                        hold on
+                    end
+                    ylabel('Prediction-output correlation')
+                    set(gca , 'XLim' , [1 length(xx)+1],'XTick' , [1: length(xx)] , 'XTickLabels' , label(1:end) , 'FontSize' , 20 ,...
+                        'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
+                    title([titleSuffix , ' , Days ' , num2str(dayz{dd})])
+                    
+                    grid on
+                end
+                legend([h1,h2,h3,h4,h5,h6,h7,h8,h9] ,legHor(1:end-1), 'Box' , 'off')
+                
+                
+                for dd = 1:length(dayz)
+                    subplot(2,3,dd+length(dayz))
+                    for h = length(hor)
+                        %   errorbar(xp{g}(h, :) , pp{g}(h,:) , ep{g}(h,:) , 'color' , colors(cCount,:) , 'LineWidth' , 3)
+                        hold on
+                        eval(['h' , num2str(h) , ' = plotshade(xp_cor{dd}(h, 1:end) , pp_cor{dd}(h,1:end) , ep_cor{dd}(h,1:end),''transp'' , .2 , ''patchcolor'' , colors(h,:) , ''linecolor'' , colors(h,:) , ''linewidth'' , 3 , ''linestyle'' , '':'')']);
+                        hold on
+                    end
+                    ylabel('Prediction-output correlation')
+                    set(gca , 'XLim' , [1 length(xx)+1],'XTick' , [1: length(xx)] , 'XTickLabels' , label(1:end) , 'FontSize' , 20 ,...
+                        'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
+                    title([titleSuffix , ' , Days ' , num2str(dayz{dd})])
+                    grid on
+                end
+                legend([h10] ,legHor(end), 'Box' , 'off')
+                
+            otherwise
+                % *******************barplot
+                xp_ = reshape(cell2mat(xp_cor) , size(xp_cor{1} , 1) , size(xp_cor{1} , 2) , length(xp_cor));
+                pp_ = reshape(cell2mat(pp_cor) , size(pp_cor{1} , 1) , size(pp_cor{1} , 2) , length(pp_cor));
+                ep_ = reshape(cell2mat(ep_cor) , size(ep_cor{1} , 1) , size(ep_cor{1} , 2) , length(ep_cor));
+                
+%                 figure('color' , 'white')
+%                 for i = 1:length(plotIND)
+%                     subplot(length(plotIND) ,1, i)
+%                     bar(squeeze(pp_(1:9,plotIND(i) , :))');
+%                     grid on
+%                     set(gca , 'FontSize' , 20 ,'Box' , 'off' , 'GridAlpha' , 1 , 'XTick' , [1:length(dayz)] , 'XTickLabel' , {'Day 1' 'Days 2, 3' 'Days 4, 5'} )
+%                     title(['Model Prediction - Output Correlation for ' , cleanLabel{i}])
+%                 end
+%                 legend(legHor(1:end-1), 'Box' , 'off')
+                
+                
+                figure('color' , 'white')
+                for i = 1:length(dayz)
+                    subplot(length(dayz) ,1, i)
+                    bar(squeeze(pp_(1:9,plotIND , i)));
+                    grid on
+                    set(gca , 'FontSize' , 20 ,'Box' , 'off' , 'GridAlpha' , 1 , 'XTick' , [1:length(legHor)-1] , 'XTickLabel' , legHor(1:end-1),...
+                        'YLim' , [-.1 .4])
+                    title([titleSuffix , ' - Model Prediction - Output Correlation on Day(s) ' , num2str(dayz{i})])
+                end
+                legend(cleanLabel)
         end
-        legend([h10] ,legHor(end), 'Box' , 'off')
-        
-        % =================== % =================== % =================== % =================== Visualize model R2_adjusted comparisons!
-        
-        
-        
-        figure('color' , 'white')
-        
-        for dd = 1:length(dayz)
-            subplot(2,5,dd)
-            for h = 1:length(hor)-1
-                %   errorbar(xp{g}(h, :) , pp{g}(h,:) , ep{g}(h,:) , 'color' , colors(cCount,:) , 'LineWidth' , 3)
-                hold on
-                eval(['h' , num2str(h) , ' = plotshade(xp_r2a{dd}(h, :) , pp_r2a{dd}(h,:) , ep_r2a{dd}(h,:),''transp'' , .2 , ''patchcolor'' , colors(h,:) , ''linecolor'' , colors(h,:) , ''linewidth'' , 3 , ''linestyle'' , '':'')']);
-                hold on
-            end
-            ylabel('Adjusted R^2 nomarlized to the Null model')
-            set(gca , 'XLim' , [1 length(xx)+1],'XTick' , [1: length(xx)] , 'XTickLabels' , label , 'FontSize' , 20 ,...
-                'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
-            title([titleSuffix , ' , Days ' , num2str(dayz{dd})])
-            
-            grid on
-        end
-        legend([h1,h2,h3,h4,h5,h6,h7,h8,h9] ,legHor(1:end-1), 'Box' , 'off')
-        
-        
-        for dd = 1:length(dayz)
-            subplot(2,5,dd+length(dayz))
-            for h = length(hor)
-                %   errorbar(xp{g}(h, :) , pp{g}(h,:) , ep{g}(h,:) , 'color' , colors(cCount,:) , 'LineWidth' , 3)
-                hold on
-                eval(['h' , num2str(h) , ' = plotshade(xp_r2a{dd}(h, :) , pp_r2a{dd}(h,:) , ep_r2a{dd}(h,:),''transp'' , .2 , ''patchcolor'' , colors(h,:) , ''linecolor'' , colors(h,:) , ''linewidth'' , 3 , ''linestyle'' , '':'')']);
-                hold on
-            end
-            ylabel('Adjusted R^2 nomarlized to the Null model')
-            set(gca , 'XLim' , [1 length(xx)+1],'XTick' , [1: length(xx)] , 'XTickLabels' , label , 'FontSize' , 20 ,...
-                'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
-            title([titleSuffix , ' , Days ' , num2str(dayz{dd})])
-            
-            grid on
-        end
-        legend([h10] ,legHor(end), 'Box' , 'off')
-        % =================== % =================== % =================== % =================== Visualize model deviance comparisons!
-        
-        
-        figure('color' , 'white')
-        
-        for dd = 1:length(dayz)
-            subplot(2,5,dd)
-            for h = 1:length(hor)-1
-                %   errorbar(xp{g}(h, :) , pp{g}(h,:) , ep{g}(h,:) , 'color' , colors(cCount,:) , 'LineWidth' , 3)
-                hold on
-                eval(['h' , num2str(h) , ' = plotshade(xp_dev{dd}(h, :) , pp_dev{dd}(h,:) , ep_dev{dd}(h,:),''transp'' , .2 , ''patchcolor'' , colors(h,:) , ''linecolor'' , colors(h,:) , ''linewidth'' , 3 , ''linestyle'' , '':'')']);
-                hold on
-            end
-            ylabel('Deviance')
-            set(gca , 'XLim' , [1 length(xx)+1],'XTick' , [1: length(xx)] , 'XTickLabels' , label , 'FontSize' , 20 ,...
-                'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
-            title([titleSuffix , ' , Days ' , num2str(dayz{dd})])
-            
-            grid on
-        end
-        legend([h1,h2,h3,h4,h5,h6,h7,h8,h9] ,legHor(1:end-1), 'Box' , 'off')
-        
-        for dd = 1:length(dayz)
-            subplot(2,5,dd+length(dayz))
-            for h = length(hor)
-                %   errorbar(xp{g}(h, :) , pp{g}(h,:) , ep{g}(h,:) , 'color' , colors(cCount,:) , 'LineWidth' , 3)
-                hold on
-                eval(['h' , num2str(h) , ' = plotshade(xp_dev{dd}(h, :) , pp_dev{dd}(h,:) , ep_dev{dd}(h,:),''transp'' , .2 , ''patchcolor'' , colors(h,:) , ''linecolor'' , colors(h,:) , ''linewidth'' , 3 , ''linestyle'' , '':'')']);
-                hold on
-            end
-            ylabel('Deviance')
-            set(gca , 'XLim' , [1 length(xx)+1],'XTick' , [1: length(xx)] , 'XTickLabels' , label , 'FontSize' , 20 ,...
-                'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
-            title([titleSuffix , ' , Days ' , num2str(dayz{dd})])
-            
-            grid on
-        end
-        legend([h10] ,legHor(end), 'Box' , 'off')
-        
-        % =================== % =================== % =================== % =================== Visualize model deviance comparisons!
-        
-        
-        figure('color' , 'white')
-        
-        for dd = 1:length(dayz)
-            subplot(2,5,dd)
-            for h = 1:length(hor)-1
-                %   errorbar(xp{g}(h, :) , pp{g}(h,:) , ep{g}(h,:) , 'color' , colors(cCount,:) , 'LineWidth' , 3)
-                hold on
-                eval(['h' , num2str(h) , ' = plotshade(xp_dev{dd}(h, :) , pp_dev{dd}(h,:) , ep_dev{dd}(h,:),''transp'' , .2 , ''patchcolor'' , colors(h,:) , ''linecolor'' , colors(h,:) , ''linewidth'' , 3 , ''linestyle'' , '':'')']);
-                hold on
-            end
-            ylabel('logLikelihood(Nul)-logLikelihood(Fit)')
-            set(gca , 'XLim' , [1 length(xx)+1],'XTick' , [1: length(xx)] , 'XTickLabels' , label , 'FontSize' , 20 ,...
-                'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
-            title([titleSuffix , ' , Days ' , num2str(dayz{dd})])
-            
-            grid on
-        end
-        legend([h1,h2,h3,h4,h5,h6,h7,h8,h9] ,legHor(1:end-1), 'Box' , 'off')
-        
-        for dd = 1:length(dayz)
-            subplot(2,5,dd+length(dayz))
-            for h = length(hor)
-                %   errorbar(xp{g}(h, :) , pp{g}(h,:) , ep{g}(h,:) , 'color' , colors(cCount,:) , 'LineWidth' , 3)
-                hold on
-                eval(['h' , num2str(h) , ' = plotshade(xp_dev{dd}(h, :) , pp_dev{dd}(h,:) , ep_dev{dd}(h,:),''transp'' , .2 , ''patchcolor'' , colors(h,:) , ''linecolor'' , colors(h,:) , ''linewidth'' , 3 , ''linestyle'' , '':'')']);
-                hold on
-            end
-            ylabel('logLikelihood(Nul)-logLikelihood(Fit)')
-            set(gca , 'XLim' , [1 length(xx)+1],'XTick' , [1: length(xx)] , 'XTickLabels' , label , 'FontSize' , 20 ,...
-                'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
-            title([titleSuffix , ' , Days ' , num2str(dayz{dd})])
-            
-            grid on
-        end
-        legend([h10] ,legHor(end), 'Box' , 'off')
 
+   
     case 'crossvaldist_chunk'
         %% chunk distances
         h = input('Which horizon?');
