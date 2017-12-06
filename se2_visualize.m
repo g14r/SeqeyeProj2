@@ -34,8 +34,8 @@ function out  = se2_visualize(Dall , subjnum, what, distance, calc , day ,rep, G
 %     case 'crossvaldist_chunk'
 %%
 prefix = 'se1_';
-baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
-% baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
+% baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
+baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
 subj_name = {'AT1' , 'CG1' , 'HB1' , 'JT1' , 'CB1' , 'YM1' , 'NL1' , 'SR1' , 'IB1' , 'MZ1' , 'DW1', 'All'};
 
 % subj_name = {'AT1' , 'CG1' , 'HB1' , 'JT1' , 'CB1' , 'YM1' , 'NL1' , 'SR1' , 'All'};
@@ -4190,17 +4190,22 @@ switch what
         end
         nB = fliplr(round(linspace(1 , 20  ,max(M.BN))));
         M.X6 = M.BN;
-        for q = 1:length(nB)
-            M.X6(M.X6 == q) = nB(q); 
-        end
+%         for q = 1:length(nB)
+%             M.X6(M.X6 == q) = nB(q); 
+%         end
         
         M.X7 = ismember(M.t2 , [21:25])  +1;
         M.X = [M.X1 M.X2 M.X3 M.X4 M.X5 M.X6 M.X7];
         switch N4
             case {'n' 'N'}
-                xx =     {[6]   [6:7]    [2 6:7] ,   [3 6:7] ,   [4 6:7]        [3:5,6:7]          ,[2:3  , 6:7] ,      [2:4,6:7]  ,    [2:7]};
-                label = {'L'    'L+R'  'C+L+R',     '1st+L+R' ,'1st+2nd+L+R'    '1st+2nd+3rd+L+R' , 'C+1st+L+R'  ,  'C+1st+2nd+L+R'  ,  'Full'};
-                plotIND = [3:6 , 9];
+%                 xx =     {[6]   [6:7]    [2 6:7] ,   [3 6:7] ,   [4 6:7]        [3:5,6:7]          ,[2:3  , 6:7] ,      [2:4,6:7]  ,    [2:7]};
+%                 label = {'L'    'L+R'  'C+L+R',     '1st+L+R' ,'1st+2nd+L+R'    '1st+2nd+3rd+L+R' , 'C+1st+L+R'  ,  'C+1st+2nd+L+R'  ,  'Full'};
+%                 plotIND = [3:6 , 9];
+
+                xx =     {[6]    [2 6] ,   [3 6] ,   [4 6]        [3:5,6]          ,[2:3  , 6] ,      [2:4,6]  ,    [2:6]};
+                 label = {'L'   'C+L',     '1st+L' ,'1st+2nd+L'    '1st+2nd+3rd+L' , 'C+1st+L'  ,  'C+1st+2nd+L'  ,  'Full'};
+                 plotIND = [2:5 , 8];
+                 
                 ylim = [-0.001 .01];
             otherwise
                 M.IPI = M.IPI_norm;
@@ -4543,28 +4548,33 @@ switch what
                         temp = mean(M.t4Prob , 2);
                         M.X5 = ceil(1.5*(1 + mapminmax(temp')))';
                 end
-        end
-        nB = fliplr(round(linspace(1 , 20  ,max(M.BN))));
-        M.X6 = M.BN;
-        for q = 1:length(nB)
-            M.X6(M.X6 == q) = nB(q); 
-        end
-        
-        M.X7 = ismember(M.t2 , [21:25])  +1;
-        M.X = [M.X1 M.X2 M.X3 M.X4 M.X5 M.X6 M.X7];
-        switch N4
-            case {'n' 'N'}
-                xx =     {[6]   [6:7]    [2 6:7] ,   [3 6:7] ,   [4 6:7]        [3:5,6:7]          ,[2:3  , 6:7] ,      [2:4,6:7]  ,    [2:7]};
-                label = {'L'    'L+R'  'C+L+R',     '1st+L+R' ,'1st+2nd+L+R'    '1st+2nd+3rd+L+R' , 'C+1st+L+R'  ,  'C+1st+2nd+L+R'  ,  'Full'};
-                plotIND = [3:6 , 9];
-                ylim = [-0.001 .01];
-            otherwise
-                M.IPI = M.IPI_norm;
-                titleSuffix = [titleSuffix , '-norm'];
-                xx =     {[7]    [2 7] ,   [3 7] ,   [4 7]        [3:5,7]          ,[2:3  , 7] ,      [2:4,7]  ,    [2:5 , 7]};
-                label = {'R'  'C+R',     '1st+R' ,'1st+2nd+R'    '1st+2nd+3rd+R' , 'C+1st+R'  ,  'C+1st+2nd+R'  ,  'Full'};
+         end
+         nB = fliplr(round(linspace(1 , 20  ,max(M.BN))));
+         M.X6 = M.BN;
+%          for q = 1:length(nB)
+%              M.X6(M.X6 == q) = nB(q);
+%          end
+         
+         M.X7 = ismember(M.t2 , [21:25])  +1;
+         M.X = [M.X1 M.X2 M.X3 M.X4 M.X5 M.X6 M.X7];
+         switch N4
+             case {'n' 'N'}
+                 %  xx =     {[6]   [6:7]    [2 6:7] ,   [3 6:7] ,   [4 6:7]        [3:5,6:7]          ,[2:3  , 6:7] ,      [2:4,6:7]  ,    [2:7]};
+                 % label = {'L'    'L+R'  'C+L+R',     '1st+L+R' ,'1st+2nd+L+R'    '1st+2nd+3rd+L+R' , 'C+1st+L+R'  ,  'C+1st+2nd+L+R'  ,  'Full'};
+                 % plotIND = [3:6 , 9];
+                 
+                 xx =     {[6]    [2 6] ,   [3 6] ,   [4 6]        [3:5,6]          ,[2:3  , 6] ,      [2:4,6]  ,    [2:6]};
+                 label = {'L'   'C+L',     '1st+L' ,'1st+2nd+L'    '1st+2nd+3rd+L' , 'C+1st+L'  ,  'C+1st+2nd+L'  ,  'Full'};
+                 plotIND = [2:5 , 8];
+                 
+                 ylim = [-0.15 .08];
+             otherwise
+                 M.IPI = M.IPI_norm;
+                 titleSuffix = [titleSuffix , '-norm'];
+                 xx =     {[7]    [2 7] ,   [3 7] ,   [4 7]        [3:5,7]          ,[2:3  , 7] ,      [2:4,7]  ,    [2:5 , 7]};
+                 label = {'R'  'C+R',     '1st+R' ,'1st+2nd+R'    '1st+2nd+3rd+R' , 'C+1st+R'  ,  'C+1st+2nd+R'  ,  'Full'};
                 plotIND = [2:5 , 8];
-                ylim  =[-0.0055 .03];
+                ylim = [-0.15 .08];
         end
         cleanLabel = {'within/between Chunk', '1st order probability' ,'1st + 2nd order probability' ,'1st + 2nd + 3rd order probability' ,'Full Model'};
         cat_cleanLabel = categorical(repmat(cleanLabel , length(hor)-1 , 1));
@@ -4573,9 +4583,9 @@ switch what
         CVfol = 3;
         if calc
             count = 1;
-            for h = 7%1:length(hor)
-                for dd = 2%1:5
-                    for sn = 3%1:length(subj_name) - 1
+            for h = 1:length(hor)
+                for dd = 1:5
+                    for sn = 1:length(subj_name) - 1
                         T = getrow(M , ismember(M.SN , sn) & ismember(M.Horizon , hor{h}) & ismember(M.Day , dd));
                         L = length(T.IPI);
                         CVI = crossvalind('Kfold', L, CVfol);
@@ -4596,6 +4606,8 @@ switch what
                             
 %                             Ypred = predict(Mdl,X);
                             [Ypred0,Posterior] = predict(Mdl,X);
+                            temp = corrcoef(Y , Ypred0);
+                            cor0 = temp(2);
                             for ml = 1:length(xx)
                                 params  = xx{ml};
                                 X = Train.X(:,params);
@@ -4612,9 +4624,9 @@ switch what
 %                                 Ypred = predict(Mdl,X);
                                 [Ypred,Posterior] = predict(Mdl,X);
                                 
-                                [cv_Dev , lh_comp] = se2_crossval_DEVandLH(Test.IPI , Ypred , Ypred0);
-                                out.R2(count,:)   = se2_R2ModelComp(Test.IPI , Ypred0 , Ypred);
-                                out.R2_adjusted(count , 1) = se2_R2Adjusted(Test.IPI , Ypred , length(params) + 1);
+                                [cv_Dev , lh_comp] = se2_crossval_DEVandLH(Y , Ypred , Ypred0);
+                                out.R2(count,:)   = se2_R2ModelComp(Y , Ypred0 , Ypred);
+                                out.R2_adjusted(count , 1) = se2_R2Adjusted(Y , Ypred , length(params) + 1);
                                 out.B{count,:} = Mdl.Coefficients.Estimate;
                                 % Deviation  = -2*ln[(likelihood of fitted model)/(likelihood of saturated model)]
                                 out.Dev(count , 1) = Mdl.Deviance;
@@ -4627,6 +4639,7 @@ switch what
                                 out.cv (count , 1) = cvl;
                                 temp = corrcoef(Y , Ypred);
                                 out.corYY (count , 1) = temp(2);
+                                out.corYY_norm(count , 1) = 1 - temp(2)/cor0;
                                 count = count+1;
                                 disp(['Model ' , num2str(ml) , ' - Day ' , num2str(dd) , ' - Subject ' , num2str(sn) , ' - Horizon ' , num2str(h)])
                             end
@@ -4644,7 +4657,7 @@ switch what
         clear Mdl
         % =================== % =================== % =================== % =================== Compare Modelzzzzz BITCH!
         dayz = {[1] [2 3] [4 5]};
-        K = tapply(out , {'hor' , 'subj' , 'day' , 'xx'} , {'R2' , 'nanmean'} ,{'R2_adjusted' , 'nanmean'} ,  {'corYY' , 'nanmean'} ,  {'lh_comp' , 'nanmean'}); % average over cv loops
+        K = tapply(out , {'hor' , 'subj' , 'day' , 'xx'} , {'R2' , 'nanmean'} ,{'R2_adjusted' , 'nanmean'} ,  {'corYY' , 'nanmean'} ,  {'corYY_norm' , 'nanmean'}); % average over cv loops
       
         clear xp_dev pp_dev ep_dev xp_r2 pp_r2 ep_r2 xp_r2a pp_r2a ep_r2a dev_image R2_image xp_dn  pp_dn ep_dn dvn_image xp_cor  pp_cor  ep_cor
         h1 = figure;
@@ -4654,7 +4667,7 @@ switch what
                 hold on
                 [xp_r2{dd}(h, :) , pp_r2{dd}(h,:) , ep_r2{dd}(h,:)]  = lineplot(K.xx, K.R2 , 'plotfcn','nanmean' , 'subset' , K.hor == h & ismember(K.day , dayz{dd}));
                 [xp_r2a{dd}(h, :) , pp_r2a{dd}(h,:) , ep_r2a{dd}(h,:)]  = lineplot(K.xx, K.R2_adjusted , 'plotfcn','nanmean' , 'subset' , K.hor == h & ismember(K.day , dayz{dd}));
-                [xp_ml{dd}(h, :) , pp_ml{dd}(h,:) , ep_ml{dd}(h,:)]  = lineplot(K.xx, K.lh_comp ,  'plotfcn','nanmean' ,'subset' , K.hor == h & ismember(K.day , dayz{dd}));
+                [xp_corn{dd}(h, :) , pp_corn{dd}(h,:) , ep_corn{dd}(h,:)]  = lineplot(K.xx, K.corYY_norm ,  'plotfcn','nanmean' ,'subset' , K.hor == h & ismember(K.day , dayz{dd}));
                 hold on
             end
         end
@@ -4675,8 +4688,8 @@ switch what
                         hold on
                     end
                     ylabel('R^2 nomarlized to the Null model')
-                    set(gca ,'YLim' , ylim, 'XLim' , [0 length(plotIND)+1] ,'XTick' , [1: length(plotIND)] , 'XTickLabels' , cleanLabel , 'FontSize' , 20 ,...
-                        'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
+%                     set(gca ,'YLim' , ylim, 'XLim' , [0 length(plotIND)+1] ,'XTick' , [1: length(plotIND)] , 'XTickLabels' , cleanLabel , 'FontSize' , 20 ,...
+%                         'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
                     title([titleSuffix , ' , Days ' , num2str(dayz{dd})])
                     
                     grid on
@@ -4693,8 +4706,8 @@ switch what
                         hold on
                     end
                     ylabel('R^2 nomarlized to the Null model')
-                    set(gca ,'YLim' , ylim, 'XLim' , [0 length(plotIND)+1],'XTick' , [1: length(plotIND)] , 'XTickLabels' , cleanLabel , 'FontSize' , 20 ,...
-                        'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
+%                     set(gca ,'YLim' , ylim, 'XLim' , [0 length(plotIND)+1],'XTick' , [1: length(plotIND)] , 'XTickLabels' , cleanLabel , 'FontSize' , 20 ,...
+%                         'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
                     title([titleSuffix , ' , Days ' , num2str(dayz{dd})])
                     grid on
                 end
@@ -4715,7 +4728,7 @@ switch what
 %                 end
 %                 legend(legHor(1:end-1), 'Box' , 'off')
 %                 
-                
+                ylim = [min(min(min(pp_)))   max(max(max(pp_)))];
                 figure('color' , 'white')
                 for i = 1:length(dayz)
                     subplot(length(dayz) ,1, i)
@@ -4773,17 +4786,25 @@ switch what
                 pp_ = reshape(cell2mat(pp_cor) , size(pp_cor{1} , 1) , size(pp_cor{1} , 2) , length(pp_cor));
                 ep_ = reshape(cell2mat(ep_cor) , size(ep_cor{1} , 1) , size(ep_cor{1} , 2) , length(ep_cor));
                 
-%                 figure('color' , 'white')
-%                 for i = 1:length(plotIND)
-%                     subplot(length(plotIND) ,1, i)
-%                     bar(squeeze(pp_(1:9,plotIND(i) , :))');
-%                     grid on
-%                     set(gca , 'FontSize' , 20 ,'Box' , 'off' , 'GridAlpha' , 1 , 'XTick' , [1:length(dayz)] , 'XTickLabel' , {'Day 1' 'Days 2, 3' 'Days 4, 5'} )
-%                     title(['Model Prediction - Output Correlation for ' , cleanLabel{i}])
-%                 end
-%                 legend(legHor(1:end-1), 'Box' , 'off')
+                
+                ylim = [min(min(min(pp_)))   max(max(max(pp_)))];
+                figure('color' , 'white')
+                for i = 1:length(dayz)
+                    subplot(length(dayz) ,1, i)
+                    bar(squeeze(pp_(1:9,plotIND , i)));
+                    grid on
+                    set(gca , 'FontSize' , 20 ,'Box' , 'off' , 'GridAlpha' , 1 , 'XTick' , [1:length(legHor)-1] , 'XTickLabel' , legHor(1:end-1),...
+                        'YLim' , [-.1 .4])
+                    title([titleSuffix , ' - Model Prediction - Output Correlation on Day(s) ' , num2str(dayz{i})])
+                end
+                legend(cleanLabel)
+                
+                xp_ = reshape(cell2mat(xp_corn) , size(xp_corn{1} , 1) , size(xp_corn{1} , 2) , length(xp_cor));
+                pp_ = reshape(cell2mat(pp_corn) , size(pp_corn{1} , 1) , size(pp_corn{1} , 2) , length(pp_cor));
+                ep_ = reshape(cell2mat(ep_corn) , size(ep_cor{1} , 1) , size(ep_cor{1} , 2) , length(ep_cor));
                 
                 
+                ylim = [min(min(min(pp_)))   max(max(max(pp_)))];
                 figure('color' , 'white')
                 for i = 1:length(dayz)
                     subplot(length(dayz) ,1, i)
