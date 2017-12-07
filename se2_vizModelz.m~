@@ -1,4 +1,4 @@
-function sig = se2_vizModelz(what)
+function se2_vizModelz(what)
 
 % what  is 's' for shadeplot and 'b' for barplot
 
@@ -47,12 +47,6 @@ switch iN1
 end
 %% set up legends and labels
 clear xp_dev pp_dev ep_dev xp_r2 pp_r2 ep_r2 xp_r2a pp_r2a ep_r2a dev_image R2_image xp_dn  pp_dn ep_dn dvn_image xp_cor  pp_cor  ep_cor sig
-horzSize = {1,2,3,4,5,6,7,8,13,[5:13]}; 
-legenddHor = {'H = 1', 'H = 2','H = 3','H = 4','H = 5','H = 6','H = 7','H = 8','H = 13' , 'H = 5-13'};
-% x labels for shadeplot
-label = {'R'  'C+R',     '1st+R' ,'1st+2nd+R'    '1st+2nd+3rd+R' , 'C+1st+R'  ,  'C+1st+2nd+R'  ,  'Full'};
-dayz = {[1] [2 3] [4 5]};
-plotIND = [2:5 , 8]; % the model indices to include in bar plot
 % do significance tests:
 
 % 'right' tail testing that A > B
@@ -61,7 +55,6 @@ plotIND = [2:5 , 8]; % the model indices to include in bar plot
 count = 1;
 for h = 1:length(horzSize)
     for dd = 1:length(dayz)
-        ido = (Mdl.hor == h & ismember(Mdl.day , dayz{dd}));
         A = Mdl.R2(Mdl.xx == 2 & ido);
         B = Mdl.R2(Mdl.xx == 5 & ido);
         C = Mdl.R2(Mdl.xx == 8 & ido);
@@ -75,12 +68,21 @@ for h = 1:length(horzSize)
 end
 
 
+
+
+horzSize = {1,2,3,4,5,6,7,8,13,[5:13]}; 
+legenddHor = {'H = 1', 'H = 2','H = 3','H = 4','H = 5','H = 6','H = 7','H = 8','H = 13' , 'H = 5-13'};
+% x labels for shadeplot
+label = {'R'  'C+R',     '1st+R' ,'1st+2nd+R'    '1st+2nd+3rd+R' , 'C+1st+R'  ,  'C+1st+2nd+R'  ,  'Full'};
+
+plotIND = [2:5 , 8]; % the model indices to include in bar plot
+
 % Model descriptions
 cleanLabel = {'within/between Chunk', '1st order probability' ,'1st + 2nd order probability' ,'1st + 2nd + 3rd order probability' ,'Full Model'};
 cat_cleanLabel = categorical(repmat(cleanLabel , length(horzSize)-1 , 1));
 
 % =================== % =================== % =================== % =================== summarize
-
+dayz = {[1] [2 3] [4 5]};
 K = tapply(Mdl , {'hor' , 'subj' , 'day' , 'xx'} , {'R2' , 'nanmean'} , {'corYY' , 'nanmean'} ); % average over cv loops
 
 
@@ -125,7 +127,7 @@ switch what
             set(gca ,'YLim' , ylim, 'XLim' , [0 length(plotIND)+1] ,'XTick' , [1: length(plotIND)] , 'XTickLabels' , cleanLabel , 'FontSize' , 20 ,...
                 'XTickLabelRotation',45,'Box' , 'off' , 'GridAlpha' , 1)
             title([titleSuffix , ' R^2, Days ' , num2str(dayz{dd})])
-             
+            
             grid on
         end
         legend([h1,h2,h3,h4,h5,h6,h7,h8,h9] ,legenddHor(1:end-1), 'Box' , 'off')
@@ -187,7 +189,7 @@ switch what
     case 'b'
         % *******************barplot
         % =================== % =================== % =================== % =================== Visualize model R2 comparisons
-se2_linearIPIModels.m        xp_ = reshape(cell2mat(xp_r2) , size(xp_r2{1} , 1) , size(xp_r2{1} , 2) , length(xp_r2));
+        xp_ = reshape(cell2mat(xp_r2) , size(xp_r2{1} , 1) , size(xp_r2{1} , 2) , length(xp_r2));
         pp_ = reshape(cell2mat(pp_r2) , size(pp_r2{1} , 1) , size(pp_r2{1} , 2) , length(pp_r2));
         ep_ = reshape(cell2mat(ep_r2) , size(ep_r2{1} , 1) , size(ep_r2{1} , 2) , length(ep_r2));
         

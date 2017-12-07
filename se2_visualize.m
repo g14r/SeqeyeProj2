@@ -34,8 +34,8 @@ function out  = se2_visualize(Dall , subjnum, what, distance, calc , day ,rep, G
 %     case 'crossvaldist_chunk'
 %%
 prefix = 'se1_';
-baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
-% baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
+% baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
+baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
 subj_name = {'AT1' , 'CG1' , 'HB1' , 'JT1' , 'CB1' , 'YM1' , 'NL1' , 'SR1' , 'IB1' , 'MZ1' , 'DW1', 'All'};
 
 % subj_name = {'AT1' , 'CG1' , 'HB1' , 'JT1' , 'CB1' , 'YM1' , 'NL1' , 'SR1' , 'All'};
@@ -2759,13 +2759,14 @@ switch what
             eyeinfo.seqNumb    = [];
             eyeinfo.DigFixDur  = [];
             ANA = getrow(Dall ,ismember(Dall.seqNumb , [0:2]) & ismember(Dall.SN , subjnum) & Dall.isgood & ~Dall.isError & cellfun(@length , Dall.xEyePosDigit)>1);
+            ignorDig = 2;
             for tn  = 1:length(ANA.TN)
                 ANA.ChunkBndry(tn , :) = [1 diff(ANA.ChnkArrang(tn,:))];
                 a = find(ANA.ChunkBndry(tn , :));
-                ANA.ChunkBndry(tn , a(2:end)-1) = 3;
+                ANA.ChunkBndry(tn , a(ignorDig:end)-1) = 3;
                 ANA.ChunkBndry(tn , ANA.ChunkBndry(tn , :) == 0) = 2;
-                ANA.ChunkBndry(tn , 1:3) = [-1 -1 -1];  % dont account for the first and last sseqeuce presses
-                ANA.ChunkBndry(tn , end-2:end) = [-1 -1 -1];% dont account for the first and last sseqeuce presses
+                ANA.ChunkBndry(tn , 1:ignorDig+1) = [-1 -1 -1];  % dont account for the first and last sseqeuce presses
+                ANA.ChunkBndry(tn , end-ignorDig:end) = [-1 -1 -1];% dont account for the first and last sseqeuce presses
                 ANA.DigFixWeight(tn , :) = zeros(1 ,14);
                 
                 
@@ -2804,24 +2805,22 @@ switch what
         end
         % between random and chunked
         K1 = tapply(eyeinfo , {'day' , 'Hor' , 'sn','seqNumb'} , {'sacDur' , 'nanmedian'}, {'sacPeakVel' , 'nanmedian'},...
-            {'sacAmp' , 'nanmedian'} , {'sacPerSec' , 'nanmedian'}, {'PB' , 'nanmedian'});
-        for d= 1:5
-            [xcoords,PLOTs,ERRORs] = lineplot([K1.seqNumb , K1.day] ,  K1.sacDur , 'plotfcn' , 'nanmean','subset' , ismember(K1.Hor , [5:13]));
-            [xcoords,PLOTs,ERRORs] = lineplot([K1.seqNumb , K1.day] ,  K1.sacAmp , 'plotfcn' , 'nanmean','subset' , ismember(K1.Hor , [5:13]));
-            [xcoords,PLOTs,ERRORs] = lineplot([K1.seqNumb , K1.day] ,  K1.PB , 'plotfcn' , 'nanmean','subset' , ismember(K1.Hor , [5:13]));
-            [xcoords,PLOTs,ERRORs] = lineplot([K1.seqNumb , K1.day] ,  K1.sacPerSec , 'plotfcn' , 'nanmean','subset' , ismember(K1.Hor , [5:13]));
-            hold on
-        end
+            {'sacAmp' , 'nanmedian'} , {'sacPerSec' , 'nanmedian'}, {'PB' , 'nanmedian'},{'DigFixDur' , 'nanmedian'});
+        [xDur,pDur,eDur] = lineplot([K1.seqNumb , K1.day] ,  K1.DigFixDur , 'plotfcn' , 'nanmean','subset' , ismember(K1.Hor , [5:13]));
+        [xAmp,pAmp,eAmp] = lineplot([K1.seqNumb , K1.day] ,  K1.sacAmp , 'plotfcn' , 'nanmean','subset' , ismember(K1.Hor , [5:13]));
+        [xPb,pPb,ePb] = lineplot([K1.seqNumb , K1.day] ,  K1.PB , 'plotfcn' , 'nanmean','subset' , ismember(K1.Hor , [5:13]));
+        [xSps,pSps,eSps] = lineplot([K1.seqNumb , K1.day] ,  K1.sacPerSec , 'plotfcn' , 'nanmean','subset' , ismember(K1.Hor , [5:13]));
+        hold on
         
+        
+        
+        % within chunked
         K2 = tapply(eyeinfo , {'day' , 'Hor' , 'sn','CB'} , {'sacDur' , 'nanmedian'}, {'DigFixDur' , 'nanmedian'},...
             {'sacAmp' , 'nanmedian'} , {'sacPerSec' , 'nanmedian'}, {'PB' , 'nanmedian'} , 'subset' , eyeinfo.seqNumb ~= 0);
-        for d= 1:5
-            [xcoords,PLOTs,ERRORs] = lineplot([K2.day , K2.CB] ,  K2.DigFixDur , 'plotfcn' , 'nanmean','subset' , ismember(K2.Hor , [5:13]));
-            [xcoords,PLOTs,ERRORs] = lineplot([K2.day , K2.CB] ,  K2.PB , 'plotfcn' , 'nanmean','subset' , ismember(K2.Hor , [5:13]));
-            [xcoords,PLOTs,ERRORs] = lineplot([K1.seqNumb , K1.day] ,  K1.PB , 'plotfcn' , 'nanmean','subset' , ismember(K1.Hor , [5:13]));
-            [xcoords,PLOTs,ERRORs] = lineplot([K1.seqNumb , K1.day] ,  K1.sacPerSec , 'plotfcn' , 'nanmean','subset' , ismember(K1.Hor , [5:13]));
-            hold on
-        end
+        [xcoords,PLOTs,ERRORs] = lineplot([K2.day , K2.CB] ,  K2.DigFixDur , 'plotfcn' , 'nanmean','subset' , ismember(K2.Hor , [5:13]));
+        [xcoords,PLOTs,ERRORs] = lineplot([K2.day , K2.CB] ,  K2.PB , 'plotfcn' , 'nanmean','subset' , ismember(K2.Hor , [5:13]));
+
+        hold on
     case 'glm_IPIs'
         N1 = input('Use Conditional Transition Probabilities? (y/n)' , 's');
         switch N1
