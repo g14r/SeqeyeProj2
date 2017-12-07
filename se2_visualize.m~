@@ -2817,7 +2817,7 @@ switch what
             {'sacAmp' , 'nanmedian'} , {'sacPerSec' , 'nanmedian'}, {'PB' , 'nanmedian'} , 'subset' , eyeinfo.seqNumb ~= 0);
         for d= 1:5
             [xcoords,PLOTs,ERRORs] = lineplot([K2.day , K2.CB] ,  K2.DigFixDur , 'plotfcn' , 'nanmean','subset' , ismember(K2.Hor , [5:13]));
-            [xcoords,PLOTs,ERRORs] = lineplot([K2.day , K2.CB] ,  K2.PB , 'plotfcn' , 'nanmean','subset' , ismember(K2.Hor , [5:13]));
+            [xcoords,PLOTs,ERRORs] = lineplot([K1.seqNumb , K1.day] ,  K1.sacAmp , 'plotfcn' , 'nanmean','subset' , ismember(K1.Hor , [5:13]));
             [xcoords,PLOTs,ERRORs] = lineplot([K1.seqNumb , K1.day] ,  K1.PB , 'plotfcn' , 'nanmean','subset' , ismember(K1.Hor , [5:13]));
             [xcoords,PLOTs,ERRORs] = lineplot([K1.seqNumb , K1.day] ,  K1.sacPerSec , 'plotfcn' , 'nanmean','subset' , ismember(K1.Hor , [5:13]));
             hold on
