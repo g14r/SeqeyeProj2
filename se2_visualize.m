@@ -34,8 +34,8 @@ function out  = se2_visualize(Dall , subjnum, what, distance, calc , day ,rep, G
 %     case 'crossvaldist_chunk'
 %%
 prefix = 'se1_';
-% baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
-baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
+baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
+% baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
 subj_name = {'AT1' , 'CG1' , 'HB1' , 'JT1' , 'CB1' , 'YM1' , 'NL1' , 'SR1' , 'IB1' , 'MZ1' , 'DW1', 'All'};
 
 % subj_name = {'AT1' , 'CG1' , 'HB1' , 'JT1' , 'CB1' , 'YM1' , 'NL1' , 'SR1' , 'All'};
@@ -2758,6 +2758,7 @@ switch what
             eyeinfo.sacAmp     = [];
             eyeinfo.seqNumb    = [];
             eyeinfo.DigFixDur  = [];
+            eyeinfo.prsnumb    = [];
             ANA = getrow(Dall ,ismember(Dall.seqNumb , [0:2]) & ismember(Dall.SN , subjnum) & Dall.isgood & ~Dall.isError & cellfun(@length , Dall.xEyePosDigit)>1);
             ignorDig = 2;
             for tn  = 1:length(ANA.TN)
@@ -2784,9 +2785,11 @@ switch what
                     end
                 end
                 perv_Ben           = [1:14] - ANA.EyePressTimePos(tn , :);
-                goodid             = (perv_Ben>=-3.5 & perv_Ben<-.9 & ANA.ChunkBndry(tn ,:)~=-1);
+                goodid             = (perv_Ben>=-3.5 & perv_Ben<-.9);
+                prsnumb            = find(goodid);
                 count              = sum(goodid);
                 eyeinfo.PB         = [eyeinfo.PB ;perv_Ben(goodid)'];
+                eyeinfo.prsnumb    = [eyeinfo.prsnumb ;find(goodid')];
                 eyeinfo.CB         = [eyeinfo.CB ;ANA.ChunkBndry(tn ,goodid)'];
                 eyeinfo.Hor        = [eyeinfo.Hor ; ANA.Horizon(tn)*ones(count , 1)];
                 eyeinfo.sn         = [eyeinfo.sn ; ANA.SN(tn)*ones(count , 1)];
@@ -2799,13 +2802,57 @@ switch what
                 eyeinfo.seqNumb    = [eyeinfo.seqNumb ; ANA.seqNumb(tn)*ones(count , 1)];
                 eyeinfo.DigFixDur  = [eyeinfo.DigFixDur ;ANA.DigFixWeight(tn ,goodid)'];
             end
-            save([baseDir , '/se2_eyeInfo.mat'] , 'eyeinfo' , '-v7.3')
+            K_withinChunk = tapply(eyeinfo , {'day' , 'Hor' , 'sn','CB'} , {'sacDur' , 'nanmedian'}, {'DigFixDur' , 'nanmedian'},...
+                {'sacAmp' , 'nanmedian'} , {'sacPerSec' , 'nanmedian'}, {'PB' , 'nanmedian'} , 'subset' ,...
+                eyeinfo.seqNumb ~= 0 & eyeinfo.CB~=-1);
+            
+            K_sqnum = tapply(eyeinfo , {'day' , 'Hor' , 'sn','seqNumb' , 'prsnumb'} , {'sacDur' , 'nanmedian'}, {'sacPeakVel' , 'nanmedian'},...
+                {'sacAmp' , 'nanmedian'} , {'sacPerSec' , 'nanmedian'}, {'PB' , 'nanmedian'},{'DigFixDur' , 'nanmedian'});
+            
+            K_rand_chnk = tapply(eyeinfo , {'day' , 'Hor' , 'sn','seqNumb'} , {'sacDur' , 'nanmedian'}, {'sacPeakVel' , 'nanmedian'},...
+                {'sacAmp' , 'nanmedian'} , {'sacPerSec' , 'nanmedian'}, {'PB' , 'nanmedian'},{'DigFixDur' , 'nanmedian'},...
+                'subset' , eyeinfo.CB~=-1);
+            
+            save([baseDir , '/se2_eyeInfo.mat'] , 'eyeinfo' ,'K_withinChunk' , 'K_sqnum' , 'K_rand_chnk' , '-v7.3')
         else
             load([baseDir , '/se2_eyeInfo.mat'])
         end
+        
+        h = figure;
+        for sqn = 0:2
+        [xDur,pDur,eDur] = lineplot([K_sqnum.day , K_sqnum.prsnumb] ,  K_sqnum.DigFixDur , 'plotfcn' , 'nanmean','subset' ,...
+            ismember(K_sqnum.Hor , [5:13]) & ismember(K_sqnum.seqNumb , sqn) , 'style_shade');
+        xs(sqn + 1 , :,:) = reshape(xDur , 13,5);
+        ps(sqn + 1 , :,:) = reshape(pDur , 13,5);
+        es(sqn + 1 , :,:) = reshape(eDur , 13,5);
+        end
+        
+        h = figure('color' , 'white');
+        for d = 1:5
+            for sqn = 0:2
+                errorbar(xs(sqn+1,:,d) , ps(sqn+1,:,d) , es(sqn+1,:,d) , 'LineWidth' , 3 , 'color' , colors(sqn + 1 , :));
+                hold on
+            end
+        end
+        legend({'Random' , 'structure 1' , 'structre 2'})
+        grid on
+        
+        h = figure('color' , 'white');
+        for sqn = 0:2
+            subplot(1,3,sqn + 1)
+            for d = 1:5
+                errorbar(xs(sqn+1,:,d) , ps(sqn+1,:,d) , es(sqn+1,:,d) , 'LineWidth' , 3 , 'color' , colors(sqn + 1 , :));
+                hold on
+            end
+            L = {'2' '3' '4' '5' '6' '7' '8' '9' '10' '11' '12' '13' '14'};
+            repmat(L , 1,5)
+            set(gca , 'YLim' , [0 .6] , 'XTick' , xDur , 'XTickLabels' , repmat(L , 1,5))
+            title(['Structre , ' num2str(sqn)])
+            grid on
+        end
+        
+        K1 = K_rand_chnk;
         % between random and chunked
-        K1 = tapply(eyeinfo , {'day' , 'Hor' , 'sn','seqNumb'} , {'sacDur' , 'nanmedian'}, {'sacPeakVel' , 'nanmedian'},...
-            {'sacAmp' , 'nanmedian'} , {'sacPerSec' , 'nanmedian'}, {'PB' , 'nanmedian'},{'DigFixDur' , 'nanmedian'});
         [xDur,pDur,eDur] = lineplot([K1.seqNumb , K1.day] ,  K1.DigFixDur , 'plotfcn' , 'nanmean','subset' , ismember(K1.Hor , [5:13]));
         [xAmp,pAmp,eAmp] = lineplot([K1.seqNumb , K1.day] ,  K1.sacAmp , 'plotfcn' , 'nanmean','subset' , ismember(K1.Hor , [5:13]));
         [xPb,pPb,ePb] = lineplot([K1.seqNumb , K1.day] ,  K1.PB , 'plotfcn' , 'nanmean','subset' , ismember(K1.Hor , [5:13]));
@@ -2815,8 +2862,7 @@ switch what
         
         
         % within chunked
-        K2 = tapply(eyeinfo , {'day' , 'Hor' , 'sn','CB'} , {'sacDur' , 'nanmedian'}, {'DigFixDur' , 'nanmedian'},...
-            {'sacAmp' , 'nanmedian'} , {'sacPerSec' , 'nanmedian'}, {'PB' , 'nanmedian'} , 'subset' , eyeinfo.seqNumb ~= 0);
+       
         [xcoords,PLOTs,ERRORs] = lineplot([K2.day , K2.CB] ,  K2.DigFixDur , 'plotfcn' , 'nanmean','subset' , ismember(K2.Hor , [5:13]));
         [xcoords,PLOTs,ERRORs] = lineplot([K2.day , K2.CB] ,  K2.PB , 'plotfcn' , 'nanmean','subset' , ismember(K2.Hor , [5:13]));
 

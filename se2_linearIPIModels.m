@@ -1,7 +1,7 @@
 function varargout  = se2_linearIPIModels(what , varargin)
 % Function to fit and evaluate different linear models for the IPIs
-% baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
-baseDir = '/Volumes/MotorControl/data/SeqEye2/analyze';  % server
+baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
+% baseDir = '/Volumes/MotorControl/data/SeqEye2/analyze';  % server
 horzSize = {1,2,3,4,5,6,7,8,13,[5:13]};
 modelTerms =  {[6]    [1 6] ,   [2 6] ,   [2:3 6]        [2:4 6]          ,[1:2  , 6] ,      [1:3 6]  ,    [1:4 , 6]};
 modelNames = {'R'  'C+R',     '1st+R' ,'1st+2nd+R'    '1st+2nd+3rd+R' , 'C+1st+R'  ,  'C+1st+2nd+R'  ,  'Full'};
@@ -48,15 +48,15 @@ switch (what)
         [M,titleSuffix] = se2_linearIPIModels('loadData',varargin{1});
         M=se2_linearIPIModels('makeDesignMatrix',M);
         subj = unique(M.SN);
-        RR=[]; % Structure to collect the answers
+        Mdl=[]; % Structure to collect the answers
         for sn = subj'   % loop over subjects
             for h = 1:length(horzSize) % loop over horizons
                 for dd = 1:5   % loop over days
                     T = getrow(M , ismember(M.SN , sn) & ismember(M.Horizon , horzSize{h}) & ismember(M.Day , dd));
-                    R.numObs = length(T.Y);
-                    R.SN = sn;
-                    R.Horizon = h;
-                    R.Day = dd;
+                    R.numObs = length(T.Y)*ones(1 , length(modelTerms));;
+                    R.SN = sn*ones(1 , length(modelTerms));
+                    R.Horizon = h*ones(1 , length(modelTerms));
+                    R.Day = dd*ones(1 , length(modelTerms));
                     X = bsxfun(@minus,T.X,mean(T.X)); % Faster and more compact than repmat
                     Y = T.Y-mean(T.Y);                  % Faster and more compact than repmat
                     for m=1:length(modelTerms)
@@ -66,19 +66,36 @@ switch (what)
                         R.numReg(1,m) = length(modelTerms{m});          % I am collecting them here in rows to make comparisions (t-test, normalization) 
                         R.R2(1,m) = 1-sum(res.^2)/sum(Y.^2);            % easier 
                         R.R(1,m)  = corr(Y,Ypred);
-                        R.AIC(1,m) = 2*R.numReg(m) + R.numObs*log(sum(res.^2));
+                        R.AIC(1,m) = 2*R.numReg(m) + R.numObs(m)*log(sum(res.^2));
+                        R.modelNum(1,m) = m;
                     end;
-                    RR=addstruct(RR,R);
+                    Mdl=addstruct(Mdl,R);
                 end;
             end;
         end;
-        varargout={RR};
+        Mdl.rel_AIC = bsxfun(@plus , -Mdl.AIC , Mdl.AIC(:,1));
+        Mdl.rel_R = bsxfun(@plus , -Mdl.R , Mdl.R(:,1));
+        Mdl.modelNum = reshape(Mdl.modelNum' , numel(Mdl.modelNum) , 1);
+        Mdl.AIC = reshape(Mdl.AIC' , numel(Mdl.AIC) , 1);
+        Mdl.rel_AIC = reshape(Mdl.rel_AIC' , numel(Mdl.rel_AIC) , 1);
+        Mdl.R2 = reshape(Mdl.R2' , numel(Mdl.R2) , 1);
+        Mdl.R = reshape(Mdl.R' , numel(Mdl.R) , 1);
+        Mdl.Day = reshape(Mdl.Day' , numel(Mdl.Day) , 1);
+        Mdl.Horizon = reshape(Mdl.Horizon' , numel(Mdl.Horizon) , 1);
+        Mdl.SN = reshape(Mdl.SN' , numel(Mdl.SN) , 1);
+        Mdl.numObs = reshape(Mdl.numObs' , numel(Mdl.numObs) , 1);
+        Mdl.numReg = reshape(Mdl.numReg' , numel(Mdl.numReg) , 1);
+        Mdl.rel_R = reshape(Mdl.rel_R' , numel(Mdl.rel_R) , 1);
+        
+        save([baseDir , '/se2_fitIPI_',titleSuffix,'-norm_OLS.mat'] , 'Mdl' , '-v7.3')
+        varargout={Mdl};
+        
     case 'crossval'
         [M,titleSuffix] = se2_linearIPIModels('loadData',varargin{1});
         lambda = varargin{2}; % 0: OLS >0: Ridge
         M=se2_linearIPIModels('makeDesignMatrix',M);
         subj = unique(M.SN);
-        RR=[]; % Structure to collect the answers
+        Mdl=[]; % Structure to collect the answers
         for sn = subj'   % loop over subjects
             for h = 1:length(horzSize) % loop over horizons
                 for dd = 1:5   % loop over days
@@ -100,12 +117,13 @@ switch (what)
                         R.numReg(1,m) = length(modelTerms{m});
                         R.R2(1,m) = 1-sum(res.^2)/sum(Y.^2);
                         R.R(1,m)  = corr(Y,Ypred);
+                        R.modelNum(1,m) = m;
                     end;
-                    RR=addstruct(RR,R);
+                    Mdl=addstruct(Mdl,R);
                 end
             end
         end
-        varargout={RR};
-        
+        varargout={Mdl};
+        save([baseDir , '/se2_CrossvallIPI_',titleSuffix,'-norm_OLS.mat'] , 'Mdl' , '-v7.3')
         
 end;
