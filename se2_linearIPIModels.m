@@ -91,6 +91,7 @@ switch (what)
         varargout={Mdl};
         
     case 'crossval'
+        CVfol = 10;
         [M,titleSuffix] = se2_linearIPIModels('loadData',varargin{1});
         lambda = varargin{2}; % 0: OLS >0: Ridge
         M=se2_linearIPIModels('makeDesignMatrix',M);
@@ -100,30 +101,61 @@ switch (what)
             for h = 1:length(horzSize) % loop over horizons
                 for dd = 1:5   % loop over days
                     T = getrow(M , ismember(M.SN , sn) & ismember(M.Horizon , horzSize{h}) & ismember(M.Day , dd));
-                    R.numObs = length(T.Y);
-                    R.SN = sn;
-                    R.Horizon = h;
-                    R.Day = dd;
-                    CVI = crossvalind('Kfold', R.numObs, CVfol);
                     
-                    % Subtract mean from each Fold in X and Y
-                    for m=1:length(modelTerms)
-                        % Copy here your core crossvalidation code.
-                        % Using b=(X'*X+eye(N)*lamba)\Y you can have both Ridge
-                        % and OLS regression
-                        % I usually collect the predictions over all crossvalidation folds
-                        % and then
-                        res = Y-Ypred;
-                        R.numReg(1,m) = length(modelTerms{m});
-                        R.R2(1,m) = 1-sum(res.^2)/sum(Y.^2);
-                        R.R(1,m)  = corr(Y,Ypred);
-                        R.modelNum(1,m) = m;
-                    end;
-                    Mdl=addstruct(Mdl,R);
+                    CVI = crossvalind('Kfold', length(T.BN), CVfol);
+                    
+                    for cvl = 1:CVfol  % loop over CV folds
+                        Test = getrow(T , CVI==cvl);
+                        Train = getrow(T , CVI~=cvl);
+                        
+                        R.numObs = length(Train.Y)*ones(1 , length(modelTerms));
+                        R.SN = sn*ones(1 , length(modelTerms));
+                        R.Horizon = h*ones(1 , length(modelTerms));
+                        R.Day = dd*ones(1 , length(modelTerms));
+                        R.CVfold = cvl*ones(1 , length(modelTerms));
+                        
+                        
+                        Xtrain = bsxfun(@minus,Train.X,mean(Train.X)); 
+                        Ytrain = Train.Y - mean(Train.Y);  % mean subtract the output 
+                        
+                        Xtest = bsxfun(@minus,Test.X,mean(Test.X)); 
+                        Ytest = Test.Y - mean(Test.Y);  % mean subtract the output 
+
+                        for m = 1:length(modelTerms)
+                            R.numObs(m) = length(Train.Y);
+                            regs  = modelTerms{m};
+                            % Using b=(X'*X+eye(N)*lamba)\Y you can have both Ridge
+                            b=Xtrain(:,regs)\Ytrain;       
+                            Ypred = Xtest(:,regs)*b;
+                            res = Ytest-Ypred;
+                            R.numReg(1,m) = length(regs);
+                            R.R2(1,m) = 1-sum(res.^2)/sum(Ytest.^2);
+                            R.R(1,m)  = corr(Ytest,Ypred);
+                            R.modelNum(1,m) = m;
+                            R.AIC(1,m) = 2*R.numReg(m) + R.numObs(m)*log(sum(res.^2));
+
+                            disp(['Model ' , num2str(m) , ' - Day ' , num2str(dd) , ' - Subject ' , num2str(sn) , ' - Horizon ' , num2str(h)])
+                        end
+                        Mdl=addstruct(Mdl,R);
+                    end
                 end
             end
         end
+        Mdl.rel_AIC = bsxfun(@minus , Mdl.AIC , Mdl.AIC(:,1));
+        Mdl.rel_R = bsxfun(@minus , Mdl.R , Mdl.R(:,1));
+        Mdl.modelNum = reshape(Mdl.modelNum' , numel(Mdl.modelNum) , 1);
+        Mdl.AIC = reshape(Mdl.AIC' , numel(Mdl.AIC) , 1);
+        Mdl.rel_AIC = reshape(Mdl.rel_AIC' , numel(Mdl.rel_AIC) , 1);
+        Mdl.R2 = reshape(Mdl.R2' , numel(Mdl.R2) , 1);
+        Mdl.R = reshape(Mdl.R' , numel(Mdl.R) , 1);
+        Mdl.Day = reshape(Mdl.Day' , numel(Mdl.Day) , 1);
+        Mdl.Horizon = reshape(Mdl.Horizon' , numel(Mdl.Horizon) , 1);
+        Mdl.SN = reshape(Mdl.SN' , numel(Mdl.SN) , 1);
+        Mdl.numObs = reshape(Mdl.numObs' , numel(Mdl.numObs) , 1);
+        Mdl.numReg = reshape(Mdl.numReg' , numel(Mdl.numReg) , 1);
+        Mdl.rel_R = reshape(Mdl.rel_R' , numel(Mdl.rel_R) , 1);
+        Mdl.CVfold = reshape(Mdl.CVfold' , numel(Mdl.CVfold) , 1);
+        
         varargout={Mdl};
         save([baseDir , '/se2_CrossvallIPI_',titleSuffix,'-norm_OLS.mat'] , 'Mdl' , '-v7.3')
-        
 end;

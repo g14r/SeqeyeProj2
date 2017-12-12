@@ -54,47 +54,74 @@ horzSize = {1,2,3,[4:13]};
 legenddHor = {'H = 1', 'H = 2','H = 3','H = 4','H = 5','H = 6','H = 7','H = 8','H = 13' , 'H = 5-13'};
 % x labels for shadeplot
 label = {'R'  'C+R',     '1st+R' ,'1st+2nd+R'    '1st+2nd+3rd+R' , 'C+1st+R'  ,  'C+1st+2nd+R'  ,  'Full'};
-dayz = {[1] [2 3] [4 5]};
-plotIND = [2:5 , 8]; % the model indices to include in bar plot
+dayz = {[2 3] [4] [5]};
+plotIND = [2 5 , 8]; % the model indices to include in bar plot
 % do significance tests:
 
 % 'right' tail testing that A > B
 % 'left' tail testing that A < B
-
+subj = unique(Mdl.SN);
 count = 1;
 for h = 1:length(horzSize)
     for dd = 1:length(dayz)
-        ido = (Mdl.Horizon == h & ismember(Mdl.Day , dayz{dd}));
-        A = getrow(Mdl , Mdl.modelNum == 2 & ido);
-        B = getrow(Mdl , Mdl.modelNum == 5 & ido);
-        C = getrow(Mdl , Mdl.modelNum == 8 & ido);
-        [~ , sig.R2_chunkVprob(count , 1)] = ttest2(A.R2 , B.R2);
-        [~ , sig.R2_chunkVfull(count , 1)] = ttest2(A.R2 , C.R2);
-        [~ , sig.R2_probVfull(count , 1)] = ttest2(B.R2 , C.R2);
-        
-        [~ , sig.R_chunkVprob(count , 1)] = ttest2(A.rel_R , B.rel_R);
-        [~ , sig.R_chunkVfull(count , 1)] = ttest2(A.rel_R , C.rel_R);
-        [~ , sig.R_probVfull(count , 1)] = ttest2(B.rel_R , C.rel_R);
+        for sb = 1:length(subj)
+            ido = (Mdl.Horizon == h & ismember(Mdl.Day , dayz{dd}) & ismember(Mdl.SN , subj(sb)));
+            A = getrow(Mdl , Mdl.modelNum == 2 & ido);
+            B = getrow(Mdl , Mdl.modelNum == 5 & ido);
+            C = getrow(Mdl , Mdl.modelNum == 8 & ido);
+            N = getrow(Mdl , Mdl.modelNum == 1 & ido);
             
-        [~ , sig.aic_chunkVprob(count , 1)] = ttest2(A.rel_AIC , B.rel_AIC);
-        [~ , sig.aic_chunkVfull(count , 1)] = ttest2(A.rel_AIC , C.rel_AIC);
-        [~ , sig.aic_probVfull(count , 1)] = ttest2(B.rel_AIC , C.rel_AIC);
-        
-        
-        sig.day(count , 1) = dd;
-        sig.h(count , 1) = h;
-        count  = count +1;
+            [~ , sig.R2_chunkVprob(count , 1)] = ttest2(A.R2 , B.R2);
+            [~ , sig.R2_chunkVfull(count , 1)] = ttest2(A.R2 , C.R2);
+            [~ , sig.R2_probVfull(count , 1)] = ttest2(B.R2 , C.R2);
+            [~ , sig.R2_NVprob(count , 1)] = ttest2(N.R2 , B.R2);
+            [~ , sig.R2_NVchunk(count , 1)] = ttest2(A.R2 , N.R2);
+            [~ , sig.R2_NVfull(count , 1)] = ttest2(N.R2 , C.R2);
+            
+            [~ , sig.rel_R_chunkVprob(count , 1)] = ttest2(A.rel_R , B.rel_R);
+            [~ , sig.rel_R_chunkVfull(count , 1)] = ttest2(A.rel_R , C.rel_R);
+            [~ , sig.rel_R_probVfull(count , 1)] = ttest2(B.rel_R , C.rel_R);
+            [~ , sig.rel_R_NVprob(count , 1)] = ttest2(N.rel_R , B.rel_R);
+            [~ , sig.rel_R_NVchunk(count , 1)] = ttest2(A.rel_R , N.rel_R);
+            [~ , sig.rel_R_NVfull(count , 1)] = ttest2(N.rel_R , C.rel_R);
+            
+            
+            [~ , sig.R_chunkVprob(count , 1)] = ttest2(A.R , B.R);
+            [~ , sig.R_chunkVfull(count , 1)] = ttest2(A.R , C.R);
+            [~ , sig.R_probVfull(count , 1)] = ttest2(B.R , C.R);
+            [~ , sig.R_NVprob(count , 1)] = ttest2(N.R , B.R);
+            [~ , sig.R_NVchunk(count , 1)] = ttest2(A.R , N.R);
+            [~ , sig.R_NVfull(count , 1)] = ttest2(N.R , C.R);
+            
+            [~ , sig.aic_chunkVprob(count , 1)] = ttest2(A.rel_AIC , B.rel_AIC);
+            [~ , sig.aic_chunkVfull(count , 1)] = ttest2(A.rel_AIC , C.rel_AIC);
+            [~ , sig.aic_probVfull(count , 1)] = ttest2(B.rel_AIC , C.rel_AIC);
+            [~ , sig.aic_NVprob(count , 1)] = ttest2(N.rel_AIC , B.rel_AIC);
+            [~ , sig.aic_NVchunk(count , 1)] = ttest2(A.rel_AIC , N.rel_AIC);
+            [~ , sig.aic_NVfull(count , 1)] = ttest2(N.rel_AIC , C.rel_AIC);
+            
+            
+            sig.day(count , 1) = dd;
+            sig.h(count , 1) = h;
+            sig.sn(count , 1) = sb;
+            count  = count +1;
+        end
     end
 end
 
+S = tapply(sig , {'h' , 'day'} , {'rel_R_chunkVprob' , 'nanmean'} , {'rel_R_chunkVfull' , 'nanmean'} ); % average over cv loops
+S = getrow(sig , sig.h == 1 & sig.day ==3);
+
 
 % Model descriptions
-cleanLabel = {'within/between Chunk', '1st order probability' ,'1st + 2nd order probability' ,'1st + 2nd + 3rd order probability' ,'Full Model'};
+% cleanLabel = {'within/between Chunk', '1st order probability' ,'1st + 2nd order probability' ,'1st + 2nd + 3rd order probability' ,'Full Model'};
+cleanLabel = {'within/between Chunk' ,'1st + 2nd + 3rd order probability' ,'Full Model'};
+
 cat_cleanLabel = categorical(repmat(cleanLabel , length(horzSize)-1 , 1));
 
 % =================== % =================== % =================== % =================== summarize
 
-K = tapply(Mdl , {'Horizon' , 'SN' , 'Day' , 'modelNum'} , {'R2' , 'nanmean'} , {'rel_R' , 'nanmean'}, {'rel_AIC' , 'nanmean'} ); % average over cv loops
+K = tapply(Mdl , {'Horizon' , 'SN' , 'Day' , 'modelNum'} , {'R2' , 'nanmean'} , {'rel_R' , 'nanmean'}, {'rel_AIC' , 'nanmean'},{'R' , 'nanmean'} ); % average over cv loops
 
 
 h1 = figure;
@@ -102,10 +129,11 @@ h1 = figure;
 for h = 1:length(horzSize)
     for dd = 1:length(dayz)
         ido = (K.Horizon == h & ismember(K.Day , dayz{dd}));
-        [xp_cor{dd}(h, :) , pp_cor{dd}(h,:) , ep_cor{dd}(h,:)]  = lineplot(K.modelNum, K.rel_R , 'plotfcn','nanmean' ,  'subset' , ido);
+        [xp_cor_rel{dd}(h, :) , pp_cor_rel{dd}(h,:) , ep_cor_rel{dd}(h,:)]  = lineplot(K.modelNum, K.rel_R , 'plotfcn','nanmean' ,  'subset' , ido);
         hold on
         [xp_r2{dd}(h, :) , pp_r2{dd}(h,:) , ep_r2{dd}(h,:)]  = lineplot(K.modelNum, K.R2 , 'plotfcn','nanmean' , 'subset', ido);
         [xp_aic{dd}(h, :) , pp_aic{dd}(h,:) , ep_aic{dd}(h,:)]  = lineplot(K.modelNum, K.rel_AIC , 'plotfcn','nanmean' , 'subset', ido);
+        [xp_cor{dd}(h, :) , pp_cor{dd}(h,:) , ep_cor{dd}(h,:)]  = lineplot(K.modelNum, K.R , 'plotfcn','nanmean' ,  'subset' , ido);
         hold on
     end
 end
@@ -243,7 +271,7 @@ switch what
         hi = max(max(max(pp_)));
         ylim = [1.1*lo   1.1*hi];
         figure('color' , 'white')
-        hlabel = {'1' ,'2' , '3' ,'5 - 13 (Full)'};
+        hlabel = {'1' ,'2' , '3' ,'4 - 13 (Full)'};
         fc = 1;
         for i = [1 2 3 4]
             subplot(4 ,1, i)
@@ -265,20 +293,21 @@ switch what
         
        
         
-        lo = min(min(min(-pp_)));
-        hi = max(max(max(-pp_)));
+        lo = min(min(min(pp_ - ep_)));
+        hi = max(max(max(pp_ + ep_)));
         ylim = [1.1*lo   1.1*hi];
         figure('color' , 'white')
-        hlabel = {'1' ,'2' , '3' ,'5 - 13 (Full)'};
+        hlabel = {'1' ,'2' , '3' ,'4 - 13 (Full)'};
         fc = 1;
         for i = [1 2 3 4]
             subplot(4 ,1, i)
 %             bar(squeeze(pp_(1:9,plotIND , i)));
 %             set(gca , 'FontSize' , 20 ,'Box' , 'off' , 'GridAlpha' , 1 , 'XTick' , [1:length(legenddHor)-1] ,...
 %                 'YLim' , ylim,'XTickLabel' , legenddHor(1:end-1))
-            bar(squeeze(-pp_(i,plotIND , :))');
+%             bar(squeeze(-pp_(i,plotIND , :))');            
+            barwitherr(squeeze(ep_(i,plotIND ,:)) , squeeze(pp_(i,plotIND ,:)))
             set(gca , 'FontSize' , 20 ,'Box' , 'off' , 'GridAlpha' , 1 , 'XTick' , [1:length(dayz)] ,...
-                'YLim' , [0    0.2829],'XTickLabel' , {'Day 1' , 'Days 2, 3' , 'Days 4, 5'})
+                'YLim' , ylim,'XTickLabel' , {'Day 2' , 'Day 3' , 'Day 4'})
             grid on
             title([titleSuffix , ' - Model Prediction - Output Correlation on Horizon Size(s) ' , hlabel{fc}]);
             fc = fc+1;
@@ -291,8 +320,8 @@ switch what
         pp_ = reshape(cell2mat(pp_aic) , size(pp_aic{1} , 1) , size(pp_aic{1} , 2) , length(pp_aic));
         ep_ = reshape(cell2mat(ep_aic) , size(ep_aic{1} , 1) , size(ep_aic{1} , 2) , length(ep_aic));
         
-        lo = min(min(min(pp_)));
-        hi = max(max(max(pp_)));
+        lo = min(min(min(-pp_ - ep_)));
+        hi = max(max(max(-pp_ + ep_)));
         ylim = [1.1*lo   1.1*hi];
         figure('color' , 'white')
         hlabel = {'1' ,'2' , '3' ,'4 - 13 (Full)'};
@@ -302,9 +331,10 @@ switch what
 %             bar(squeeze(pp_(1:9,plotIND , i)));
 %             set(gca , 'FontSize' , 20 ,'Box' , 'off' , 'GridAlpha' , 1 , 'XTick' , [1:length(legenddHor)-1] ,...
 %                 'YLim' , ylim,'XTickLabel' , legenddHor(1:end-1))
-            bar(squeeze(pp_(i,plotIND , :))');
+%             bar(squeeze(pp_(i,plotIND , :))');
+            barwitherr(squeeze(ep_(i,plotIND ,:)) , -squeeze(pp_(i,plotIND ,:)))
             set(gca , 'FontSize' , 20 ,'Box' , 'off' , 'GridAlpha' , 1 , 'XTick' , [1:length(dayz)] ,...
-                'YLim' , [-4.5773   18.9242],'XTickLabel' , {'Day 1' , 'Days 2, 3' , 'Days 4, 5'})
+                'YLim' , ylim,'XTickLabel' , {'Day 1' , 'Days 2, 3' , 'Days 4, 5'})
             grid on
             title([titleSuffix , ' - Model Prediction - Relative AIC on Horizon Size(s) ' , hlabel{fc}]);
             fc = fc+1;

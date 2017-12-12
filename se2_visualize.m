@@ -452,6 +452,29 @@ switch what
         legend(fliplr({'H = 13' 'H = 8' 'H = 7' 'H = 6' 'H = 5' 'H = 4' 'H = 3' 'H = 2' 'H = 1' }) , 'Box' , 'off');
         
         
+        
+        
+        figure('color' , 'white')
+        As = cell2mat(PLOTs_med')';
+        Bs = cell2mat(ERRORs_med')';
+        Ar = cell2mat(PLOTr_med')';
+        Br = cell2mat(ERRORr_med')';
+        horz = {[1] [2] [3] [4:9]};
+        hlab = {'1' , '2' , '3' , '4 - 13'};
+        for i = 1:length(horz)
+            subplot(2,2,i)
+            errorbar(mean(As(:,horz{i}) , 2) , mean(Bs(:,horz{i}) , 2) , 'lineWidth' , 3);
+            hold on
+            errorbar(mean(Ar(:,horz{i}) , 2) , mean(Br(:,horz{i}) , 2) , 'lineWidth' , 3);
+            grid on
+            set(gca , 'XLim' , [0 6] ,'XTick' , [1:5] , 'YLim', [2500 7000] ,'FontSize' , 20, 'Box' , 'off',...
+                'GridAlpha' , 1)
+            ylabel('msec')
+            xlabel('Days')
+            title(['Execution Time in horizon(s) ' , hlab{i}])
+        end
+        legend('Chunked' , 'Random' , 'Box' , 'off');
+        
         %
         %         for h  = [1:7]
         %             out.chunked_exclude_h_p(h,1) = out.HorizonEffect_Chunkedseq_not(h).eff(2).p;
