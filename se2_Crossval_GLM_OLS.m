@@ -86,7 +86,7 @@ for h = 1:length(horzSize) % loop over horizons
                     X = X - repmat(mean(X) , length(X) , 1); % mean subtract the design matrix
                     Y = Train.Y - mean(Train.Y);  % mean subtract the output
                     
-                     Mdl = fitglm(X , Y,'Intercept',false);
+                    Mdl = fitglm(X , Y,'Intercept',false);
                     
                     X = Test.X(:,params);
                     X = X - repmat(mean(X) , length(X) , 1); % mean subtract the design matrix
