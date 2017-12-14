@@ -2946,11 +2946,11 @@ switch what
         
         h = figure;
         for sqn = 0:2
-            [xDur,pDur,eDur] = lineplot([K_sqnum.day , K_sqnum.prsnumb] ,  K_sqnum.DigFixDur , 'plotfcn' , 'nanmean','subset' ,...
-                ismember(K_sqnum.Hor , [5:13]) & ismember(K_sqnum.seqNumb , sqn) , 'style_shade');
-            xs(sqn + 1 , :,:) = reshape(xDur , 13,5);
-            ps(sqn + 1 , :,:) = reshape(pDur , 13,5);
-            es(sqn + 1 , :,:) = reshape(eDur , 13,5);
+        [xDur,pDur,eDur] = lineplot([K_sqnum.day , K_sqnum.prsnumb] ,  K_sqnum.DigFixDur , 'plotfcn' , 'nanmean','subset' ,...
+            ismember(K_sqnum.Hor , [5:13]) & ismember(K_sqnum.seqNumb , sqn) , 'style_shade');
+        xs(sqn + 1 , :,:) = reshape(xDur , 13,5);
+        ps(sqn + 1 , :,:) = reshape(pDur , 13,5);
+        es(sqn + 1 , :,:) = reshape(eDur , 13,5);
         end
         
         h = figure('color' , 'white');
@@ -2961,7 +2961,6 @@ switch what
             end
         end
         legend({'Random' , 'structure 1' , 'structre 2'})
-        title('Fixation Duration on Digits')
         grid on
         
         h = figure('color' , 'white');
