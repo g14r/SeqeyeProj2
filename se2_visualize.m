@@ -34,9 +34,9 @@ function out  = se2_visualize(Dall , subjnum, what, distance, calc , day ,rep, G
 %     case 'crossvaldist_chunk'
 %%
 prefix = 'se1_';
-% baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
-baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
-subj_name = {'AT1' , 'CG1' , 'HB1' , 'JT1' , 'CB1' , 'YM1' , 'NL1' , 'SR1' , 'IB1' , 'MZ1' , 'DW1', 'All'};
+baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
+% baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
+subj_name = {'AT1' , 'CG1' , 'HB1' , 'JT1' , 'CB1' , 'YM1' , 'NL1' , 'SR1' , 'IB1' , 'MZ1' , 'DW1', 'RA1' ,'CC1', 'All'};
 
 % subj_name = {'AT1' , 'CG1' , 'HB1' , 'JT1' , 'CB1' , 'YM1' , 'NL1' , 'SR1' , 'All'};
 colors = [0.0899988149868883,0.789028923313949,0.710408685278170;0.320941032647761,0.317833053726229,0.311859945147533;0.511408938819178,0.452207453762982,0.291457127647727;0.0606063665682423,0.752227970049942,0.850357337374621;0.725687923545844,0.109861705750686,0.911647424007853;0.556555748561992,0.109742368593904,0.639276147276064;0.529359902481257,0.269883663704401,0.255370297944443;0.829982432033195,0.524637345396311,0.0886658400322831;0.858759034071804,0.972651076977497,0.838255587537226];
@@ -337,6 +337,7 @@ switch what
         MT = getrow(MT , MT.MT <= 9000 );
         dayz = {1 [2 3] [4 5]};
         for d=  1:length(dayz)
+            
             hc = 1;
             for h = [1:8 13]
                 temp = anovaMixed(MT.MT  , MT.SN ,'within',MT.seqNumb ,{'Random/Chunked'},'intercept',1 ,...
@@ -2872,7 +2873,7 @@ switch what
         horz = input('Which horizon(s)?');
         if calc
             isSymmetric = 1;
-            %         subjnum = subjnum(~ismember(subjnum , [2 4 6])); % Chao's eye data is fucked up!!!!
+%             subjnum = subjnum(~ismember(subjnum , 2)); % Chao's eye data is fucked up!!!!
             eyeinfo.PB         = [];
             eyeinfo.CB         = [];
             eyeinfo.Hor        = [];
@@ -2895,24 +2896,30 @@ switch what
                 ANA.ChunkBndry(tn , ANA.ChunkBndry(tn , :) == 0) = 2;
                 ANA.ChunkBndry(tn , 1:ignorDig+1) = [-1 -1 -1];  % dont account for the first and last sseqeuce presses
                 ANA.ChunkBndry(tn , end-ignorDig:end) = [-1 -1 -1];% dont account for the first and last sseqeuce presses
-                ANA.DigFixWeight(tn , :) = zeros(1 ,14);
+                ANA.DigFixWeighted(tn , :) = zeros(1 ,14);
                 
                 
                 if isSymmetric
-                    window = 12;
-                    ANA.EyeFixDigit{tn , 1} = ANA.xEyePosDigit{tn}((ANA.AllPressIdx(tn , 1)+2)-window :ANA.AllPressIdx(tn , ANA.seqlength(tn)) + 2 + window) .* ANA.SaccFlag{tn};
+                    window = 50; %samples = 100ms
                     for p = 1:14
-                        id = ANA.EyeFixDigit{tn , 1}<=p+.5 & ANA.EyeFixDigit{tn , 1}>p-.5;
-                        %                         ANA.EyeFixDigit{tn , 1}(id) = p;
+                        id = ANA.xEyePosDigit{tn , 1}<=p+.5 & ANA.xEyePosDigit{tn , 1}>p-.5;
                         if sum(id)
-                            ANA.DigFixWeight(tn , p) = (sum(abs(1- (ANA.EyeFixDigit{tn , 1}(id) - p)))/sum(id))*(sum(id)/500);
+                            ANA.DigFixWeighted(tn , p) = mean(abs(ANA.xEyePosDigit{tn , 1}(id) - p))*(sum(id)/500)*1000;
                         else
-                            ANA.DigFixWeight(tn , p) = 0;
+                            ANA.DigFixWeighted(tn , p) = 0;
+                        end
+                        id = [ANA.AllPressIdx(tn , p) - window :ANA.AllPressIdx(tn , p) + window];
+                        if id(1) > length(ANA.xEyePosDigit{tn}) | sum(id<0)>0
+                             ANA.EyePressTimePos(tn , p) = NaN;
+                        elseif id(end)>length(ANA.xEyePosDigit{tn})
+                            ANA.EyePressTimePos(tn , p) = nanmedian(ANA.xEyePosDigit{tn}(id(1):end));
+                        else
+                            ANA.EyePressTimePos(tn , p) = nanmedian(ANA.xEyePosDigit{tn}(id));
                         end
                     end
                 end
                 perv_Ben           = [1:14] - ANA.EyePressTimePos(tn , :);
-                goodid             = (perv_Ben>=-3.5 & perv_Ben<-.9);
+                goodid             = (perv_Ben>=-3.5 & perv_Ben<=-0.5);
                 prsnumb            = find(goodid);
                 count              = sum(goodid);
                 eyeinfo.PB         = [eyeinfo.PB ;perv_Ben(goodid)'];
@@ -2927,7 +2934,7 @@ switch what
                 eyeinfo.sacPeakVel = [eyeinfo.sacPeakVel ; mean(ANA.SaccPeakVel{tn})*ones(count , 1)];
                 eyeinfo.sacAmp     = [eyeinfo.sacAmp ; mean(ANA.SaccAmplitude{tn})*ones(count , 1)];
                 eyeinfo.seqNumb    = [eyeinfo.seqNumb ; ANA.seqNumb(tn)*ones(count , 1)];
-                eyeinfo.DigFixDur  = [eyeinfo.DigFixDur ;ANA.DigFixWeight(tn ,goodid)'];
+                eyeinfo.DigFixDur  = [eyeinfo.DigFixDur ;ANA.DigFixWeighted(tn ,goodid)'];
             end
             K_withinChunk = tapply(eyeinfo , {'day' , 'Hor' , 'sn','CB'} , {'sacDur' , 'nanmedian'}, {'DigFixDur' , 'nanmedian'},...
                 {'sacAmp' , 'nanmedian'} , {'sacPerSec' , 'nanmedian'}, {'PB' , 'nanmedian'} , 'subset' ,...
@@ -2944,49 +2951,43 @@ switch what
         else
             load([baseDir , '/se2_eyeInfo.mat'])
         end
-        
+        ANA = getrow(Dall ,ismember(Dall.seqNumb , [0:2]) & ismember(Dall.SN , subjnum) & Dall.isgood & ~Dall.isError & cellfun(@length , Dall.xEyePosDigit)>1);
         h = figure;
+        dayz = {[1] , [2 3] , [4 5]};
         for sqn = 0:2
-            [xDur,pDur,eDur] = lineplot([K_sqnum.day , K_sqnum.prsnumb] ,  K_sqnum.DigFixDur , 'plotfcn' , 'nanmean','subset' ,...
-                ismember(K_sqnum.Hor , horz) & ismember(K_sqnum.seqNumb , sqn) , 'style_shade');
-            xs(sqn + 1 , :,:) = reshape(xDur , 13,5);
-            ps(sqn + 1 , :,:) = reshape(pDur , 13,5);
-            es(sqn + 1 , :,:) = reshape(eDur , 13,5);
+            for dd = 1:length(dayz)
+                [xDur{sqn+1,dd},pDur{sqn+1,dd},eDur{sqn+1,dd}] = lineplot( K_sqnum.prsnumb ,  K_sqnum.DigFixDur , 'plotfcn' , 'nanmean','subset' ,...
+                    ismember(K_sqnum.Hor , horz) & ismember(K_sqnum.seqNumb , sqn) & ismember(K_sqnum.day , dayz{dd}) , 'style_shade');
+            end
+            
         end
         close(h)
         
         h = figure('color' , 'white');
-        dayz = {[1] , [2 3] , [4 5]};
+        
         for sqn = 0:2
             chnkpl = unique(ANA.ChnkPlcmnt(ANA.seqNumb == sqn , :) , 'rows');
             subplot(length(dayz) , 1 , sqn+1);
             for d = 1:length(dayz)
-                if length(dayz{d})>1
-                    pX = mean(squeeze(ps(sqn+1,:,dayz{d})),2);
-                    eX = mean(squeeze(es(sqn+1,:,dayz{d})),2);
-                else
-                    pX = squeeze(ps(sqn+1,:,dayz{d}));
-                    eX = squeeze(es(sqn+1,:,dayz{d}));
-                end
-                errorbar([2:14]' , pX , eX , 'LineWidth' , 3 , 'color' , colors(d, :));
+                errorbar(xDur{sqn+1,d}',pDur{sqn+1,d},eDur{sqn+1,d}, 'LineWidth' , 3 , 'color' , colors(d, :));
                 hold on
                 
             end
             firsts = find(chnkpl == 1);
             for j = 1:length(firsts)
-                line([firsts(j) firsts(j)] , [0 0.6] , 'LineWidth'  ,2 , 'color' , 'black')
+                line([firsts(j) firsts(j)] , [0 250] , 'LineWidth'  ,2 , 'color' , 'black')
             end
             
             grid on
             
-            set(gca , 'YLim' , [0 0.6] , 'XTick' , [2:14] , 'XLim' , [1 15])
+            set(gca , 'YLim' , [0 250] , 'XTick' , [2:14] , 'XLim' , [1 15])
             legend({'day 1' , 'days 2 3' , 'days 4 5'})
             title(['Fixation Duration on Digits on stucure ' , num2str(sqn) , ', in Horizon(s) '  , num2str(horz)])
         end
         
        
 
-        
+        clear K0 K00
         K1 = K_rand_chnk;
         h = figure('color' , 'white');
         subplot(411)
@@ -3009,10 +3010,12 @@ switch what
         
         grid on
         set(gca , 'FontSize' , 20)
-        title(['Average Fixation Duration in Horizon(s) '  , num2str(horz) , ' - Days 1, [2 3] , [4 5]'])
+        title(['Weighted Average Fixation Duration in Horizon(s) '  , num2str(horz) , ' - Days 1, [2 3] , [4 5]'])
+        ylabel('Wieghted ms')
         xlabel('Structure number')
-        legend({'-' , num2str(out.rand_chnk(2)), num2str(out.rand_chnk(3))})
+        legend({'Pre-train' , ['Day 2 P = ' , num2str(out.rand_chnk(2))], ['Day 3 P = ' , num2str(out.rand_chnk(3))]})
         %========================================= Preview
+        clear K0 K00
         subplot(412)
         id = K1.day == 1 & ismember(K1.Hor , horz);
         K0.day = K1.day(id) ;
@@ -3031,10 +3034,12 @@ switch what
         [xDur,pDur,eDur] = lineplot([K0.day , K0.seqNumb] ,  -K0.PB , 'plotfcn' , 'nanmean','style_thickline');
         grid on
         set(gca , 'FontSize' , 20)
-        title(['Amount Looking Ahead in Horizon(s) '  , num2str(horz) , ' - Days 1, [2 3] , [4 5]'])
+        title(['Looking Ahead in Horizon(s) '  , num2str(horz) , ' - Days 1, [2 3] , [4 5]'])
+        ylabel('Digits')
         xlabel('Structure number')
-        legend({'-' , num2str(out.rand_chnk(2)), num2str(out.rand_chnk(3))})
+        legend({'Pre-train' , ['Day 2 P = ' , num2str(out.rand_chnk(2))], ['Day 3 P = ' , num2str(out.rand_chnk(3))]})
         %========================================= Saccade per second
+        clear K0 K00
         subplot(413)
         id = K1.day == 1 & ismember(K1.Hor , horz);
         K0.day = K1.day(id) ;
@@ -3053,10 +3058,12 @@ switch what
         [xDur,pDur,eDur] = lineplot([K0.day , K0.seqNumb] ,  K0.sacPerSec , 'plotfcn' , 'nanmean','style_thickline');
         grid on
         set(gca , 'FontSize' , 20)
-        title(['Sccade Per Second in Horizon(s) '  , num2str(horz) , ' - Days 1, [2 3] , [4 5]'])
+        title(['Saccade rate in Horizon(s) '  , num2str(horz) , ' - Days 1, [2 3] , [4 5]'])
         xlabel('Structure number')
-        legend({'-' , num2str(out.rand_chnk(2)), num2str(out.rand_chnk(3))})
+        ylabel('Saccade per sec')
+        legend({'Pre-train' , ['Day 2 P = ' , num2str(out.rand_chnk(2))], ['Day 3 P = ' , num2str(out.rand_chnk(3))]})
         %========================================= Saccade amplitude
+        clear K0 K00
         subplot(414)
         id = K1.day == 1 & ismember(K1.Hor , horz);
         K0.day = K1.day(id) ;
@@ -3077,13 +3084,14 @@ switch what
         set(gca , 'FontSize' , 20)
         title(['Sccade Amplitude in Horizon(s) '  , num2str(horz) , ' - Days 1, [2 3] , [4 5]'])
         xlabel('Structure number')
-        legend({'-' , num2str(out.rand_chnk(2)), num2str(out.rand_chnk(3))})
-        
+        legend({'Pre-train' , ['Day 2 P = ' , num2str(out.rand_chnk(2))], ['Day 3 P = ' , num2str(out.rand_chnk(3))]})
+        ylabel('Digits')
        
         
-        
+        %% within chunked
+        clear K0 K00
         K1 = K_withinChunk;
-        % within chunked
+        
         h = figure('color' , 'white');
         subplot(211)
         id = K1.day == 1 & ismember(K1.Hor , horz);
@@ -3095,7 +3103,7 @@ switch what
             K00 = tapply(K1 , {'CB' , 'sn'} , {'DigFixDur' , 'nanmean'} , 'subset' , ismember(K1.day , dayz{d}) & ismember(K1.Hor , horz));
             K00.day = d*ones(size(K00.CB));
             K0 = addstruct(K0 , K00);
-            templab = K00.CB >1; % just test first vs rest
+            templab = K00.CB ~= 2; % just test middle vs rest
             temp = anovaMixed(K00.DigFixDur , K00.sn,'within', templab ,{'seqNumb'},'intercept',1)  ;
             out.withinChunk(d) = temp.eff(2).p;
         end
@@ -3106,7 +3114,9 @@ switch what
         title(['Average Fixation Duration in Horizon(s) '  , num2str(horz) , ' - Days 1, [2 3] , [4 5]'])
         xlabel('Chunk Placement')
         legend({'-' , num2str(out.withinChunk(2)), num2str(out.withinChunk(3))})
+        out.withinChunk
         %========================================= Preview
+        clear K0 K00
          subplot(212)
         id = K1.day == 1 & ismember(K1.Hor , horz);
         K0.day = K1.day(id) ;
@@ -3117,7 +3127,7 @@ switch what
             K00 = tapply(K1 , {'CB' , 'sn'} , {'PB' , 'nanmean'} , 'subset' , ismember(K1.day , dayz{d}) & ismember(K1.Hor , horz));
             K00.day = d*ones(size(K00.CB));
             K0 = addstruct(K0 , K00);
-            templab = K00.CB >1; % just test first vs rest
+            templab = K00.CB;% ~= 3; % just test middle vs rest
             temp = anovaMixed(K00.PB , K00.sn,'within', templab ,{'seqNumb'},'intercept',1)  ;
             out.withinChunk(d) = temp.eff(2).p;
         end

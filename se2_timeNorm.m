@@ -2,7 +2,7 @@ function N = se2_timeNorm(Dall , what)
 
 baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';
 %baseDir = '/Users/nkordjazi/Documents/SeqEye/se1/SeqEye1/se1_data/analyze';
-subj_name = {'AT1' , 'CG1' , 'HB1' , 'JT1' , 'CB1' , 'YM1' , 'NL1' , 'SR1' , 'IB1' , 'MZ1' , 'DW1'};
+subj_name = {'AT1' , 'CG1' , 'HB1' , 'JT1' , 'CB1' , 'YM1' , 'NL1' , 'SR1' , 'IB1' , 'MZ1' , 'DW1','RA1' ,'CC1' };
 load([baseDir , '/CMB_34_1.mat'])
 CMB = CMB_34_1;
 Days  = {1 ,2 ,3 ,4 ,5,[1:5] ,[2:5] [2:3] [4:5] };

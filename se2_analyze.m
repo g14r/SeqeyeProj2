@@ -1,21 +1,20 @@
 function Dout=se2_analyze (what , getdat , SubjCodes , Dall)
 
 
-baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';
-%baseDir = '/Users/nkordjazi/Documents/SeqEye/se1/SeqEye1/se1_data/analyze';
-% subj_name = {'s1','S2' ,'s3'};
-subj_name = {'AT1' , 'CG1' , 'HB1' , 'JT1' , 'CB1' , 'YM1' , 'NL1' , 'SR1' , 'IB1' , 'MZ1' , 'DW1'};
+% baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';
+baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';
+subj_name = {'AT1' , 'CG1' , 'HB1' , 'JT1' , 'CB1' , 'YM1' , 'NL1' , 'SR1' , 'IB1' , 'MZ1' , 'DW1','RA1' ,'CC1' };
 % load([baseDir , '/CMB.mat'])
 %load([baseDir , '/se1_all.mat'])
 % D   = load('/Users/nedakordjazi/Documents/SeqEye/SequenceHierarchical/Analysis/sh3_avrgPattern.mat');
 % MTW = 2 - D.MT(126:end)/max(D.MT(126:end));
 % possibleDuo = D.Sequence(126:end , 1:2);
 % create an emty structure with the same fields as Dall (empty b/c isError can never be 2)
-
+Dout = [];
 switch what
     case 'all_subj'
         
-        for i=9:length(subj_name)
+        for i=12:length(subj_name)
             clear ANA
             if getdat
                 ANA = se2_subj(subj_name{i} , 0);
@@ -402,11 +401,9 @@ switch what
                 end
                 
             end
-            if i == 9
-                Dout = ANA;
-            else
-                Dout = addstruct(Dout , ANA);
-            end
+
+            Dout = addstruct(Dout , ANA);
+            
             
         end
 %%

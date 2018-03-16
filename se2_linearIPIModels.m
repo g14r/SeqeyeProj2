@@ -53,7 +53,7 @@ switch (what)
             for h = 1:length(horzSize) % loop over horizons
                 for dd = 1:5   % loop over days
                     T = getrow(M , ismember(M.SN , sn) & ismember(M.Horizon , horzSize{h}) & ismember(M.Day , dd));
-                    R.numObs = length(T.Y)*ones(1 , length(modelTerms));;
+                    R.numObs = length(T.Y)*ones(1 , length(modelTerms));
                     R.SN = sn*ones(1 , length(modelTerms));
                     R.Horizon = h*ones(1 , length(modelTerms));
                     R.Day = dd*ones(1 , length(modelTerms));
