@@ -1,0 +1,26 @@
+function [Dev , lh ] = se2_DEVandLH(Ytr , Yte , Mdl)
+% Ytr = Training set
+% Yte = testing set
+% Mdl = fi
+% Deviation  = -2*ln[(likelihood of fitted model)/(likelihood of saturated model)]    
+Mdl = fitglm(Train.X(:,params) , Ytr,'Intercept',false);
+[Ypred,Posterior] = predict(Mdl,Train.X(:,params));
+
+
+
+% sum(log(binopdf(y,n,yfit./n))) - sum(log(binopdf(y,n,y./n)))
+
+
+
+pdf_Sat    = pdf('normal',Yte , mean(Yte) , std(Yte));
+pdf_fitted = pdf('normal',Yte , mean(Ypred) , std(Ypred));
+
+
+dev =  -2*(sum(log(pdf_Sat)) - sum(log(pdf_fitted))); 
+
+M = mle(Ytr,'distribution','normal')
+M = mle(Ypred,'distribution','normal')
+
+-2*log()
+
+-2*sum(log())
