@@ -39,7 +39,6 @@ baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
 subj_name = {'AT1' , 'CG1' , 'HB1' , 'JT1' , 'CB1' , 'YM1' , 'NL1' , 'SR1' , 'IB1' , 'MZ1' , 'DW1', 'RA1' ,'CC1', 'All'};
 
 % subj_name = {'AT1' , 'CG1' , 'HB1' , 'JT1' , 'CB1' , 'YM1' , 'NL1' , 'SR1' , 'All'};
-colors = [0.0899988149868883,0.789028923313949,0.710408685278170;0.320941032647761,0.317833053726229,0.311859945147533;0.511408938819178,0.452207453762982,0.291457127647727;0.0606063665682423,0.752227970049942,0.850357337374621;0.725687923545844,0.109861705750686,0.911647424007853;0.556555748561992,0.109742368593904,0.639276147276064;0.529359902481257,0.269883663704401,0.255370297944443;0.829982432033195,0.524637345396311,0.0886658400322831;0.858759034071804,0.972651076977497,0.838255587537226];
 colors = [0 0 1;...
     0 1 0;...
     1 0 0;...
@@ -64,7 +63,6 @@ days  = {1 ,2 ,3 ,4 ,5,[1:5] ,[2:5] [2:3] [4:5],[3:5]};
 tid = {[1:250] [251 :750] [751:1000] [1:1000]};
 switch what
     case 'IPI_ttest_rand'
-        
         %% within and between IPI ttest with randomization
         %% IPI per day
         nn= input('norm (1) or non-norm (2)?');
@@ -271,9 +269,7 @@ switch what
             ANA1 = getrow(ANA1 , ANA1.MT <= 9000);
             ANA0.MT = ANA0.AllPressTimes(:,end-2) - ANA0.AllPressTimes(:,3);
             ANA0 = getrow(ANA0 , ANA0.MT <= 9000);
-            
-            out.MT(hrzn) = anovaMixed([ANA1.MT ; ANA0.MT] , [ANA1.SN ;ANA0.SN],'within',[0*ANA1.MT ; 1+0*ANA0.MT],{'Random/Chunked'},'intercept',1)  ;
-            %             out.MT(hrzn) = anovan([ANA1.MT ; ANA0.MT] , [0*ANA1.MT ; 1+0*ANA0.MT] , 'display' , 'off' , 'varnames' , 'Rand/Chunked');
+
             h1 = figure('color' , 'white');
             [xcoord,PLOTs,ERRORs] = lineplot(ANA1.BN,ANA1.MT);
             hold on
@@ -294,7 +290,6 @@ switch what
             legend({'Chunked' , 'Random'})
             grid on
             h_counter = h_counter +  1;
-            allMT = [allMT; [ANA1.MT ; ANA0.MT] [0*ANA1.MT ; 1+0*ANA0.MT] [ANA1.SN ;ANA0.SN] [ANA1.Horizon ;ANA0.Horizon]];
         end
         hrzn = 13;
         ANA1 = getrow(ANA1_all , ANA1_all.Horizon == hrzn);
@@ -305,12 +300,7 @@ switch what
         ANA0.MT = ANA0.AllPressTimes(:,end-2) - ANA0.AllPressTimes(:,3);
         ANA0 = getrow(ANA0 , ANA0.MT <= 9000);
         
-        allMT = [allMT; [ANA1.MT ; ANA0.MT] [0*ANA1.MT ; 1+0*ANA0.MT] [ANA1.SN ;ANA0.SN] [ANA1.Horizon ;ANA0.Horizon]];
-        out.MT(hrzn) = anovaMixed([ANA1.MT ; ANA0.MT] , [ANA1.SN ;ANA0.SN],'within',[0*ANA1.MT ; 1+0*ANA0.MT],{'Random/Chunked'},'intercept',1)  ;
-        %         out.MT(hrzn) = anovan([ANA1.MT ; ANA0.MT] , [0*ANA1.MT ; 1+0*ANA0.MT] , 'display' , 'off' , 'varnames' , 'Rand/Chunked');
-        %         out.allMT = anovan(allMT(:,1) , [allMT(:,2)  allMT(:,3)] , 'display' , 'off' , 'model' , 'full' , 'varnames' , {'Rand/Chunked' , 'Horizon'}  );
-        out.allMT = anovaMixed(allMT(:,1) , allMT(:,3) , 'within' , allMT(:,[2 , 4]) , {'Random/Chunked' , 'Horizon'},'intercept',1);
-        disp(['The interaction effect between Chunked/Random , horizon on MTs is ' num2str(out.allMT(end).eff(3).p)])
+
         h1 = figure('color' , 'white');
         [xcoords,PLOTs,ERRORs] = lineplot(ANA1.BN,ANA1.MT);
         hold on
@@ -329,6 +319,7 @@ switch what
         %         ax.YLim = [3000 10000];
         legend({'Chunked' , 'Random'})
         grid on
+        out = [];
     case 'MT_Vs_Horizon'
         ANA = getrow(Dall , ismember(Dall.SN , subjnum) & Dall.isgood & ismember(Dall.seqNumb , [0 1 2]) & ~Dall.isError);
         ANA.seqNumb(ANA.seqNumb == 2) = 1;
@@ -337,14 +328,7 @@ switch what
         MT = getrow(MT , MT.MT <= 9000 );
         dayz = {1 [2 3] [4 5]};
         for d=  1:length(dayz)
-            
             hc = 1;
-            for h = [1:8 13]
-                temp = anovaMixed(MT.MT  , MT.SN ,'within',MT.seqNumb ,{'Random/Chunked'},'intercept',1 ,...
-                    'subset' , ismember(MT.Horizon , h) & ismember(MT.Day , d))  ;
-                out.ChVsRand(hc,d)  = temp.eff(2).p;
-                hc = hc+1;
-            end
             h1 = figure('color' , 'white');
             [xcoords{d},PLOTs{d},ERRORs{d}] = lineplot(MT.Horizon,MT.MT , 'plotfcn' , 'nanmean' , 'subset' , MT.seqNumb == 1 & ismember(MT.Day , dayz{d}));
             hold on
@@ -352,52 +336,71 @@ switch what
             close(h1);
         end
         
+        for d=  1:length(dayz)
+            hc = 1;
+            h1 = figure('color' , 'white');
+            [xcoords{d},PLOTs{d},ERRORs{d}] = lineplot(MT.Horizon,MT.MT , 'plotfcn' , 'nanmean' , 'subset' , MT.seqNumb == 1 & ismember(MT.Day , dayz{d}));
+            hold on
+            [xcoordr{d},PLOTr{d},ERRORr{d}] = lineplot(MT.Horizon,MT.MT , 'plotfcn' , 'nanmean' , 'subset' , MT.seqNumb == 0 & ismember(MT.Day , dayz{d}));
+            close(h1);
+        end
         
         figure('color' , 'white');
         for d=  1:length(dayz)
-            temp = anovaMixed(MT.MT  , MT.SN ,'within',[MT.Horizon MT.seqNumb] ,{'Horizon' 'Random/Chunked'},'intercept',1 ,...
-                'subset' , ismember(MT.Day , d))  ;
-            subplot(1,3,d)
+            subplot(2,3,d)
             h1 = plotshade(xcoords{d}',PLOTs{d} , ERRORs{d},'transp' , .2 , 'patchcolor' , 'b' , 'linecolor' , 'b' , 'linewidth' , 3 , 'linestyle' , ':');
             hold on
             h2 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .2 , 'patchcolor' , 'r' , 'linecolor' , 'r' , 'linewidth' , 3 , 'linestyle' , ':');
             set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
                 'GridAlpha' , 1 , 'Box' , 'off');
-            title(['Execution time - Day(s) ' , num2str(dayz{d})])
+            title(['Execution time - Training Session(s) ' , num2str(dayz{d})])
             ylabel('msec' )
-            xlabel('Horizon' )
-            legend([h1 h2] ,{'Chunked' , 'Random'})
+            xlabel('Viewing Horizon' )
+            legend([h1 h2] ,{'Structured Sequences' , 'Random Sequences'})
             grid on
         end
-        
+        figc = d+1;
+        subplot(2,3,figc);hold on
+        d=1;
+        h1 = plotshade(xcoords{d}',PLOTs{d} , ERRORs{d},'transp' , .4 , 'patchcolor' , colors(d+2,:) , 'linecolor' ,  colors(d+2,:) , 'linewidth' , 3 , 'linestyle' , ':');d=d+1;
+        h2 = plotshade(xcoords{d}',PLOTs{d} , ERRORs{d},'transp' , .4 , 'patchcolor' , colors(d+2,:) , 'linecolor' ,  colors(d+2,:) , 'linewidth' , 3 , 'linestyle' , ':');d=d+1;
+        h3 = plotshade(xcoords{d}',PLOTs{d} , ERRORs{d},'transp' , .4 , 'patchcolor' , colors(d+2,:) , 'linecolor' ,  colors(d+2,:) , 'linewidth' , 3 , 'linestyle' , ':');
+        grid on
+        set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
+            'GridAlpha' , .5 , 'Box' , 'off');
+        title(['Execution time for Structured Sequences'])
+        ylabel('msec' )
+        xlabel('Viewing Horizon' )
+        legend([h1 h2 h3] ,{'Training Session 1' , 'Training Sessions 2,3' , 'Training Sessions 4,5'})
+        subplot(2,3,figc+1);hold on
+        d=1;
+        h1 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .4 , 'patchcolor' , colors(d+2,:) , 'linecolor' ,  colors(d+2,:) , 'linewidth' , 3 , 'linestyle' , ':');d=d+1;
+        h2 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .4 , 'patchcolor' , colors(d+2,:) , 'linecolor' ,  colors(d+2,:) , 'linewidth' , 3 , 'linestyle' , ':');d=d+1;
+        h3 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .4 , 'patchcolor' , colors(d+2,:) , 'linecolor' ,  colors(d+2,:) , 'linewidth' , 3 , 'linestyle' , ':');
+        grid on
+        set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
+            'GridAlpha' , .5 , 'Box' , 'off');
+        title(['Execution time for Random Sequences'])
+        ylabel('msec' )
+        xlabel('Viewing Horizon' )
+        legend([h1 h2 h3] ,{'Training Session 1' , 'Training Sessions 2,3' , 'Training Sessions 4,5'})
+        grid on
+        d=d+1;
         
         
         %%
         
         h1 = figure('color' , 'white');
         hold on
-        
+        MT.Day(ismember(MT.Day ,[2,3])) = 2;
+        MT.Day(ismember(MT.Day,[4,5])) = 3;
         hc = 1;
         for h  = [1:7]
             [xcoords_med{h},PLOTs_med{h},ERRORs_med{h}] = lineplot([MT.seqNumb MT.Day],MT.MT , 'plotfcn' , 'nanmean' , 'subset' ,  ismember(MT.Horizon , [h]) & ismember(MT.seqNumb , 1));
             [xcoordr_med{h},PLOTr_med{h},ERRORr_med{h}] = lineplot([MT.seqNumb MT.Day],MT.MT , 'plotfcn' , 'nanmean' , 'subset' ,  ismember(MT.Horizon , [h]) & ismember(MT.seqNumb , 0));
-            for d=  1:length(dayz)
-                [h d]
-                temp = anovaMixed(MT.MT , MT.SN,'within',MT.Horizon,{'Horizon'},'intercept',1 ,'subset' ,...
-                    ~ismember(MT.Horizon , [1:h]) & ismember(MT.seqNumb , 1) & ismember(MT.Day , dayz{d}))  ;
-                out.HorizonEffect_Chunkedseq_not(h,d) = temp.eff(2).p;
-                temp  = anovaMixed(MT.MT , MT.SN,'within',MT.Horizon,{'Horizon'},'intercept',1 ,'subset' ,...
-                    ~ismember(MT.Horizon , [1:h]) & ismember(MT.seqNumb , 0) & ismember(MT.Day , dayz{d}))  ;
-                out.HorizonEffect_Randomseq_not(h,d) = temp.eff(2).p;
-            end
         end
         h = h +1;
-        for d=  1:length(dayz)
-            temp= anovaMixed(MT.MT , MT.SN,'within',MT.Horizon,{'Horizon'},'intercept',1,'subset' , ismember(MT.seqNumb , 1) & ismember(MT.Day , dayz{d}))  ;
-            out.HorizonEffect_Chunkedseq_not(h,d) = temp.eff(2).p;
-            temp = anovaMixed(MT.MT , MT.SN,'within',MT.Horizon,{'Horizon'},'intercept',1,'subset' , ismember(MT.seqNumb , 0) & ismember(MT.Day , dayz{d}))  ;
-            out.HorizonEffect_Randomseq_not(h,d) = temp.eff(2).p;
-        end
+
         h = 1;
         for hc  = [1:8 13]
             [xcoords_med{h},PLOTs_med{h},ERRORs_med{h}] = lineplot([MT.seqNumb MT.Day],MT.MT , 'plotfcn' , 'nanmean' , 'subset' ,  ismember(MT.Horizon , [hc]) & ismember(MT.seqNumb , 1));
@@ -408,18 +411,18 @@ switch what
         figure('color' , 'white');
         subplot(221)
         imagesc(cell2mat(PLOTs_med') , [2500 7000])
-        set(gca , 'XTick' , [1:5] , 'YTick', [1:9] , 'YTickLabels' , [1 :8 , 13],'FontSize' , 20)
-        title('Execution Time in  Chunked Sequences')
-        ylabel('Horizon Size')
-        xlabel('Days')
+        set(gca , 'XTick' , [1:3] , 'YTick', [1:9] , 'YTickLabels' , [1 :8 , 13],'FontSize' , 20)
+        title('Execution Time in  Structured Sequences')
+        ylabel('Viewing Horizon Size')
+        xlabel('Training Session')
         
         subplot(222)
         imagesc(cell2mat(PLOTr_med'), [2500 7000])
         colorbar
-        set(gca , 'XTick' , [1:5] , 'YTick', [1:9] , 'YTickLabels' , [1 :8 , 13],'FontSize' , 20)
+        set(gca , 'XTick' , [1:3] , 'YTick', [1:9] , 'YTickLabels' , [1 :8 , 13],'FontSize' , 20)
         title('Execution Time in  Random Sequences')
-        ylabel('Horizon Size')
-        xlabel('Days')
+        ylabel('Viewing Horizon Size')
+        xlabel('Training Session')
         
         subplot(223)
         A = cell2mat(PLOTs_med')';
@@ -430,13 +433,12 @@ switch what
         end
         
         grid on
-        set(gca , 'XLim' , [0 6] ,'XTick' , [1:5] , 'YLim', [2500 7000] ,'FontSize' , 20, 'Box' , 'off',...
-            'GridAlpha' , 1)
+        set(gca , 'XLim' , [0 4] ,'XTick' , [1:3] ,'XTickLabel' , {'1' '2,3' '4,5'}, 'YLim', [3500 7000] ,'FontSize' , 20, 'Box' , 'off',...
+            'GridAlpha' , .2)
         ylabel('msec')
-        xlabel('Days')
-        title('Execution Time in  Chunked Sequences')
-        %         legend(fliplr({'H = 13' 'H = 8' 'H = 7' 'H = 6' 'H = 5' 'H = 4' 'H = 3' 'H = 2' 'H = 1' }));
-        
+        xlabel('Training Session')
+        title('Execution Time in  Structured Sequences')
+        legend(fliplr({'H = 13' 'H = 8' 'H = 7' 'H = 6' 'H = 5' 'H = 4' 'H = 3' 'H = 2' 'H = 1' }) , 'Box' , 'off');
         subplot(224)
         A = cell2mat(PLOTr_med')';
         B = cell2mat(ERRORr_med')';
@@ -445,10 +447,10 @@ switch what
             hold on
         end
         grid on
-        set(gca , 'XLim' , [0 6] , 'XTick' , [1:5] , 'YLim', [2500 7000] ,'FontSize' , 20 ,...
-            'GridAlpha' , 1, 'Box' , 'off')
+        set(gca , 'XLim' , [0 4] , 'XTick' , [1:3] ,'XTickLabel' , {'1' '2,3' '4,5'}, 'YLim', [3500 7000] ,'FontSize' , 20 ,...
+            'GridAlpha' ,.2, 'Box' , 'off')
         ylabel('msec')
-        xlabel('Days')
+        xlabel('Training Session')
         title('Execution Time in  Random Sequences')
         legend(fliplr({'H = 13' 'H = 8' 'H = 7' 'H = 6' 'H = 5' 'H = 4' 'H = 3' 'H = 2' 'H = 1' }) , 'Box' , 'off');
         
@@ -471,20 +473,11 @@ switch what
             set(gca , 'XLim' , [0 6] ,'XTick' , [1:5] , 'YLim', [2500 7000] ,'FontSize' , 20, 'Box' , 'off',...
                 'GridAlpha' , 1)
             ylabel('msec')
-            xlabel('Days')
-            title(['Execution Time in horizon(s) ' , hlab{i}])
+            xlabel('Training Session')
+            title(['Execution Time in Viewing Horizon(s) ' , hlab{i}])
         end
-        legend('Chunked' , 'Random' , 'Box' , 'off');
-        
-        %
-        %         for h  = [1:7]
-        %             out.chunked_exclude_h_p(h,1) = out.HorizonEffect_Chunkedseq_not(h).eff(2).p;
-        %             disp(['Effect of Horizon on Chunked MTs Excluding Horizons ',num2str([1:h]),' p val = ' , num2str(out.HorizonEffect_Chunkedseq_not(h).eff(2).p)])
-        %             out.random_exclude_h_p(h,1) = out.HorizonEffect_Randomseq_not(h).eff(2).p;
-        %             disp(['Effect of Horizon on Random MTs Excluding Horizons ',num2str([1:h]),' p val = ' , num2str(out.HorizonEffect_Randomseq_not(h).eff(2).p)])
-        %         end
-        %         out.chunked_exclude_h_p(h+1,1) = out.HorizonEffect_Chunkedseq_allh.eff(2).p;
-        %         out.random_exclude_h_p(h+1,1) = out.HorizonEffect_Randomseq_allh.eff(2).p;
+        legend('Strutured Sequences' , 'Random Sequences' , 'Box' , 'off');
+        out = [];
     case 'IPI_Vs_Horizon'
         structNumb = input('Which structure? (1/2)');
         %         plotfcn = input('nanmean or nanmedian?' , 's');
@@ -641,44 +634,30 @@ switch what
         ax.XLim = [0 9];
         ax.FontSize = 16;
     case 'RT_Vs_Horizon'
-        ANA = getrow(Dall , ismember(Dall.SN , subjnum) & Dall.isgood & ~Dall.isError & ismember(Dall.Day , days{day}));
+        ANA = getrow(Dall , ismember(Dall.SN , subjnum) & Dall.isgood & ~Dall.isError);
         RT = tapply(ANA , {'Horizon' , 'Day' ,'SN' , 'seqNumb','BN'} , {'pressTime0' , 'nanmedian(x)'});
         RT.pressTime0 = RT.pressTime0 - 1500;
-        
         RT.seqNumb(RT.seqNumb == 2) = 1;
-        Hcounter = 1;
-        
-        
-        
-        for h = [1:8 , 13]
-            temp = anovaMixed(RT.pressTime0 , RT.SN,'within',RT.seqNumb,{'randon/chunked'},'intercept',1,'subset' , ismember(RT.Horizon , [h]) & ismember(RT.seqNumb , [0 1]));
-            out.R_C_RT_not_h(h,1) = temp.eff(2).p;
-        end
-        temp = anovaMixed(RT.pressTime0 , RT.SN,'within',RT.seqNumb,{'randon/chunked'},'intercept',1,'subset', ismember(RT.seqNumb , [0 1]));
-        out.R_C_RT_not_h(h+1,1) = temp.eff(2).p;
-        
-        disp(['Effect of Random/Chunked on RT including all Horizons p val = ' , num2str(out.R_C_RT_not_h(14,1))])
-        for h  = [1:8 , 13]
-            disp(['Effect of Random/Chunked on RT in Horizon ',num2str([h]),' p val = ' , num2str(out.R_C_RT_not_h(h))])
-        end
-        
-        
-        
-        h=figure('color' , 'white');
-        [xcoord1,ePLOT1,ERROR1] = lineplot(RT.Horizon , RT.pressTime0 ,'subset', ismember(RT.seqNumb , [1]));
-        hold on
-        [xcoord0,ePLOT0,ERROR0] = lineplot(RT.Horizon , RT.pressTime0 ,'subset', ismember(RT.seqNumb , [0]));
-        close(h)
+        dayz = {1 [2 3] [4 5]};
         figure('color' , 'white')
-        h1 = plotshade(xcoord1',ePLOT1,ERROR1,'transp' , .2 , 'patchcolor' , 'b' , 'linecolor' , 'b' , 'linewidth' , 3 , 'linestyle' , ':');
-        hold on
-        h2 = plotshade(xcoord0',ePLOT0,ERROR0,'transp' , .2 , 'patchcolor' , 'r' , 'linecolor' , 'r' , 'linewidth' , 3 , 'linestyle' , ':');
-        legend([h1 , h2] , {'Chunked' , 'Random'})
-        grid on
-        xlabel('Horizon')
-        ylabel('msec')
-        title(['Reaction time vs. horizon Days = ' , num2str(days{day})])
-        set(gca ,'XTick' ,[1:8 , 13],'FontSize' , 20);
+        for d=  1:length(dayz)
+            h=figure('color' , 'white');
+            [xcoord1,ePLOT1,ERROR1] = lineplot(RT.Horizon , RT.pressTime0 ,'subset', ismember(RT.seqNumb , [1]) & ismember(RT.Day , dayz{d}));
+            hold on
+            [xcoord0,ePLOT0,ERROR0] = lineplot(RT.Horizon , RT.pressTime0 ,'subset', ismember(RT.seqNumb , [0]) & ismember(RT.Day , dayz{d}));
+            close(h)
+            subplot(1,3,d)
+            h1 = plotshade(xcoord1',ePLOT1,ERROR1,'transp' , .2 , 'patchcolor' , 'b' , 'linecolor' , 'b' , 'linewidth' , 3 , 'linestyle' , ':');
+            hold on
+            h2 = plotshade(xcoord0',ePLOT0,ERROR0,'transp' , .2 , 'patchcolor' , 'r' , 'linecolor' , 'r' , 'linewidth' , 3 , 'linestyle' , ':');
+            grid on
+            title(['initial reaction time - Training Session(s) ' , num2str(dayz{d})])
+            ylabel('msec' )
+            xlabel('Viewing Horizon' )
+            legend([h1 h2] ,{'Structured Sequences' , 'Random Sequences'})
+            set(gca ,'XTick' ,[1:8 , 13],'FontSize' , 20,'YLim', [600 850] , 'Box' , 'off');
+        end
+        out = [];
     case 'Points'
         for tn = 1:length(Dall.TN)
             Dall.MT(tn , 1) = Dall.AllPressTimes(tn , Dall.seqlength(tn)) - Dall.AllPressTimes(tn , 1);
