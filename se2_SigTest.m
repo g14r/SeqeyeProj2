@@ -2,6 +2,7 @@ function stats = se2_SigTest(Dall , what , varargin)
 
 c=  1;
 PoolSequences = 0;
+PoolDays = 1;
 while(c<=length(varargin))
     switch(varargin{c})
         case {'seqNumb'}
@@ -9,6 +10,10 @@ while(c<=length(varargin))
             c=c+2;
         case {'PoolSequences'}
             % whether to pool together all the sequences
+            eval([varargin{c} '= varargin{c+1};']);
+            c=c+2;
+        case {'PoolDays'}
+            % whether to pool together 2,3 and 4,5
             eval([varargin{c} '= varargin{c+1};']);
             c=c+2;
         case {'Day'}
@@ -43,15 +48,13 @@ ANA.seqNumb(ANA.seqNumb>1) = 1;
 if PoolSequences
     ANA.seqNumb = zeros(size(ANA.seqNumb));
 end
-ANA.Day(ANA.Day == 3) = 2;
-ANA.Day(ismember(ANA.Day , [4,5])) = 3;
-
-Day(Day==3) = 2;
-Day(ismember(Day , [4 5])) = 3;
-Day = unique(Day);
+if PoolDays
+    ANA.Day(ANA.Day == 3) = 2;
+    ANA.Day(ismember(ANA.Day , [4,5])) = 3;
+end
 
 factors = {'Horizon' , 'Day' , 'seqNumb'};
-facInclude = [length(Horizon)>1 , length(Day)>1  , length(unique(ANA.seqNumb))>1];
+facInclude = [length(Horizon)>1 , length(unique(ANA.Day))>1  , length(unique(ANA.seqNumb))>1];
 FCTR =  factors(facInclude);
 
 switch what
@@ -63,8 +66,17 @@ switch what
         stats = anovaMixed(ANA.MT  , ANA.SN ,'within',var ,FCTR,'intercept',1) ;
 %         anovan(ANA.MT,var,'model','interaction','varnames',FCTR)  % between subject
         figure('color' , 'white')
-        lineplot(var, ANA.MT , 'style_thickline');
-        title(['Effect of ' , FCTR , ' on ' , what]);
+        lineplot(var, ANA.MT , 'style_shade' , 'markertype' , 'o'  , ...
+            'markersize' , 10 , 'markerfill' , 'w');
+        tAdd = FCTR{1};
+        for f =2:length(FCTR)
+            tAdd = [tAdd , ' and ' , FCTR{f}];
+        end
+        title(['Effect of ' , tAdd ,' on Execution Time']);
+        grid on
+        set(gca , 'FontSize' , 20 , 'Box' , 'off')
+        xlabel(FCTR{end})
+        ylabel('msec')
     case 'IPI'
         switch whatIPI
             case 'steadyState'
@@ -148,13 +160,23 @@ switch what
                 for f = 1:length(FCTR)
                     eval(['var = [var A.',FCTR{f},'];']);
                 end
-                var = [var A.IPIArr];
-                FCTR = [FCTR , L];
+                if length(ipiLab)>1
+                    var = [A.IPIArr var];
+                    FCTR = [L FCTR];
+                end
                 stats = anovaMixed(A.IPI  , A.SN ,'within',var ,FCTR,'intercept',1) ;
-                anovan(A.IPI,var,'model','interaction','varnames',FCTR)  % between subject
                 figure('color' , 'white')
-                lineplot(var, A.IPI, 'style_thickline');
-                title(['Effect of ' , FCTR , ' on ' , what]);
+                lineplot(var, A.IPI , 'style_shade' , 'markertype' , 'o'  , ...
+                    'markersize' , 10 , 'markerfill' , 'w');
+                tAdd = FCTR{1};
+                for f =2:length(FCTR)
+                    tAdd = [tAdd , ' and ' , FCTR{f}];
+                end
+                title(['Effect of ' , tAdd ,' on Execution Time']);
+                grid on
+                set(gca , 'FontSize' , 20 , 'Box' , 'off')
+                xlabel(FCTR{end})
+                ylabel('msec')
         end
     case 'RT'
         var = [];

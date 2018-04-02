@@ -323,7 +323,7 @@ switch what
     case 'MT_Vs_Horizon'
         ANA = getrow(Dall , ismember(Dall.SN , subjnum) & Dall.isgood & ismember(Dall.seqNumb , [0 1 2]) & ~Dall.isError);
         ANA.seqNumb(ANA.seqNumb == 2) = 1;
-        MT  = tapply(ANA , {'Horizon' , 'Day' ,'SN' , 'seqNumb','BN'} , {'MT' , 'nanmedian(x)'});
+        MT  = ANA;%tapply(ANA , {'Horizon' , 'Day' ,'SN' , 'seqNumb','BN'} , {'MT' , 'nanmedian(x)'});
         
         MT = getrow(MT , MT.MT <= 9000 );
         dayz = {1 [2 3] [4 5]};
@@ -348,11 +348,11 @@ switch what
         figure('color' , 'white');
         for d=  1:length(dayz)
             subplot(2,3,d)
-            h1 = plotshade(xcoords{d}',PLOTs{d} , ERRORs{d},'transp' , .2 , 'patchcolor' , 'b' , 'linecolor' , 'b' , 'linewidth' , 3 , 'linestyle' , ':');
+            h1 = plotshade(xcoords{d}',PLOTs{d} , ERRORs{d},'transp' , .4 , 'patchcolor' , 'b' , 'linecolor' , 'b' , 'linewidth' , 3 , 'linestyle' , ':');
             hold on
-            h2 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .2 , 'patchcolor' , 'r' , 'linecolor' , 'r' , 'linewidth' , 3 , 'linestyle' , ':');
+            h2 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .4 , 'patchcolor' , 'r' , 'linecolor' , 'r' , 'linewidth' , 3 , 'linestyle' , ':');
             set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
-                'GridAlpha' , 1 , 'Box' , 'off');
+                'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [3500 7000]);
             title(['Execution time - Training Session(s) ' , num2str(dayz{d})])
             ylabel('msec' )
             xlabel('Viewing Horizon' )
@@ -362,9 +362,9 @@ switch what
         figc = d+1;
         subplot(2,3,figc);hold on
         d=1;
-        h1 = plotshade(xcoords{d}',PLOTs{d} , ERRORs{d},'transp' , .4 , 'patchcolor' , colors(d+2,:) , 'linecolor' ,  colors(d+2,:) , 'linewidth' , 3 , 'linestyle' , ':');d=d+1;
-        h2 = plotshade(xcoords{d}',PLOTs{d} , ERRORs{d},'transp' , .4 , 'patchcolor' , colors(d+2,:) , 'linecolor' ,  colors(d+2,:) , 'linewidth' , 3 , 'linestyle' , ':');d=d+1;
-        h3 = plotshade(xcoords{d}',PLOTs{d} , ERRORs{d},'transp' , .4 , 'patchcolor' , colors(d+2,:) , 'linecolor' ,  colors(d+2,:) , 'linewidth' , 3 , 'linestyle' , ':');
+        h1 = plotshade(xcoords{d}',PLOTs{d} , ERRORs{d},'transp' , .4 , 'patchcolor' , colors(d+3,:) , 'linecolor' ,  colors(d+2,:) , 'linewidth' , 3 , 'linestyle' , ':');d=d+1;
+        h2 = plotshade(xcoords{d}',PLOTs{d} , ERRORs{d},'transp' , .4 , 'patchcolor' , colors(d+3,:) , 'linecolor' ,  colors(d+2,:) , 'linewidth' , 3 , 'linestyle' , ':');d=d+1;
+        h3 = plotshade(xcoords{d}',PLOTs{d} , ERRORs{d},'transp' , .4 , 'patchcolor' , colors(d+3,:) , 'linecolor' ,  colors(d+2,:) , 'linewidth' , 3 , 'linestyle' , ':');
         grid on
         set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
             'GridAlpha' , .5 , 'Box' , 'off');
@@ -374,9 +374,9 @@ switch what
         legend([h1 h2 h3] ,{'Training Session 1' , 'Training Sessions 2,3' , 'Training Sessions 4,5'})
         subplot(2,3,figc+1);hold on
         d=1;
-        h1 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .4 , 'patchcolor' , colors(d+2,:) , 'linecolor' ,  colors(d+2,:) , 'linewidth' , 3 , 'linestyle' , ':');d=d+1;
-        h2 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .4 , 'patchcolor' , colors(d+2,:) , 'linecolor' ,  colors(d+2,:) , 'linewidth' , 3 , 'linestyle' , ':');d=d+1;
-        h3 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .4 , 'patchcolor' , colors(d+2,:) , 'linecolor' ,  colors(d+2,:) , 'linewidth' , 3 , 'linestyle' , ':');
+        h1 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .4 , 'patchcolor' , colors(d+3,:) , 'linecolor' ,  colors(d+2,:) , 'linewidth' , 3 , 'linestyle' , ':');d=d+1;
+        h2 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .4 , 'patchcolor' , colors(d+3,:) , 'linecolor' ,  colors(d+2,:) , 'linewidth' , 3 , 'linestyle' , ':');d=d+1;
+        h3 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .4 , 'patchcolor' , colors(d+3,:) , 'linecolor' ,  colors(d+2,:) , 'linewidth' , 3 , 'linestyle' , ':');
         grid on
         set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
             'GridAlpha' , .5 , 'Box' , 'off');
@@ -477,6 +477,22 @@ switch what
             title(['Execution Time in Viewing Horizon(s) ' , hlab{i}])
         end
         legend('Strutured Sequences' , 'Random Sequences' , 'Box' , 'off');
+        
+        
+        figure('color' , 'white')
+        lineplot([MT.Horizon MT.Day],MT.MT , 'style_shade' , 'markertype' , 'o'  , ...
+            'markersize' , 10 , 'markerfill' , 'w' , 'subset' , ismember(MT.seqNumb , [1 2]),...
+            'errorcolor' , 'b' , 'markercolor' , 'b');
+        hold on
+        lineplot([MT.Horizon MT.Day],MT.MT , 'errorbars' , 'shade' ,'shadecolor', 'r' ,'markertype' , 'o'  , ...
+            'markersize' , 10 , 'markerfill' , 'w' , 'subset' , ismember(MT.seqNumb , [0]),...
+            'errorcolor' , 'r' , 'markercolor' , 'r', 'linecolor' , 'r' , 'linewidth' , 3);
+        title(['The Effect of Training and Viewing Horizon Size on Execution Time']);
+        grid on
+        set(gca , 'FontSize' , 20 , 'Box' , 'off' , 'YLim' , [3500 7000] ,...
+            'XTickLabel' , repmat({'1' '2,3' , '4,5'} , 1 , length(horz)))
+        xlabel('Training sessions')
+        ylabel('msec')
         out = [];
     case 'IPI_Vs_Horizon'
         structNumb = input('Which structure? (1/2)');

@@ -2,7 +2,7 @@ function N = se2_timeNorm(Dall , what)
 
 baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';
 %baseDir = '/Users/nkordjazi/Documents/SeqEye/se1/SeqEye1/se1_data/analyze';
-subj_name = {'AT1' , 'CG1' , 'HB1' , 'JT1' , 'CB1' , 'YM1' , 'NL1' , 'SR1' , 'IB1' , 'MZ1' , 'DW1','RA1' ,'CC1' };
+subjs = unique(Dall.SN);
 load([baseDir , '/CMB_34_1.mat'])
 CMB = CMB_34_1;
 Days  = {1 ,2 ,3 ,4 ,5,[1:5] ,[2:5] [2:3] [4:5] };
@@ -13,15 +13,15 @@ N.Horizon = [];
 N.seqNumb =[];
 
 
-for sub = 1:length(subj_name)
+for sub = 1:length(subjs)
     for d  = 1:length(Days)
         for h = [1:8 , 13]
-            ANA = getrow(Dall , Dall.Horizon == h & Dall.SN == sub & ismember(Dall.Day , Days{d}) & ~Dall.isError & Dall.isgood & ismember(Dall.seqNumb , [0:6]));
+            ANA = getrow(Dall , Dall.Horizon == h & Dall.SN == subjs(sub) & ismember(Dall.Day , Days{d}) & ~Dall.isError & Dall.isgood & ismember(Dall.seqNumb , [0:6]));
             %%              first calculate then time normalize the velocities
             if ~isempty(ANA.Horizon)
                 for s = 0:2
                     N_temp.Horizon = [];
-                    [s h d sub]
+                    [s h d subjs(sub)]
                     id = find(ANA.seqNumb == s);
                     counter = 1;
                     for i = 1:length (id)
@@ -30,6 +30,7 @@ for sub = 1:length(subj_name)
                             N_temp.seqNumb(counter,1) = ANA.seqNumb(id(i));
                             N_temp.BN(counter,1) = ANA.BN(id(i));
                             N_temp.TN(counter,1) = ANA.TN(id(i));
+                            N_temp.SN(counter,1) = ANA.SN(id(i));
                             idd   = linspace(1 , ANA.AllPressIdx(id(i),14)-ANA.AllPressIdx(id(i),1)+1 , 1000);
                             idde = floor(linspace(ANA.AllPressIdx(id(i),1) , ANA.AllPressIdx(id(i),14) , 1001));
                             for j = 1:length(idde)-1
