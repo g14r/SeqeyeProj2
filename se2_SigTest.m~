@@ -35,7 +35,7 @@ while(c<=length(varargin))
             eval([varargin{c} '= varargin{c+1};']);
             c=c+2;
         case {'ipiOfInterest'}
-            % IPI of interest to test --> Steady State =[4:10]
+            % IPI to compare to Steady State
             eval([varargin{c} '= varargin{c+1};']);
             c=c+2;
             ipiOfInterest
@@ -48,7 +48,7 @@ ANA = getrow(Dall , Dall.isgood & ~Dall.isError & ...
     ismember(Dall.Horizon , Horizon) & ...
     ismember(Dall.Day , Day) & ismember(Dall.seqNumb , seqNumb));
 ANA.RT = ANA.AllPressTimes(:,1);
-% ANA.seqNumb(ANA.seqNumb>1) = 1;
+ANA.seqNumb(ANA.seqNumb>1) = 1;
 if PoolSequences
     ANA.seqNumb = zeros(size(ANA.seqNumb));
 end
@@ -88,8 +88,9 @@ switch what
         ylabel('msec')
     case 'IPI'
         switch whatIPI
-            case 'ipiOfInterest'
-                ipi = ANA.IPI(:,ipiOfInterest);
+            case 'steadyState'
+                ipi = ANA.IPI(:,4:10);
+                %         ipi = ANA.IPI(:,1:3);
                 A.IPI = reshape(ipi , numel(ipi) , 1);
                 A.Horizon = repmat(ANA.Horizon , size(ipi , 2) , 1);
                 A.Day = repmat(ANA.Day , size(ipi , 2) , 1);
@@ -100,6 +101,7 @@ switch what
                     eval(['var = [var A.',FCTR{f},'];']);
                 end
                 stats = anovaMixed(A.IPI  , A.SN ,'within',var ,FCTR,'intercept',1) ;
+                anovan(A.IPI,var,'model','interaction','varnames',FCTR)  % between subject
                 figure('color' , 'white')
                 lineplot(var, A.IPI, 'style_thickline');
                 title(['Effect of ' , FCTR , ' on ' , what]);
@@ -199,7 +201,6 @@ switch what
                 ipiss = ANA.IPI(:,4:10);
                 FCTR = FCTR(~strcmp(FCTR,'seqNumb'));
                 nn= input('What IPIs to include?(0 random, 1 between, 2 within)');
-                mm= input('Pool [Random and Between (1)] , [within and between (2) , [nothing (0)]]?');
                 ipiLab = {'Random' , 'Between','Within'};
                 ipiLab = ipiLab(nn+1);
                 L = ipiLab{1};
@@ -207,12 +208,6 @@ switch what
                     L = [L,'/',ipiLab{l}];
                 end
                 A.IPIArr= reshape(ANA.IPIarrangement(:,4:10) , numel(ipiss) , 1);
-                switch mm
-                    case{1}
-                        A.IPIArr(A.IPIArr==1) = 0;
-                    case {2}
-                        A.IPIArr(A.IPIArr==2) = 1;
-                end
                 A.IPI = reshape(ipiss , numel(ipiss) , 1);
                 A.Horizon = repmat(ANA.Horizon , size(ipiss , 2) , 1);
                 A.Day = repmat(ANA.Day , size(ipiss , 2) , 1);
@@ -228,9 +223,8 @@ switch what
                     FCTR = [L FCTR];
                 end
                 stats = anovaMixed(A.IPI  , A.SN ,'within',var ,FCTR,'intercept',1) ;
-%                 anovan(A.IPI,var,'model','interaction','varnames',FCTR)  % between subject
                 figure('color' , 'white')
-                lineplot(fliplr(var), A.IPI , 'style_shade' , 'markertype' , 'o'  , ...
+                lineplot(var, A.IPI , 'style_shade' , 'markertype' , 'o'  , ...
                     'markersize' , 10 , 'markerfill' , 'w');
                 tAdd = FCTR{1};
                 for f =2:length(FCTR)
