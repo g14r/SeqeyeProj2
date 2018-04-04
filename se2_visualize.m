@@ -387,10 +387,13 @@ switch what
         d=1;
         h1 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .3 , 'patchcolor' , [255, 128, 159]/255 , 'linecolor' ,  [255, 128, 159]/255 , 'linewidth' , 3 )
         plot(xcoords{d},PLOTr{d} , 'o' , 'MarkerSize' , 10 , 'color' , [255, 128, 159]/255,'MarkerFaceColor',[255, 128, 159]/255);d=d+1;
+        line([3 3] , [3000 6000] , 'color' , [255, 128, 159]/255 , 'LineWidth' , 3 , 'LineStyle' , '-')
         h2 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .3 , 'patchcolor' , [255, 26, 83]/255 , 'linecolor' ,  [255, 26, 83]/255 , 'linewidth' , 3 )
         plot(xcoords{d},PLOTr{d} , 'o' , 'MarkerSize' , 10 , 'color' , [255, 26, 83]/255,'MarkerFaceColor',[255, 26, 83]/255);d=d+1;
+        line([3 3] , [3000 6000] , 'color' , [255, 128, 159]/255 , 'LineWidth' , 3 , 'LineStyle' , '-')
         h3 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .3 , 'patchcolor' , [179, 0, 45]/255 , 'linecolor' ,  [179, 0, 45]/255 , 'linewidth' , 3 );
         plot(xcoords{d},PLOTr{d} , 'o' , 'MarkerSize' , 10 , 'color' , [179, 0, 45]/255,'MarkerFaceColor',[179, 0, 45]/255)
+        line([3 3] , [3000 6000] , 'color' , [179, 0, 45]/255 , 'LineWidth' , 3 , 'LineStyle' , '-')
         grid on
         set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
                 'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [3000 7000],'YTick' , [3000 4000 5000 6000] , 'YTickLabels' , [3 4 5 6]);

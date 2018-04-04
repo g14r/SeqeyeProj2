@@ -48,7 +48,7 @@ ANA = getrow(Dall , Dall.isgood & ~Dall.isError & ...
     ismember(Dall.Horizon , Horizon) & ...
     ismember(Dall.Day , Day) & ismember(Dall.seqNumb , seqNumb));
 ANA.RT = ANA.AllPressTimes(:,1);
-% ANA.seqNumb(ANA.seqNumb>1) = 1;
+ANA.seqNumb(ANA.seqNumb>1) = 1;
 if PoolSequences
     ANA.seqNumb = zeros(size(ANA.seqNumb));
 end
