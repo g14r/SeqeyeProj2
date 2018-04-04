@@ -1,63 +1,4 @@
 
-figure('color' , 'white');
-        subplot(1,2,1);hold on
-        d=1;
-        h1 = errorbar(xcoords{d},PLOTs{d} , ERRORs{d},'.','color' , [128, 223, 255]/255  , 'Linewidth' , 2 )
-        set(h1, 'marker', 'none')
-        bar(PLOTs{d})
-        plot(xcoords{d},PLOTs{d} , 'o' , 'MarkerSize' , 10 , 'color' , [128, 223, 255]/255,'MarkerFaceColor',[128, 223,; 255]/255);d=d+1;
-        patch([1 4 4 1],[3000 3000 3200 3200] , [128, 223, 255]/255,'EdgeColor' , 'none','FaceAlpha',.6)
-%         line([4 4] , [3000 6700] , 'color' , [128, 223, 255]/255 , 'LineWidth' , 3 , 'LineStyle' , ':')
-       
-        h2 = plotshade(xcoords{d}',PLOTs{d} , ERRORs{d},'transp' , .3 , 'patchcolor' , [26, 198, 255]/255 , 'linecolor' , [26, 198, 255]/255 , 'linewidth' , 3 )
-        plot(xcoords{d},PLOTs{d} , 'o' , 'MarkerSize' , 10 , 'color' , [26, 198, 255]/255,'MarkerFaceColor',[26, 198, 255]/255);d=d+1;
-        patch([1 4 4 1],[3200 3200 3400 3400] , [26, 198, 255]/255,'EdgeColor' , 'none','FaceAlpha',.6)
-%         line([4 4] , [3000 6700] , 'color' , [26, 198, 255]/255 , 'LineWidth' , 3 , 'LineStyle' , ':')
-        
-        h3 = plotshade(xcoords{d}',PLOTs{d} , ERRORs{d},'transp' , .3 , 'patchcolor' , [0, 134, 179]/255 , 'linecolor' ,  [0, 134, 179]/255 , 'linewidth' , 3 );
-        plot(xcoords{d},PLOTs{d} , 'o' , 'MarkerSize' , 10 , 'color' , [0, 134, 179]/255,'MarkerFaceColor',[0, 134, 179]/255)
-        patch([1 4 4 1],[3400 3400 3600 3600] , [0, 134, 179]/255,'EdgeColor' , 'none','FaceAlpha',.6)
-%         line([4 4] , [3000 6700] , 'color' , [0, 134, 179]/255 , 'LineWidth' , 3 , 'LineStyle' , ':')
-        grid on
-        set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
-                'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 13], 'YLim' , [3000 7000],'YTick' , [3000 4000 5000 6000] , 'YTickLabels' , [3 4 5 6]);
-        title(['Execution time for Structured Sequences'])
-        ylabel('Sec' )
-        xlabel('Viewing Horizon' )
-        legend([h1 h2 h3] ,{'Training Session 1' , 'Training Sessions 2,3' , 'Training Sessions 4,5'})
-        subplot(1,2,2);hold on
-        d=1;
-        h1 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .3 , 'patchcolor' , [255, 128, 159]/255 , 'linecolor' ,  [255, 128, 159]/255 , 'linewidth' , 3 )
-        barwitherr(ERRORr{d} , PLOTr{d})
-        plot(xcoords{d},PLOTr{d} , 'o' , 'MarkerSize' , 10 , 'color' , [255, 128, 159]/255,'MarkerFaceColor',[255, 128, 159]/255);d=d+1;
-        patch([1 4 4 1],[3000 3000 3200 3200] , [255, 128, 159]/255,'EdgeColor' , 'none','FaceAlpha',.6)
-%         line([4 4] , [3000 6700] , 'color' , [255, 128, 159]/255 , 'LineWidth' , 3 , 'LineStyle' , ':')
-        
-        h2 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .3 , 'patchcolor' , [255, 26, 83]/255 , 'linecolor' ,  [255, 26, 83]/255 , 'linewidth' , 3 )
-        plot(xcoords{d},PLOTr{d} , 'o' , 'MarkerSize' , 10 , 'color' , [255, 26, 83]/255,'MarkerFaceColor',[255, 26, 83]/255);d=d+1;
-        patch([1 4 4 1],[3200 3200 3400 3400] , [255, 26, 83]/255,'EdgeColor' , 'none','FaceAlpha',.6)
-%         line([4 4] , [3000 6700] , 'color' , [255, 26, 83]/255 , 'LineWidth' , 3 , 'LineStyle' , ':')
-        
-        h3 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .3 , 'patchcolor' , [179, 0, 45]/255 , 'linecolor' ,  [179, 0, 45]/255 , 'linewidth' , 3 );
-        plot(xcoords{d},PLOTr{d} , 'o' , 'MarkerSize' , 10 , 'color' , [179, 0, 45]/255,'MarkerFaceColor',[179, 0, 45]/255)
-        patch([1 5 5 1],[3400 3400 3600 3600] , [179, 0, 45]/255,'EdgeColor' , 'none','FaceAlpha',.6)
-%         line([5 5] , [3000 6700] , 'color' , [179, 0, 45]/255 , 'LineWidth' , 3 , 'LineStyle' , ':')
-        grid on
-        set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
-                'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 13],'YLim' , [3000 7500],'YTick' , [3000 4000 5000 6000] , 'YTickLabels' , [3 4 5 6]);
-%         title(['Execution time for Random Sequences'])
-        ylabel('Sec' )
-        xlabel('Viewing Horizon' )
-        legend([h1 h2 h3] ,{'Training Session 1' , 'Training Sessions 2,3' , 'Training Sessions 4,5'})
-        grid on
-        d=d+1;
-        
-
-
-
-
-
-
 
 function out  = se2_visualize(Dall , subjnum, what, distance, calc , day ,rep, GroupCode)
 %%  distances:
@@ -408,7 +349,7 @@ switch what
         
         figure('color' , 'white');
         for d=  1:length(dayz)
-            subplot(2,3,d)
+            subplot(1,3,d)
             h1 = plotshade(xcoords{d}',PLOTs{d} , ERRORs{d},'transp' , .3 , 'patchcolor' , [0, 191, 255]/255 ,... 
                 'linecolor' ,[0, 191, 255]/255 , 'linewidth' , 3 );
             hold on
@@ -424,7 +365,7 @@ switch what
             grid on
             legend([h1 h2] ,{'Structured Sequences' , 'Random Sequences'})
         end
-        figc = 1;
+        
         figure('color' , 'white');
         subplot(1,2,1);hold on
         d=1;
@@ -452,7 +393,6 @@ switch what
         subplot(1,2,2);hold on
         d=1;
         h1 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .3 , 'patchcolor' , [255, 128, 159]/255 , 'linecolor' ,  [255, 128, 159]/255 , 'linewidth' , 3 )
-        barwitherr(ERRORr{d} , PLOTr{d})
         plot(xcoords{d},PLOTr{d} , 'o' , 'MarkerSize' , 10 , 'color' , [255, 128, 159]/255,'MarkerFaceColor',[255, 128, 159]/255);d=d+1;
         patch([1 4 4 1],[3000 3000 3200 3200] , [255, 128, 159]/255,'EdgeColor' , 'none','FaceAlpha',.6)
 %         line([4 4] , [3000 6700] , 'color' , [255, 128, 159]/255 , 'LineWidth' , 3 , 'LineStyle' , ':')
@@ -465,18 +405,148 @@ switch what
         h3 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .3 , 'patchcolor' , [179, 0, 45]/255 , 'linecolor' ,  [179, 0, 45]/255 , 'linewidth' , 3 );
         plot(xcoords{d},PLOTr{d} , 'o' , 'MarkerSize' , 10 , 'color' , [179, 0, 45]/255,'MarkerFaceColor',[179, 0, 45]/255)
         patch([1 5 5 1],[3400 3400 3600 3600] , [179, 0, 45]/255,'EdgeColor' , 'none','FaceAlpha',.6)
-%         line([5 5] , [3000 6700] , 'color' , [179, 0, 45]/255 , 'LineWidth' , 3 , 'LineStyle' , ':')
+        %         line([5 5] , [3000 6700] , 'color' , [179, 0, 45]/255 , 'LineWidth' , 3 , 'LineStyle' , ':')
         grid on
         set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
-                'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 13],'YLim' , [3000 7500],'YTick' , [3000 4000 5000 6000] , 'YTickLabels' , [3 4 5 6]);
-%         title(['Execution time for Random Sequences'])
+            'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 13],'YLim' , [3000 7500],'YTick' , [3000 4000 5000 6000] , 'YTickLabels' , [3 4 5 6]);
+        %         title(['Execution time for Random Sequences'])
         ylabel('Sec' )
         xlabel('Viewing Horizon' )
-        legend([h1 h2 h3] ,{'Training Session 1' , 'Training Sessions 2,3' , 'Training Sessions 4,5'})
+        legend([h1 h2 h3] ,{'Session 1' , 'Sessions 2,3' , 'Sessions 4,5'})
         grid on
         d=d+1;
+        %% THE BOX PLOTS
+        
+        xs = zeros(3,9);
+        % text x locations
+        xs(1,:) = 1:2.4:2.4*9;
+        for xx = 1:9
+            for d = 2:length(dayz)
+                xs(d,xx) = xs(d-1,xx)+.7;
+            end
+        end
+        xs = xs(:);
+        % text colors
+        d_cols = repmat([1:3]' , 1 , 9);
+        d_cols = d_cols(:);
+        % star or no star
+        sigstars_r = cell(3,9);
+        sigstars_r(1,:) = {'*' , '*' , '*' ,'','','','','',''};
+        sigstars_r(2,:) = {'*' , '*' , '*' ,'','','','','',''};
+        sigstars_r(3,:) = {'*' , '*' , '*' ,'*','','','','',''};
+        sigstars_r = sigstars_r(:);
+        sigstars_s = cell(3,9);
+        sigstars_s(1,:) = {'*' , '*' , '*' ,'','','','','',''};
+        sigstars_s(2,:) = {'*' , '*' , '*' ,'','','','','',''};
+        sigstars_s(3,:) = {'*' , '*' , '*' ,'','','','','',''};
+        sigstars_s = sigstars_s(:);
+        ystar_r = zeros(3,9);
+        ystar_s = zeros(3,9);
+        c = 1;
+        for h = [1:8,13]
+            for d = 1:3
+                M = getrow(MT , MT.seqNumb==0 & ismember(MT.Day , dayz{d}) & MT.Horizon==h);
+                ystar_r(d,c) = (std(M.MT)/sqrt(length(M.MT)))+max(M.MT);;
+                M = getrow(MT , MT.seqNumb~=0 & ismember(MT.Day , dayz{d}) & MT.Horizon==h);
+                ystar_s(d,c) = (std(M.MT)/sqrt(length(M.MT)))+max(M.MT);
+            end
+            c = c+1;
+        end
+        ystar_r = ystar_r(:);
+        ystar_s = ystar_s(:);
         
         
+        figure('color' , 'white');
+        xs_labs = repmat({'S1' , 'S2,3' , 'S4,5'} , 1, 9);
+        colz_s = {[128, 223, 255]/255 , [26, 198, 255]/255, [0, 134, 179]/255};
+        colz_r = {[255, 128, 159]/255 , [255, 26, 83]/255, [179, 0, 45]/255};
+        subplot(211);hold on
+        M = getrow(MT , MT.seqNumb~=0);
+        M.Day(ismember(M.Day , [2 3])) = 2;
+        M.Day(ismember(M.Day , [4 5])) = 3;
+        myboxplot(M.Horizon ,M.MT, 'notch',1 ,'plotall',0, 'fillcolor',colz_s,'linecolor',colz_s,...
+            'whiskerwidth',3,'split' , M.Day,'xtickoff' );
+        hold on
+        for xl = 1:length(xs)
+            text(xs(xl) , ystar_s(xl) , sigstars_s{xl} ,'FontSize' , 40,'color',colz_s{d_cols(xl)})
+        end
+        
+        % title('Structured')
+        set(gca,'FontSize' , 40 ,  ...
+            'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [0 9000],...
+            'YTick' , [1000 2000 3000 4000 5000 6000 7000 8000] , 'YTickLabels' , [1 2 3 4 5 6 7 8],...
+            'XTickLabelRotation' , 30, 'YGrid' , 'on');%,'XTick' , xs , 'XTickLabel' , xs_labs ,);
+        ylabel('Sec')
+        subplot(212);hold on
+        M = getrow(MT , MT.seqNumb==0);
+        M.Day(ismember(M.Day , [2 3])) = 2;
+        M.Day(ismember(M.Day , [4 5])) = 3;
+        myboxplot(M.Horizon ,M.MT, 'notch',1 ,'plotall',0, 'fillcolor',colz_r,'linecolor',colz_r,...
+            'whiskerwidth',3,'split' , M.Day,'xtickoff');
+        ylabel('Sec')
+        % title('Random')
+        
+        set(gca,'FontSize' , 40 ,  ...
+            'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [0 9000],...
+            'YTick' , [1000 2000 3000 4000 5000 6000 7000 8000] , 'YTickLabels' , [1 2 3 4 5 6 7 8],...
+            'XTickLabelRotation' , 30, 'YGrid' , 'on');%,'XTick' , xs , 'XTickLabel' , xs_labs ,);
+        
+        hold on
+        for xl = 1:length(xs)
+            text(xs(xl) , ystar_r(xl) , sigstars_r{xl} ,'FontSize' , 40,'color',colz_r{d_cols(xl)})
+        end
+        %% BOX PLOT 2
+        xs = zeros(2,9);
+        % text x locations
+        xs(1,:) = 1:1.7:1.7*9;
+        for xx = 1:9
+            xs(2,xx) = xs(1,xx)+.7;
+        end
+        xs = xs(:);
+        % text colors
+        d_cols = repmat([1 2]' , 1 , 9);
+        d_cols = d_cols(:);
+        % star or no star
+        sigstars(1,:) = {'' , '' , '' ,'','','','','','','' , '' , '' ,'','','','','',''};
+        sigstars(2,:) = {'' , '' , '' ,'','*','*','*','*','*','*' , '*' , '*' ,'*','*','*','*','*','*'};
+        sigstars(3,:) = {'' , '' , '*' ,'*','*','*','*','*','*','*' , '*' , '*' ,'*','*','*','*','*','*'};
+        
+        
+        
+        
+        figure('color' , 'white');
+        colz_s = {[128, 223, 255]/255 , [26, 198, 255]/255, [0, 134, 179]/255};
+        colz_r = {[255, 128, 159]/255 , [255, 26, 83]/255, [179, 0, 45]/255};
+        for d = 1:length(dayz)
+            cols = {colz_r{d} colz_s{d}};
+            subplot(3,1,d);hold on
+            M = getrow(MT , ismember(MT.Day , dayz{d}));
+            myboxplot(M.Horizon ,M.MT, 'notch',1 ,'plotall',0, 'fillcolor',cols,'linecolor',cols,...
+                'whiskerwidth',3,'split' , M.seqNumb,'xtickoff');
+            hold on
+            ystar = zeros(2,9);
+            c = 1;
+            for h = [1:8,13]
+                for sn = 0:1
+                    M = getrow(MT , MT.seqNumb==0 & ismember(MT.Day , dayz{d}) & MT.Horizon==h);
+                    ystar(sn+1,c) = (std(M.MT)/sqrt(length(M.MT)))+max(M.MT);
+                    M = getrow(MT , MT.seqNumb~=0 & ismember(MT.Day , dayz{d}) & MT.Horizon==h);
+                    ystar(sn+1,c) = (std(M.MT)/sqrt(length(M.MT)))+max(M.MT);
+                end
+                c = c+1;
+            end
+            ystar = ystar(:);
+            for xl = 1:length(xs)
+                text(xs(xl) , ystar(xl) , sigstars{d,xl} ,'FontSize' , 40,'color',cols{d_cols(xl)})
+            end
+            xs_labs = repmat({'Random' , 'Structured'} , 1, 9);
+            % title('Structured')
+            set(gca,'FontSize' , 30 ,  ...
+                'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [0 9000],...
+                'YTick' , [1000 2000 3000 4000 5000 6000 7000 8000] , 'YTickLabels' , [1 2 3 4 5 6 7 8],...
+                'XTickLabelRotation' , 30,'YGrid' , 'on');%'XTick' , xs , 'XTickLabel' , xs_labs )
+            ylabel('Sec')
+        end
         %%
         
         h1 = figure('color' , 'white');
