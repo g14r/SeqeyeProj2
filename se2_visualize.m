@@ -363,40 +363,51 @@ switch what
             grid on
             legend([h1 h2] ,{'Structured Sequences' , 'Random Sequences'})
         end
-        figc = d+1;
-        subplot(2,3,figc);hold on
+        figc = 1;
+        figure('color' , 'white');
+        subplot(1,2,1);hold on
         d=1;
         h1 = plotshade(xcoords{d}',PLOTs{d} , ERRORs{d},'transp' , .3 , 'patchcolor' , [128, 223, 255]/255 , 'linecolor' , [128, 223, 255]/255 , 'linewidth' , 3 )
-        hold on 
         plot(xcoords{d},PLOTs{d} , 'o' , 'MarkerSize' , 10 , 'color' , [128, 223, 255]/255,'MarkerFaceColor',[128, 223, 255]/255);d=d+1;
+        patch([1 4 4 1],[3000 3000 3200 3200] , [128, 223, 255]/255,'EdgeColor' , 'none','FaceAlpha',.6)
+%         line([4 4] , [3000 6700] , 'color' , [128, 223, 255]/255 , 'LineWidth' , 3 , 'LineStyle' , ':')
+       
         h2 = plotshade(xcoords{d}',PLOTs{d} , ERRORs{d},'transp' , .3 , 'patchcolor' , [26, 198, 255]/255 , 'linecolor' , [26, 198, 255]/255 , 'linewidth' , 3 )
-        hold on 
         plot(xcoords{d},PLOTs{d} , 'o' , 'MarkerSize' , 10 , 'color' , [26, 198, 255]/255,'MarkerFaceColor',[26, 198, 255]/255);d=d+1;
-        h3 = plotshade(xcoords{d}',PLOTs{d} , ERRORs{d},'transp' , .3 , 'patchcolor' , [0, 134, 179]/255 , 'linecolor' ,  [0, 134, 179]/255 , 'linewidth' , 3 );
-        hold on 
-        plot(xcoords{d},PLOTs{d} , 'o' , 'MarkerSize' , 10 , 'color' , [0, 134, 179]/255,'MarkerFaceColor',[0, 134, 179]/255)
+        patch([1 4 4 1],[3200 3200 3400 3400] , [26, 198, 255]/255,'EdgeColor' , 'none','FaceAlpha',.6)
+%         line([4 4] , [3000 6700] , 'color' , [26, 198, 255]/255 , 'LineWidth' , 3 , 'LineStyle' , ':')
         
+        h3 = plotshade(xcoords{d}',PLOTs{d} , ERRORs{d},'transp' , .3 , 'patchcolor' , [0, 134, 179]/255 , 'linecolor' ,  [0, 134, 179]/255 , 'linewidth' , 3 );
+        plot(xcoords{d},PLOTs{d} , 'o' , 'MarkerSize' , 10 , 'color' , [0, 134, 179]/255,'MarkerFaceColor',[0, 134, 179]/255)
+        patch([1 4 4 1],[3400 3400 3600 3600] , [0, 134, 179]/255,'EdgeColor' , 'none','FaceAlpha',.6)
+%         line([4 4] , [3000 6700] , 'color' , [0, 134, 179]/255 , 'LineWidth' , 3 , 'LineStyle' , ':')
         grid on
         set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
-                'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [3000 7000],'YTick' , [3000 4000 5000 6000] , 'YTickLabels' , [3 4 5 6]);
+                'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 13], 'YLim' , [3000 7000],'YTick' , [3000 4000 5000 6000] , 'YTickLabels' , [3 4 5 6]);
         title(['Execution time for Structured Sequences'])
         ylabel('Sec' )
         xlabel('Viewing Horizon' )
         legend([h1 h2 h3] ,{'Training Session 1' , 'Training Sessions 2,3' , 'Training Sessions 4,5'})
-        subplot(2,3,figc+1);hold on
+        subplot(1,2,2);hold on
         d=1;
         h1 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .3 , 'patchcolor' , [255, 128, 159]/255 , 'linecolor' ,  [255, 128, 159]/255 , 'linewidth' , 3 )
+        barwitherr(ERRORr{d} , PLOTr{d})
         plot(xcoords{d},PLOTr{d} , 'o' , 'MarkerSize' , 10 , 'color' , [255, 128, 159]/255,'MarkerFaceColor',[255, 128, 159]/255);d=d+1;
-        line([3 3] , [3000 6000] , 'color' , [255, 128, 159]/255 , 'LineWidth' , 3 , 'LineStyle' , '-')
+        patch([1 4 4 1],[3000 3000 3200 3200] , [255, 128, 159]/255,'EdgeColor' , 'none','FaceAlpha',.6)
+%         line([4 4] , [3000 6700] , 'color' , [255, 128, 159]/255 , 'LineWidth' , 3 , 'LineStyle' , ':')
+        
         h2 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .3 , 'patchcolor' , [255, 26, 83]/255 , 'linecolor' ,  [255, 26, 83]/255 , 'linewidth' , 3 )
         plot(xcoords{d},PLOTr{d} , 'o' , 'MarkerSize' , 10 , 'color' , [255, 26, 83]/255,'MarkerFaceColor',[255, 26, 83]/255);d=d+1;
-        line([3 3] , [3000 6000] , 'color' , [255, 128, 159]/255 , 'LineWidth' , 3 , 'LineStyle' , '-')
+        patch([1 4 4 1],[3200 3200 3400 3400] , [255, 26, 83]/255,'EdgeColor' , 'none','FaceAlpha',.6)
+%         line([4 4] , [3000 6700] , 'color' , [255, 26, 83]/255 , 'LineWidth' , 3 , 'LineStyle' , ':')
+        
         h3 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .3 , 'patchcolor' , [179, 0, 45]/255 , 'linecolor' ,  [179, 0, 45]/255 , 'linewidth' , 3 );
         plot(xcoords{d},PLOTr{d} , 'o' , 'MarkerSize' , 10 , 'color' , [179, 0, 45]/255,'MarkerFaceColor',[179, 0, 45]/255)
-        line([3 3] , [3000 6000] , 'color' , [179, 0, 45]/255 , 'LineWidth' , 3 , 'LineStyle' , '-')
+        patch([1 5 5 1],[3400 3400 3600 3600] , [179, 0, 45]/255,'EdgeColor' , 'none','FaceAlpha',.6)
+%         line([5 5] , [3000 6700] , 'color' , [179, 0, 45]/255 , 'LineWidth' , 3 , 'LineStyle' , ':')
         grid on
         set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
-                'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [3000 7000],'YTick' , [3000 4000 5000 6000] , 'YTickLabels' , [3 4 5 6]);
+                'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 13],'YLim' , [3000 7500],'YTick' , [3000 4000 5000 6000] , 'YTickLabels' , [3 4 5 6]);
 %         title(['Execution time for Random Sequences'])
         ylabel('Sec' )
         xlabel('Viewing Horizon' )
