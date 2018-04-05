@@ -346,24 +346,28 @@ switch what
             [xcoordr{d},PLOTr{d},ERRORr{d}] = lineplot(MT.Horizon,MT.MT , 'plotfcn' , 'nanmean' , 'subset' , MT.seqNumb == 0 & ismember(MT.Day , dayz{d}));
             close(h1);
         end
-        
+        colz_s = {[128, 223, 255]/255 , [26, 198, 255]/255, [0, 134, 179]/255};
+        colz_r = {[255, 128, 159]/255 , [255, 26, 83]/255, [179, 0, 45]/255};
         figure('color' , 'white');
+        sigSeq = [NaN 3 2]
         for d=  1:length(dayz)
             subplot(1,3,d)
-            h1 = plotshade(xcoords{d}',PLOTs{d} , ERRORs{d},'transp' , .3 , 'patchcolor' , [0, 191, 255]/255 ,... 
-                'linecolor' ,[0, 191, 255]/255 , 'linewidth' , 3 );
+            h1 = plotshade(xcoords{d}',PLOTs{d} , ERRORs{d},'transp' , .3 , 'patchcolor' , colz_s{d} ,... 
+                'linecolor' ,colz_s{d} , 'linewidth' , 3 );
             hold on
-            h2 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .3 , 'patchcolor' , [255, 0, 64]/255 , 'linecolor' , [204 0 102]/255 , 'linewidth' , 3 );
-            set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
-                'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [3000 7000],'YTick' , [3000 4000 5000 6000] , 'YTickLabels' , [3 4 5 6]);
+            h2 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .3 , 'patchcolor' , colz_r{d} , 'linecolor' , colz_r{d} , 'linewidth' , 3 );
+            set(gca,'FontSize' , 40 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
+                'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [3200 7000],'YTick' , [4000 5000 6000] ,...
+                'YTickLabels' , [4 5 6] , 'YGrid' , 'on','XLim' , [1 13]);
 %             title(['Execution time - Training Session(s) ' , num2str(dayz{d})])
             ylabel('Sec' )
             xlabel('Viewing Horizon Size' )
             hold on 
-            plot(xcoords{d},PLOTs{d} , 'o' , 'MarkerSize' , 10 , 'color' , [0, 191, 255]/255,'MarkerFaceColor',[0, 191, 255]/255)
-            plot(xcoords{d},PLOTr{d} , 'o' , 'MarkerSize' , 10 , 'color' , [255, 0, 64]/255,'MarkerFaceColor',[255, 0, 64]/255)
-            grid on
-            legend([h1 h2] ,{'Structured Sequences' , 'Random Sequences'})
+            plot(xcoords{d},PLOTs{d} , 'o' , 'MarkerSize' , 10 , 'color' , colz_s{d},'MarkerFaceColor',colz_s{d})
+            plot(xcoords{d},PLOTr{d} , 'o' , 'MarkerSize' , 10 , 'color' , colz_r{d},'MarkerFaceColor',colz_r{d})
+            patch([sigSeq(d) 13 13 sigSeq(d)],[3200 3200 3400 3400] , (colz_s{d}+colz_r{d})/2,'EdgeColor' , 'none','FaceAlpha',1)
+            line([sigSeq(d) sigSeq(d)] , [3200 6800] , 'color' , (colz_s{d}+colz_r{d})/2 , 'LineWidth' , 3 , 'LineStyle' , ':')
+%             legend([h1 h2] ,{'Structured Sequences' , 'Random Sequences'})
         end
         
         figure('color' , 'white');
@@ -458,8 +462,7 @@ switch what
         
         figure('color' , 'white');
         xs_labs = repmat({'S1' , 'S2,3' , 'S4,5'} , 1, 9);
-        colz_s = {[128, 223, 255]/255 , [26, 198, 255]/255, [0, 134, 179]/255};
-        colz_r = {[255, 128, 159]/255 , [255, 26, 83]/255, [179, 0, 45]/255};
+        
         subplot(211);hold on
         M = getrow(MT , MT.seqNumb~=0);
         M.Day(ismember(M.Day , [2 3])) = 2;
