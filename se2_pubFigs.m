@@ -1,7 +1,6 @@
 
 function out  = se2_pubFigs(Dall , what, nowWhat , varargin)
 
-
 subj_name = {'AT1' , 'CG1' , 'HB1' , 'JT1' , 'CB1' , 'YM1' , 'NL1' , 'SR1' , 'IB1' , 'MZ1' , 'DW1', 'RA1' ,'CC1', 'All'};
 %% Define defaults
 subjnum = length(subj_name)-1; % all subjects
@@ -86,6 +85,8 @@ switch what
         colz_r = {[255, 153, 179]/255 , [255, 77, 121]/255,[255, 0, 64]/255,[179, 0, 45]/255, [102, 0, 26]/255};
         if poolDays
             sigSeq = [NaN 3 2];
+            sigMT  = [4 4 5;4 4 4];
+            sigMT  = [4 4 4 ]
         else
             sigSeq = [NaN 3 3 2 2];
         end

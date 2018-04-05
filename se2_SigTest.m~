@@ -147,10 +147,7 @@ switch what
                 calc = 0;
                 if calc
                     if poolDays
-                        Day = {[1] , [2 3] , [4 5]};
-                    else
-                        Day = {[1] [2] [3] [4] , [5]};
-                    end
+                    Day = {[1] , [2 3] , [4 5]};
                     H =[1:8 , 13];
                     ipi = [1 2 3 11 12 13];
                     for sn = 0:2
@@ -199,7 +196,7 @@ switch what
                 end
                 
                 stats = pval;
-            case 'WithBetRand'
+            case 'WithinBetweenChunk'
                 ipiss = ANA.IPI(:,4:10);
                 FCTR = FCTR(~strcmp(FCTR,'seqNumb'));
                 nn= input('What IPIs to include?(0 random, 1 between, 2 within)');
@@ -234,7 +231,7 @@ switch what
                 stats = anovaMixed(A.IPI  , A.SN ,'within',var ,FCTR,'intercept',1) ;
 %                 anovan(A.IPI,var,'model','interaction','varnames',FCTR)  % between subject
                 figure('color' , 'white')
-                lineplot(var, A.IPI , 'style_shade' , 'markertype' , 'o'  , ...
+                lineplot(fliplr(var), A.IPI , 'style_shade' , 'markertype' , 'o'  , ...
                     'markersize' , 10 , 'markerfill' , 'w');
                 tAdd = FCTR{1};
                 for f =2:length(FCTR)
