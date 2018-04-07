@@ -2,7 +2,11 @@
  
 out  = se2_pubFigs(Dall , 'MT','RandvsStructCommpare'); 
 out  = se2_pubFigs(Dall , 'MT','RandStructAcrossDays' , 'poolDays' , 1); 
-out  = se2_visualize(Dall , 14, 'MT_Vs_Horizon', [], 1 , 6 ,[1 2], 1)
+out  = se2_pubFigs(Dall , 'MT','LearningEffect' , 'poolDays' , 0);
+out  = se2_pubFigs(Dall , 'MT','compareLearning' , 'poolDays' , 1);
+out  = se2_pubFigs(Dall , 'MT_asymptote','', 'poolDays' , 1);
+
+
 %% MT seg test
 clear hpval
 S = {[0] , [1:2]};
