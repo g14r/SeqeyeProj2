@@ -4,7 +4,10 @@ out  = se2_pubFigs(Dall , 'MT','RandvsStructCommpare');
 out  = se2_pubFigs(Dall , 'MT','RandStructAcrossDays' , 'poolDays' , 1); 
 out  = se2_pubFigs(Dall , 'MT','LearningEffect' , 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'MT','compareLearning' , 'poolDays' , 1);
-out  = se2_pubFigs(Dall , 'MT_asymptote','', 'poolDays' , 1);
+out  = se2_pubFigs(Dall , 'MT_asymptote','plotCoef', 'poolDays' , 0, 'MaxIter' , 50);
+out  = se2_pubFigs(Dall , 'MT_asymptote','Actual&fitDayz', 'poolDays' , 0, 'MaxIter' , 50);
+
+out  = se2_pubFigs(Dall , 'test_MT_asymptote','', 'poolDays' , 1);
 
 
 %% MT seg test
@@ -30,3 +33,5 @@ end
 se2_SigTest(Dall , 'IPI' , 'seqNumb' , [0:2] , 'Day' , [2 3] , 'Horizon' , [4,6:13],...
      'PoolDays' , 1,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
      'PoolHorizons' , [6:13]);
+ %% b = []
+ b(1) + (b(2) - b(1))*exp(-(x-1)/b(3))

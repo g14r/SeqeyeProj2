@@ -6,6 +6,7 @@ subj_name = {'AT1' , 'CG1' , 'HB1' , 'JT1' , 'CB1' , 'YM1' , 'NL1' , 'SR1' , 'IB
 subjnum = length(subj_name); % all subjects
 Repetition = [1 2];
 poolDays = 0;
+MaxIter = 100;
 %% Deal with inputs
 c = 1;
 while(c<=length(varargin))
@@ -20,6 +21,10 @@ while(c<=length(varargin))
             c=c+2;
         case {'poolDays'}
             % pool together days 2,3 and days 4 5
+            eval([varargin{c} '= varargin{c+1};']);
+            c=c+2;
+        case {'MaxIter'}
+            % maximum number of iterations for exponential fitting
             eval([varargin{c} '= varargin{c+1};']);
             c=c+2;
         otherwise
@@ -58,7 +63,7 @@ end
 switch what
     
     case 'MT'
-         ANA = getrow(Dall , ismember(Dall.SN , subjnum) & Dall.isgood & ismember(Dall.seqNumb , [0 1 2]) & ~Dall.isError);
+        ANA = getrow(Dall , ismember(Dall.SN , subjnum) & Dall.isgood & ismember(Dall.seqNumb , [0 1 2]) & ~Dall.isError);
         ANA.seqNumb(ANA.seqNumb == 2) = 1;
         MT  = ANA;%tapply(ANA , {'Horizon' , 'Day' ,'SN' , 'seqNumb','BN'} , {'MT' , 'nanmedian(x)'});
         
@@ -342,9 +347,7 @@ switch what
                     'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 length(dayz)], 'YLim' , [2500 7000],'YTick' ,...
                     [3000 4000 5000 6000] , 'YTickLabels' , [3 4 5 6] , 'YGrid' , 'on');
                 ylabel('Sec' )
-                xlabel('Training Session')
-
-                
+                xlabel('Training Session')  
             case 'compareLearning'
                 MT.Horizon(MT.Horizon>5) = 5;
                 h1 = figure('color' , 'white');
@@ -565,264 +568,345 @@ switch what
         Hex = input('What horizons to exclude? (0 = include all)');
         ANA = getrow(Dall , Dall.isgood & ismember(Dall.seqNumb , [0 1 2]) & ~Dall.isError &~ismember(Dall.Horizon , Hex));
         ANA.seqNumb(ANA.seqNumb == 2) = 1;
-        MT  = tapply(ANA , {'Horizon' , 'Day' ,'SN' , 'seqNumb'} , {'MT' , 'nanmedian(x)'});
+
+%         MT  = tapply(ANA , {'Horizon' , 'Day' ,'SN' , 'seqNumb'} , {'MT' , 'nanmean(x)'});
+        MT = ANA;
         MT.MT_pred = zeros(size(MT.MT));
         MT.b1 = zeros(size(MT.MT));
         MT.b2 = zeros(size(MT.MT));
         MT.b3 = zeros(size(MT.MT));
-        
-        for d = 1:5
+        colz_s = {[153, 194, 255]/255 , [77, 148, 255]/255,[0, 102, 255]/255,[0, 71, 179]/255, [0, 41, 102]/255};
+        colz_r = {[255, 153, 179]/255 , [255, 77, 121]/255,[255, 0, 64]/255,[179, 0, 45]/255, [102, 0, 26]/255};
+        if poolDays
+            sigSeq = [NaN 3 2];
+            sigMT  = [3 4 5;4 5 4];
+        else
+            sigSeq = [NaN 3 3 2 2];
+            sigMT  = [3 4 4 6 3;4 3 4 4 4];
+        end
+        h0 = figure;
+        for d = 1:length(dayz)
             for subjnum = 1:length(subj_name)-1
-                [d subjnum 1]
-                id = ismember(MT.SN , subjnum) & ismember(MT.Day , d) & ismember(MT.seqNumb , [1]);
+                [d subjnum]
+                % Structured
+                id = ismember(MT.SN , subjnum) & ismember(MT.Day , dayz{d}) & ismember(MT.seqNumb , [1]);
                 MTsn = getrow(MT , id);
                 exp_model1 = @(b,x) b(1) + (b(2) - b(1))*exp(-(x-1)/b(3)); % Model Function
-                %                 exp_model1 = @(b,x) b(1) + b(2)*exp(b(3)*x); % Model Function
-                x = [1:length(unique(MTsn.Horizon))];
+%                 exp_model1 = @(b,x) b(1)*exp(-(x-1)/b(2)); % Model Function
+                x = MTsn.Horizon';
                 yx = MTsn.MT';                                    % this would be a typical MT vs Horizon vector: [5422 3548 2704 2581 2446 2592 2418 2528 2500]
                 OLS = @(b) sum((exp_model1(b,x) - yx).^2);                % Ordinary Least Squares cost function
-                opts = optimset('MaxIter', 300,'TolFun',1e-5);
+                opts = optimset('MaxIter', MaxIter,'TolFun',1e-5);
                 [B1 Fval] = fminsearch(OLS,[3500 7500  1], opts);        % Use ?fminsearch? to minimise the ?OLS? function
+%                 [B1 Fval] = fminsearch(OLS,[3500  .1], opts); 
                 MT.MT_pred(id) = exp_model1(B1,x);
                 MT.b1(id) = B1(1);
                 MT.b2(id) = B1(2);
                 MT.b3(id) = B1(3);
-                
-                
-                [d subjnum 2]
-                id = ismember(MT.SN , subjnum) & ismember(MT.Day , d) & ismember(MT.seqNumb , [0]);
+                % Random
+                id = ismember(MT.SN , subjnum) & ismember(MT.Day , dayz{d}) & ismember(MT.seqNumb , [0]);
                 MTsn = getrow(MT , id);
+                x = MTsn.Horizon';
+                yx = MTsn.MT';        
                 exp_model0 = @(b,x) b(1) + (b(2) - b(1))*exp(-(x-1)/b(3)); % Model Function
-                yx = MTsn.MT';                                    % this would be a typical MT vs Horizon vector: [5422 3548 2704 2581 2446 2592 2418 2528 2500]
+%                 exp_model0 = @(b,x) b(1)*exp(-(x-1)/b(2)); % Model Function
                 OLS = @(b) sum((exp_model0(b,x) - yx).^2);                % Ordinary Least Squares cost function
-                opts = optimset('MaxIter', 300,'TolFun',1e-5);
+                opts = optimset('MaxIter', MaxIter,'TolFun',1e-5);
                 B0 = fminsearch(OLS,[3500 7500 1], opts);        % Use ?fminsearch? to minimise the ?OLS? function
+%                 B0 = fminsearch(OLS,[3500 .1], opts);        
                 MT.MT_pred(id) = exp_model0(B0,x);
                 MT.b1(id) = B0(1);
                 MT.b2(id) = B0(2);
                 MT.b3(id) = B0(3);
             end
-            [coo1(:,d),plot1(:,d),err1(:,d)] = lineplot([MT.Horizon] , MT.MT , 'subset' , ismember(MT.seqNumb , [1])  & ismember(MT.Day , d));
-            [coo0(:,d),plot0(:,d),err0(:,d)] = lineplot([MT.Horizon] , MT.MT , 'subset' , ismember(MT.seqNumb , [0]) & ismember(MT.Day , d));
+            [coo1(:,d),plot1(:,d),err1(:,d)] = lineplot([ANA.Horizon] , ANA.MT , 'subset' , ismember(ANA.seqNumb , [1])  & ismember(ANA.Day , dayz{d}));
+            [coo0(:,d),plot0(:,d),err0(:,d)] = lineplot([ANA.Horizon] , ANA.MT , 'subset' , ismember(ANA.seqNumb , [0]) & ismember(ANA.Day , dayz{d}));
             
-            [coo1_pred(:,d),plot1_pred(:,d),err1_pred(:,d)] = lineplot([MT.Horizon] , MT.MT_pred , 'subset' , ismember(MT.seqNumb , [1]) & ismember(MT.Day , d));
-            [coo0_pred(:,d),plot0_pred(:,d),err0_pred(:,d)] = lineplot([MT.Horizon] , MT.MT_pred , 'subset' , ismember(MT.seqNumb , [0]) & ismember(MT.Day , d));
+            [coo1_pred(:,d),plot1_pred(:,d),err1_pred(:,d)] = lineplot([MT.Horizon] , MT.MT_pred , 'subset' , ismember(MT.seqNumb , [1]) & ismember(MT.Day , dayz{d}));
+            [coo0_pred(:,d),plot0_pred(:,d),err0_pred(:,d)] = lineplot([MT.Horizon] , MT.MT_pred , 'subset' , ismember(MT.seqNumb , [0]) & ismember(MT.Day , dayz{d}));
         end
-        %% if you wanted to d othe parameter estimation in NonLinearModel:
-        %         % New Model
-        %         exp_model1 = @(b,x) b(1) + (b(2) - b(1))*exp((x-1)/b(3)); % Model Function
-        %         opts1 = statset('Display','final','TolFun',1e-5, 'MaxIter', 100);
-        %         % regressing out the horizon effect, i.e the exponential decrease in the MT
-        %         % Horizon number is the input and MT is the output
-        %         nlmf1 = NonLinearModel.fit([1:8 13], MTsn.MT, exp_model1, initial_values, 'Options', opts1);
-        %         MT.MT_pred(id) = nlmf1.Fitted;
-        %         MT.b1(id) = nlmf1.Coefficients.Estimate(1)*ones(sum(id),1);
-        %         MT.b2(id) = nlmf1.Coefficients.Estimate(2)*ones(sum(id),1);
-        %         MT.b3(id) = nlmf1.Coefficients.Estimate(3)*ones(sum(id),1);
-        %
-        
-        
+        % account for pooling dayz together
+        for d = 1:length(dayz)
+            MT.Day(ismember(MT.Day , dayz{d})) = d;
+        end
+%         close(h0)
         %%
         h0 = figure;
-        [coo1_b1,plot1_b1,err1_b1] = lineplot([MT.Day] , MT.b1 , 'subset' , ismember(MT.seqNumb , [1]) );
-        [coo0_b1,plot0_b1,err0_b1] = lineplot([MT.Day] , MT.b1 , 'subset' , ismember(MT.seqNumb , [0]) );
-        
-        [coo1_b2,plot1_b2,err1_b2] = lineplot([MT.Day] , MT.b2 , 'subset' , ismember(MT.seqNumb , [1]) );
-        [coo0_b2,plot0_b2,err0_b2] = lineplot([MT.Day] , MT.b2 , 'subset' , ismember(MT.seqNumb , [0]) );
-        
-        [coo1_b3,plot1_b3,err1_b3] = lineplot([MT.Day] , MT.b3 , 'subset' , ismember(MT.seqNumb , [1]) );
-        [coo0_b3,plot0_b3,err0_b3] = lineplot([MT.Day] , MT.b3 , 'subset' , ismember(MT.seqNumb , [0]) );
-        
-        [coo1_invb3,plot1_invb3,err1_invb3] = lineplot([MT.Day] , (MT.b3).^-1 , 'subset' , ismember(MT.seqNumb , [1]) );
-        [coo0_invb3,plot0_invb3,err0_invb3] = lineplot([MT.Day] , (MT.b3).^-1 , 'subset' , ismember(MT.seqNumb , [0]) );
+        for d = 1:length(dayz)
+            [coo1_b1(:,d),plot1_b1(:,d),err1_b1(:,d)] = lineplot([MT.Horizon] , MT.b1 , 'subset' , ismember(MT.seqNumb , [1]) & ismember(MT.Day , dayz{d}));
+            [coo0_b1(:,d),plot0_b1(:,d),err0_b1(:,d)] = lineplot([MT.Horizon] , MT.b1 , 'subset' , ismember(MT.seqNumb , [0]) & ismember(MT.Day , dayz{d}));
+            
+            [coo1_b2(:,d),plot1_b2(:,d),err1_b2(:,d)] = lineplot([MT.Horizon] , MT.b2 , 'subset' , ismember(MT.seqNumb , [1]) & ismember(MT.Day , dayz{d}));
+            [coo0_b2(:,d),plot0_b2(:,d),err0_b2(:,d)] = lineplot([MT.Horizon] , MT.b2 , 'subset' , ismember(MT.seqNumb , [0]) & ismember(MT.Day , dayz{d}));
+            
+            [coo1_b3(:,d),plot1_b3(:,d),err1_b3(:,d)] = lineplot([MT.Horizon] , MT.b3 , 'subset' , ismember(MT.seqNumb , [1]) & ismember(MT.Day , dayz{d}));
+            [coo0_b3(:,d),plot0_b3(:,d),err0_b3(:,d)] = lineplot([MT.Horizon] , MT.b3 , 'subset' , ismember(MT.seqNumb , [0]) & ismember(MT.Day , dayz{d}));
+            
+            [coo1_invb3(:,d),plot1_invb3(:,d),err1_invb3(:,d)] = lineplot([MT.Horizon] , (MT.b3).^-1 , 'subset' , ismember(MT.seqNumb , [1]) & ismember(MT.Day , dayz{d}) );
+            [coo0_invb3(:,d),plot0_invb3(:,d),err0_invb3(:,d)] = lineplot([MT.Horizon] , (MT.b3).^-1 , 'subset' , ismember(MT.seqNumb , [0]) & ismember(MT.Day , dayz{d}) );
+        end
         close(h0)
-        for d = 1:5
-            id1  = MT.Day == d & MT.seqNumb ==1;
-            id2  = MT.Day == d & MT.seqNumb ==0;
+        for d = 1:length(dayz)
+            id1  = ismember(MT.Day , d) & MT.seqNumb ==1;
+            id2  = ismember(MT.Day , d) & MT.seqNumb ==0;
             [~,out.b1_significance(d)] = ttest2(MT.b1(id1) , MT.b1(id2));
             [~,out.b2_significance(d)] = ttest2(MT.b2(id1) , MT.b2(id2));
             [~,out.b3_significance(d)] = ttest2(MT.b3(id1) , MT.b3(id2));
         end
-        
-        figure('color' , 'white')
-        for d = 1:5
-            subplot(2,3,d)
-            errorbar(coo1(:,d)',plot1(:,d)',err1(:,d)' , 'LineWidth' , 3);
-            hold on
-            errorbar(coo0(:,d)',plot0(:,d)',err0(:,d)' , 'LineWidth' , 3);
-            set(gca, 'YLim' , [3000 , 8000] , 'XTick' , [1:8 , 13], 'FontSize' , 20, 'GridAlpha' , 1)
-            hold on
-            xlabel('Horizon')
-            ylabel('msec')
-            title(['Chunked MT vs. Random on Day ' , num2str(d)])
-            grid on
+        switch nowWhat
+            case 'Actual&fitHorz'
+                figure('color' , 'white')
+                for d = 1:length(dayz)
+                    subplot(2,length(dayz),d)
+                    hold on
+                    h1 = plotshade(coo0(:,d)',plot0(:,d)',err0(:,d)','transp' , .5 , 'patchcolor' , colz_r{d} , 'linecolor' , colz_r{d} , 'linewidth' , 3);
+                    plot(coo0(:,d)',plot0(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , colz_r{d},'MarkerFaceColor',colz_r{d});
+                    %             line([sigMT(1,d) sigMT(1,d)] , [plot0(sigMT(1,d),d) 7000+(d-1)*200] , 'color' , colz_r{d} , 'LineWidth' , 3 , 'LineStyle' , ':')
+                    
+                    h1 = plotshade(coo1(:,d)',plot1(:,d)',err1(:,d)','transp' , .5 , 'patchcolor' , colz_s{d} , 'linecolor' , colz_s{d} , 'linewidth' , 3);
+                    plot(coo1(:,d)',plot1(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , colz_s{d},'MarkerFaceColor',colz_s{d});
+                    %             line([sigMT(2,d) sigMT(2,d)] , [plot1(sigMT(2,d),d) 7000+(d-1)*200] , 'color' , colz_s{d} , 'LineWidth' , 3 , 'LineStyle' , ':')
+                    set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
+                        'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 13], 'YLim' , [2000 8000],'YTick' ,...
+                        [3000 4000 5000 6000] , 'YTickLabels' , [3 4 5 6] , 'YGrid' , 'on');
+                    ylabel('Sec' )
+                    xlabel('Viewing Horizon' )
+                    title(['Chunked MT vs. Random on Day(s) ' , num2str(dayz{d})])
+                end
+                legend({'Chunked' , 'Random'}, 'Box' , 'off')
+                for d = 1:length(dayz)
+                    subplot(2,length(dayz),length(dayz)+d)
+                    hold on
+                    h1 = plotshade(coo0_pred(:,d)',plot0_pred(:,d)',err0_pred(:,d)' ,'transp' , .5 , 'patchcolor' , colz_r{d} , 'linecolor' , colz_r{d} , 'linewidth' , 3);
+                    plot(coo0_pred(:,d)',plot0_pred(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , colz_r{d},'MarkerFaceColor',colz_r{d});
+                    
+                    h1 = plotshade(coo1_pred(:,d)',plot1_pred(:,d)',err1_pred(:,d)','transp' , .5 , 'patchcolor' , colz_s{d} , 'linecolor' , colz_s{d} , 'linewidth' , 3);
+                    plot(coo1_pred(:,d)',plot1_pred(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , colz_s{d},'MarkerFaceColor',colz_s{d});
+                    
+                    set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
+                        'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 13], 'YLim' , [2000 8000],'YTick' ,...
+                        [3000 4000 5000 6000] , 'YTickLabels' , [3 4 5 6] , 'YGrid' , 'on');
+                    ylabel('Sec' )
+                    xlabel('Viewing Horizon' )
+                    title(['fitted Chunked vs. fitted Random- Day(s) ' , num2str(dayz{d})])
+                end
+            case 'Actual&fitDayz'
+                Hz = {[1] [2] [3] , [4] [5] [6:9]};
+                ANA = MT;
+                ANA.Horizon(ANA.Horizon>6) = 6;
+                for d = 1:length(dayz)
+                    1[coo1_red(:,d),plot1_red(:,d),err1_red(:,d)] = lineplot([ANA.Horizon] , ANA.MT , 'subset' , ismember(ANA.seqNumb , [1])  & ismember(ANA.Day , dayz{d}));
+                    [coo0_red(:,d),plot0_red(:,d),err0_red(:,d)] = lineplot([ANA.Horizon] , ANA.MT , 'subset' , ismember(ANA.seqNumb , [0]) & ismember(ANA.Day , dayz{d}));
+                    
+                    [coo1_pred_red(:,d),coo1_pred_red(:,d),err1_pred_red(:,d)] = lineplot([ANA.Horizon] , ANA.MT_pred , 'subset' , ismember(ANA.seqNumb , [1]) & ismember(ANA.Day , dayz{d}));
+                    [coo0_pred_red(:,d),plot0_pred_red(:,d),err0_pred_red(:,d)] = lineplot([ANA.Horizon] , ANA.MT_pred , 'subset' , ismember(ANA.seqNumb , [0]) & ismember(ANA.Day , dayz{d}));
+                end
+                horzcolor = linspace(0.2,.8 , length(unique(MT.Horizon)));
+                figure('color' , 'white')
+                hold on
+                for i = 1:length(unique(ANA.Horizon))
+                    h1 = plotshade([1:length(dayz)],plot1_red(i,:),err1_red(i,:),'transp' , .5 , 'patchcolor' , repmat(horzcolor(i) , 1,3) , 'linecolor' , colz_s{3} , 'linewidth' , 3);
+                    plot([1:length(dayz)],plot1_red(i,:) , '-o' , 'MarkerSize' , 10 , 'color' , colz_s{3},'MarkerFaceColor',repmat(horzcolor(i) , 1,3) , 'LineWidth' , 3);
+                end
+                set(gca,'FontSize' , 20 , 'XTick' , [1:length(dayz)] , ...
+                    'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 length(dayz)], 'YLim' , [2500 7000],'YTick' ,...
+                    [3000 4000 5000 6000] , 'YTickLabels' , [3 4 5 6] , 'YGrid' , 'on');
+                ylabel('Sec' )
+                xlabel('Training Session')
+                
+                
+                
+                
+                
+                for d = 1:Hz
+                    subplot(121)
+                    hold on
+                    h1 = plotshade(coo0(:,d)',plot0(:,d)',err0(:,d)','transp' , .5 , 'patchcolor' , colz_r{d} , 'linecolor' , colz_r{d} , 'linewidth' , 3);
+                    plot(coo0(:,d)',plot0(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , colz_r{d},'MarkerFaceColor',colz_r{d});
+                    %             line([sigMT(1,d) sigMT(1,d)] , [plot0(sigMT(1,d),d) 7000+(d-1)*200] , 'color' , colz_r{d} , 'LineWidth' , 3 , 'LineStyle' , ':')
+                    
+                    h1 = plotshade(coo1(:,d)',plot1(:,d)',err1(:,d)','transp' , .5 , 'patchcolor' , colz_s{d} , 'linecolor' , colz_s{d} , 'linewidth' , 3);
+                    plot(coo1(:,d)',plot1(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , colz_s{d},'MarkerFaceColor',colz_s{d});
+                    %             line([sigMT(2,d) sigMT(2,d)] , [plot1(sigMT(2,d),d) 7000+(d-1)*200] , 'color' , colz_s{d} , 'LineWidth' , 3 , 'LineStyle' , ':')
+                    set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
+                        'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 13], 'YLim' , [2000 8000],'YTick' ,...
+                        [3000 4000 5000 6000] , 'YTickLabels' , [3 4 5 6] , 'YGrid' , 'on');
+                    ylabel('Sec' )
+                    xlabel('Viewing Horizon' )
+                    title(['Chunked MT vs. Random on Day(s) ' , num2str(dayz{d})])
+                end
+                legend({'Chunked' , 'Random'}, 'Box' , 'off')
+                for d = 1:length(dayz)
+                    subplot(2,length(dayz),length(dayz)+d)
+                    hold on
+                    h1 = plotshade(coo0_pred(:,d)',plot0_pred(:,d)',err0_pred(:,d)' ,'transp' , .5 , 'patchcolor' , colz_r{d} , 'linecolor' , colz_r{d} , 'linewidth' , 3);
+                    plot(coo0_pred(:,d)',plot0_pred(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , colz_r{d},'MarkerFaceColor',colz_r{d});
+                    
+                    h1 = plotshade(coo1_pred(:,d)',plot1_pred(:,d)',err1_pred(:,d)','transp' , .5 , 'patchcolor' , colz_s{d} , 'linecolor' , colz_s{d} , 'linewidth' , 3);
+                    plot(coo1_pred(:,d)',plot1_pred(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , colz_s{d},'MarkerFaceColor',colz_s{d});
+                    
+                    set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
+                        'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 13], 'YLim' , [2000 8000],'YTick' ,...
+                        [3000 4000 5000 6000] , 'YTickLabels' , [3 4 5 6] , 'YGrid' , 'on');
+                    ylabel('Sec' )
+                    xlabel('Viewing Horizon' )
+                    title(['fitted Chunked vs. fitted Random- Day(s) ' , num2str(dayz{d})])
+                end
+            case 'ActualvsfitHorz'
+                figure('color' , 'white')
+                for d = 1:length(dayz)
+                    subplot(2,length(dayz),d)
+                    hold on
+                    h1 = plotshade(coo1(:,d)',plot1(:,d)',err1(:,d)','transp' , .5 , 'patchcolor' , colz_s{d} , 'linecolor' , colz_s{d} , 'linewidth' , 3);
+                    plot(coo1(:,d)',plot1(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , colz_s{d},'MarkerFaceColor',colz_s{d});
+                    h1 = plotshade(coo1_pred(:,d)',plot1_pred(:,d)',err1_pred(:,d)','transp' , .3 , 'patchcolor' , [.5 .5 .5] , 'linecolor' , [.5 .5 .5] , 'linewidth' , 3);
+                    plot(coo1_pred(:,d)',plot1_pred(:,d)' , 'o' , 'MarkerSize' , 8 , 'color' , [.5 .5 .5],'MarkerFaceColor',[.5 .5 .5]);
+                    set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
+                        'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 13], 'YLim' , [2000 8000],'YTick' ,...
+                        [3000 4000 5000 6000] , 'YTickLabels' , [3 4 5 6] , 'YGrid' , 'on');
+                    ylabel('Sec' )
+                    xlabel('Viewing Horizon' )
+                    title(['Chunked vs. fitted - Day ' , num2str(dayz{d})])
+                end
+                legend({'Chunked' , 'Fitted Chunked'})
+                
+                for d = 1:length(dayz)
+                    subplot(2,length(dayz),length(dayz)+d)
+                    hold on
+                    h1 = plotshade(coo0(:,d)',plot0(:,d)',err0(:,d)','transp' , .5 , 'patchcolor' , colz_r{d} , 'linecolor' , colz_r{d} , 'linewidth' , 3);
+                    plot(coo0(:,d)',plot0(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , colz_r{d},'MarkerFaceColor',colz_r{d});
+                    h1 = plotshade(coo0_pred(:,d)',plot0_pred(:,d)',err0_pred(:,d)','transp' , .3 , 'patchcolor' , [.5 .5 .5] , 'linecolor' , [.5 .5 .5] , 'linewidth' , 3);
+                    plot(coo0_pred(:,d)',plot0_pred(:,d)' , 'o' , 'MarkerSize' , 8 , 'color' , [.5 .5 .5],'MarkerFaceColor',[.5 .5 .5]);
+                    set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
+                        'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 13], 'YLim' , [2000 8000],'YTick' ,...
+                        [3000 4000 5000 6000] , 'YTickLabels' , [3 4 5 6] , 'YGrid' , 'on');
+                    ylabel('Sec' )
+                    xlabel('Viewing Horizon' )
+                    title(['Random vs. fitted Random- Day ' , num2str(dayz{d})])
+                end
+                
+            case 'Actual&fitSeqType'
+                figure('color' , 'white')
+                subplot(221)
+                for d = 1:length(dayz)
+                    errorbar(coo1(:,d)',plot1(:,d)',err1(:,d)' , 'LineWidth' , 3);
+                    hold on
+                end
+                set(gca, 'YLim' , [3000 , 8000] , 'XTick' , [1:8 , 13], 'FontSize' , 20, 'GridAlpha' , 1, 'Box' , 'off')
+                hold on
+                xlabel('Horizon')
+                ylabel('msec')
+                title('Chunked MT vs. Horizon')
+                grid on
+                
+                subplot(222)
+                for d = 1:length(dayz)
+                    errorbar(coo0(:,d)',plot0(:,d)',err0(:,d)' , 'LineWidth' , 3);
+                    hold on
+                end
+                set(gca, 'YLim' , [3000 , 8000] , 'XTick' , [1:8 , 13],'FontSize' , 20, 'GridAlpha' , 1, 'Box' , 'off')
+                xlabel('Horizon')
+                ylabel('msec')
+                title('Random MT vs. Horizon')
+                legend({'Day1' , 'Day2' ,'Day3','Day4','Day5'}, 'Box' , 'off')
+                grid on
+                
+                subplot(223)
+                for d = 1:length(dayz)
+                    errorbar(coo1_pred(:,d)',plot1_pred(:,d)',err1_pred(:,d)' , 'LineWidth' , 3);
+                    hold on
+                end
+                set(gca, 'YLim' , [3000 , 8000] , 'XTick' , [1:8 , 13],'FontSize' , 20, 'GridAlpha' , 1, 'Box' , 'off')
+                hold on
+                xlabel('Horizon')
+                ylabel('msec')
+                title('Fitted Chunked MT vs. Horizon')
+                grid on
+                
+                subplot(224)
+                for d = 1:length(dayz)
+                    errorbar(coo0_pred(:,d)',plot0_pred(:,d)',err0_pred(:,d)' , 'LineWidth' , 3);
+                    hold on
+                end
+                set(gca, 'YLim' , [3000 , 8000] , 'XTick' , [1:8 , 13],'FontSize' , 20 , 'GridAlpha' , 1, 'Box' , 'off')
+                xlabel('Horizon')
+                title('Fitted Random MT vs. Horizon')
+                grid on
+            case 'plotCoef'
+                figure('color' , 'white')
+                subplot(221)
+                hold on
+                h1 = plotshade(coo1_b1',plot1_b1,err1_b1,'transp' , .5 , 'patchcolor' , colz_s{3} , 'linecolor' , colz_s{3} , 'linewidth' , 3);
+                plot(coo1_b1,plot1_b1, 'o' , 'MarkerSize' , 10 , 'color' , colz_s{3},'MarkerFaceColor',colz_s{3});
+                h1 = plotshade(coo0_b1',plot0_b1,err0_b1,'transp' , .5 , 'patchcolor' , colz_r{3} , 'linecolor' , colz_r{3} , 'linewidth' , 3);
+                plot(coo0_b1,plot0_b1, 'o' , 'MarkerSize' , 10 , 'color' , colz_r{3},'MarkerFaceColor',colz_r{3});
+                set(gca, 'XTick' , [1:length(dayz)],'FontSize' , 20, 'Box' , 'off','GridAlpha' , .5,'YGrid' , 'on')
+                hold on
+                xlabel('Training session')
+                title('b1 Coefficient')
+                
+                subplot(222)
+                hold on
+                h1 = plotshade(coo1_b2',plot1_b2,err1_b2,'transp' , .5 , 'patchcolor' , colz_s{3} , 'linecolor' , colz_s{3} , 'linewidth' , 3);
+                plot(coo1_b2,plot1_b2, 'o' , 'MarkerSize' , 10 , 'color' , colz_s{3},'MarkerFaceColor',colz_s{3});
+                h1 = plotshade(coo0_b2',plot0_b2,err0_b2,'transp' , .5 , 'patchcolor' , colz_r{3} , 'linecolor' , colz_r{3} , 'linewidth' , 3);
+                plot(coo0_b2,plot0_b2, 'o' , 'MarkerSize' , 10 , 'color' , colz_r{3},'MarkerFaceColor',colz_r{3});
+                set(gca, 'XTick' , [1:length(dayz)],'FontSize' , 20, 'Box' , 'off','GridAlpha' , .5,'YGrid' , 'on')
+                hold on
+                xlabel('Training session')
+                title('b2 Coefficient')
+                
+                subplot(223)
+                hold on
+                h1 = plotshade(coo1_b3',plot1_b3,err1_b3,'transp' , .5 , 'patchcolor' , colz_s{3} , 'linecolor' , colz_s{3} , 'linewidth' , 3);
+                plot(coo1_b1,plot1_b3, 'o' , 'MarkerSize' , 10 , 'color' , colz_s{3},'MarkerFaceColor',colz_s{3});
+                h1 = plotshade(coo0_b3',plot0_b3,err0_b3,'transp' , .5 , 'patchcolor' , colz_r{3} , 'linecolor' , colz_r{3} , 'linewidth' , 3);
+                plot(coo0_b3,plot0_b3, 'o' , 'MarkerSize' , 10 , 'color' , colz_r{3},'MarkerFaceColor',colz_r{3});
+                set(gca, 'XTick' , [1:length(dayz)],'FontSize' , 20, 'Box' , 'off','GridAlpha' , .5,'YGrid' , 'on')
+                hold on
+                xlabel('Training session')
+                title('Decay Time Constant')
+                legend({'Structured' , 'Random'}, 'Box' , 'off')
+                
+                subplot(224)
+                hold on
+                h1 = plotshade(coo1_invb3',plot1_invb3,err1_invb3,'transp' , .5 , 'patchcolor' , colz_s{3} , 'linecolor' , colz_s{3} , 'linewidth' , 3);
+                plot(coo1_invb3,plot1_invb3, 'o' , 'MarkerSize' , 10 , 'color' , colz_s{3},'MarkerFaceColor',colz_s{3});
+                h1 = plotshade(coo0_invb3',plot0_invb3,err0_invb3,'transp' , .5 , 'patchcolor' , colz_r{3} , 'linecolor' , colz_r{3} , 'linewidth' , 3);
+                plot(coo0_invb3,plot0_invb3, 'o' , 'MarkerSize' , 10 , 'color' , colz_r{3},'MarkerFaceColor',colz_r{3});
+                set(gca, 'XTick' , [1:length(dayz)],'FontSize' , 20, 'Box' , 'off','GridAlpha' , .5 ,'YGrid' , 'on')
+                hold on
+                xlabel('Training session')
+                title('1/b3 (Decay constant)')
+                legend({'Structured' , 'Random'}, 'Box' , 'off')
+            case 'testCoef'
+                x = [1:10];
+                b1 = 6;
+                b2 = 10;
+                
+                figure('color' , 'white')
+                subplot(121)
+                for b3 = .2:.1:.7
+                    plot(x , b1 + (b2 - b1)*exp(-(x-1)/b3) ,'LineWidth' , 3)
+                    hold on
+                end
+                legend({'b3  = 0.2' , 'b3  = 0.3' ,'b3  = 0.4' ,'b3  = 0.5' ,'b3  = 0.6' , 'b3 = 0.7'}, 'Box' , 'off')
+                title(['b1 + (b2 - b1)*exp(-(x-1)/b3)         for          b1 = ' ,num2str(b1)  , ',     b2 = ' ,num2str(b2)])
+                set(gca , 'FontSize' , 20, 'Box' , 'off', 'GridAlpha' , 1, 'Box' , 'off')
+                grid on
+                x = [1:35];
+                b1 = 6000;
+                b3 = 3;
+                subplot(122)
+                for b2 = 0:20000:10^5
+                    plot(x , b1 + (b2 - b1)*exp(-(x-1)/b3) ,'LineWidth' , 3)
+                    hold on
+                end
+                legend({'b2  = 0' , 'b2  = 20000 ' ,'b2  = 40000' ,'b2  = 60000' ,'b2  = 80000' ,'b2  = 100000'}, 'Box' , 'off')
+                title(['b1 = ' ,num2str(b1)  , ',     b3 = ' ,num2str(b3)])
+                set(gca , 'FontSize' , 20 , 'Box' , 'off', 'GridAlpha' , 1)
+                grid on
         end
-        legend({'Chunked' , 'Random'}, 'Box' , 'off')
-        
-        figure('color' , 'white')
-        for d = 1:5
-            subplot(2,3,d)
-            errorbar(coo1_pred(:,d)',plot1_pred(:,d)',err1_pred(:,d)' , 'LineWidth' , 3);
-            hold on
-            errorbar(coo0_pred(:,d)',plot0_pred(:,d)',err0_pred(:,d)' , 'LineWidth' , 3);
-            set(gca, 'YLim' , [3000 , 8000] , 'XTick' , [1:8 , 13], 'FontSize' , 20, 'GridAlpha' , 1)
-            hold on
-            xlabel('Horizon')
-            ylabel('msec')
-            title(['fitted Chunked vs. fitted Random- Day ' , num2str(d)])
-            grid on
-        end
-        legend({'Chunked' , 'Random'}, 'Box' , 'off')
-        
-        figure('color' , 'white')
-        for d = 1:5
-            subplot(2,3,d)
-            errorbar(coo1(:,d)',plot1(:,d)',err1(:,d)' , 'LineWidth' , 3,'color','r');
-            hold on
-            errorbar(coo1_pred(:,d)',plot1_pred(:,d)',err1_pred(:,d)' , 'LineWidth' , 3 ,'color','c','LineStyle',':');
-            set(gca, 'YLim' , [3000 , 8000] , 'XTick' , [1:8 , 13], 'FontSize' , 20, 'GridAlpha' , 1 , 'Box' , 'off')
-            hold on
-            xlabel('Horizon')
-            ylabel('msec')
-            title(['Chunked vs. fitted - Day ' , num2str(d)])
-            grid on
-        end
-        legend({'Chunked' , 'Fitted Chunked'})
-        
-        figure('color' , 'white')
-        for d = 1:5
-            subplot(2,3,d)
-            errorbar(coo0(:,d)',plot0(:,d)',err0(:,d)' , 'LineWidth' , 3,'color','r');
-            hold on
-            errorbar(coo0_pred(:,d)',plot0_pred(:,d)',err0_pred(:,d)' , 'LineWidth' ,3,'color','c','LineStyle',':');
-            set(gca, 'YLim' , [3000 , 8000] , 'XTick' , [1:8 , 13], 'FontSize' , 20, 'GridAlpha' , 1, 'Box' , 'off')
-            hold on
-            xlabel('Horizon')
-            ylabel('msec')
-            title(['Random vs. fitted Random- Day ' , num2str(d)])
-            grid on
-        end
-        legend({'Random' , 'Fitted Random'}, 'Box' , 'off')
-        
-        
-        figure('color' , 'white')
-        subplot(221)
-        for d = 1:5
-            errorbar(coo1(:,d)',plot1(:,d)',err1(:,d)' , 'LineWidth' , 3);
-            hold on
-        end
-        set(gca, 'YLim' , [3000 , 8000] , 'XTick' , [1:8 , 13], 'FontSize' , 20, 'GridAlpha' , 1, 'Box' , 'off')
-        hold on
-        xlabel('Horizon')
-        ylabel('msec')
-        title('Chunked MT vs. Horizon')
-        grid on
-        
-        subplot(222)
-        for d = 1:5
-            errorbar(coo0(:,d)',plot0(:,d)',err0(:,d)' , 'LineWidth' , 3);
-            hold on
-        end
-        set(gca, 'YLim' , [3000 , 8000] , 'XTick' , [1:8 , 13],'FontSize' , 20, 'GridAlpha' , 1, 'Box' , 'off')
-        xlabel('Horizon')
-        ylabel('msec')
-        title('Random MT vs. Horizon')
-        legend({'Day1' , 'Day2' ,'Day3','Day4','Day5'}, 'Box' , 'off')
-        grid on
-        
-        subplot(223)
-        for d = 1:5
-            errorbar(coo1_pred(:,d)',plot1_pred(:,d)',err1_pred(:,d)' , 'LineWidth' , 3);
-            hold on
-        end
-        set(gca, 'YLim' , [3000 , 8000] , 'XTick' , [1:8 , 13],'FontSize' , 20, 'GridAlpha' , 1, 'Box' , 'off')
-        hold on
-        xlabel('Horizon')
-        ylabel('msec')
-        title('Fitted Chunked MT vs. Horizon')
-        grid on
-        
-        subplot(224)
-        for d = 1:5
-            errorbar(coo0_pred(:,d)',plot0_pred(:,d)',err0_pred(:,d)' , 'LineWidth' , 3);
-            hold on
-        end
-        set(gca, 'YLim' , [3000 , 8000] , 'XTick' , [1:8 , 13],'FontSize' , 20 , 'GridAlpha' , 1, 'Box' , 'off')
-        xlabel('Horizon')
-        title('Fitted Random MT vs. Horizon')
-        grid on
-        
-        figure('color' , 'white')
-        subplot(141)
-        errorbar(coo1_b1,plot1_b1,err1_b1 , 'LineWidth' , 3);
-        hold on
-        errorbar(coo0_b1,plot0_b1,err0_b1 , 'LineWidth' , 3);
-        set(gca, 'XTick' , [1:5],'FontSize' , 20, 'Box' , 'off','GridAlpha' , 1)
-        hold on
-        xlabel('Day')
-        title('b1 Coefficient')
-        grid on
-        
-        subplot(142)
-        errorbar(coo1_b2,plot1_b2,err1_b2 , 'LineWidth' , 3);
-        hold on
-        errorbar(coo0_b2,plot0_b2,err0_b2 , 'LineWidth' , 3);
-        set(gca, 'XTick' , [1:5],'FontSize' , 20, 'Box' , 'off','GridAlpha' , 1)
-        hold on
-        xlabel('Day')
-        title('b2 Coefficient')
-        grid on
-        
-        subplot(143)
-        errorbar(coo1_b3,plot1_b3,err1_b3 , 'LineWidth' , 3);
-        hold on
-        errorbar(coo0_b3,plot0_b3,err0_b3 , 'LineWidth' , 3);
-        set(gca, 'XTick' , [1:5],'FontSize' , 20, 'Box' , 'off','GridAlpha' , 1)
-        hold on
-        xlabel('Day')
-        ylabel('msec')
-        title('b3 Coefficient')
-        grid on
-        legend({'Chunked' , 'Random'}, 'Box' , 'off')
-        
-        subplot(144)
-        errorbar(coo1_invb3,plot1_invb3,err1_invb3 , 'LineWidth' , 3);
-        hold on
-        errorbar(coo0_invb3,plot0_invb3,err0_invb3 , 'LineWidth' , 3);
-        set(gca, 'XTick' , [1:5],'FontSize' , 20, 'Box' , 'off','GridAlpha' , 1)
-        hold on
-        xlabel('Day')
-        ylabel('msec')
-        title('1/b3 (Decay constant)')
-        grid on
-        legend({'Chunked' , 'Random'}, 'Box' , 'off')
-        
-        x = [1:10];
-        b1 = 6;
-        b2 = 10;
-        figure('color' , 'white')
-        %         subplot(121)
-        for b3 = .2:.1:.7
-            plot(x , b1 + (b2 - b1)*exp(-(x-1)/b3) ,'LineWidth' , 3)
-            hold on
-        end
-        legend({'b3  = 0.2' , 'b3  = 0.3' ,'b3  = 0.4' ,'b3  = 0.5' ,'b3  = 0.6' , 'b3 = 0.7'}, 'Box' , 'off')
-        title(['b1 + (b2 - b1)*exp(-(x-1)/b3)         for          b1 = ' ,num2str(b1)  , ',     b2 = ' ,num2str(b2)])
-        set(gca , 'FontSize' , 20, 'Box' , 'off', 'GridAlpha' , 1, 'Box' , 'off')
-        grid on
-        x = [1:35];
-        b1 = 6000;
-        b3 = 3;
-        %         figure('color' , 'white')
-        subplot(122)
-        for b2 = 0:20000:10^5
-            plot(x , b1 + (b2 - b1)*exp(-(x-1)/b3) ,'LineWidth' , 3)
-            hold on
-        end
-        legend({'b2  = 0' , 'b2  = 20000 ' ,'b2  = 40000' ,'b2  = 60000' ,'b2  = 80000' ,'b2  = 100000'}, 'Box' , 'off')
-        title(['b1 = ' ,num2str(b1)  , ',     b3 = ' ,num2str(b3)])
-        set(gca , 'FontSize' , 20 , 'Box' , 'off', 'GridAlpha' , 1)
-        grid on
     case 'test_MT_asymptote'
         Hex = input('What horizons to exclude? (0 = include all)');
         ANA = getrow(Dall , Dall.isgood & ismember(Dall.seqNumb , [0 1 2]) & ~Dall.isError &~ismember(Dall.Horizon , Hex) & ismember(Dall.Day , [3:5]));
