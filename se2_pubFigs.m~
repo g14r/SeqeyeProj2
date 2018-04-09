@@ -760,7 +760,8 @@ switch what
                 ylabel('Sec' )
                 xlabel('Training Session')
                 title('Fitted')
-                %%
+            case 'Actual&fit%ChangeDayz'
+                Hz = {[1] [2] [3] , [4] [5] [6:9]};
                 ANA = MT;
                 ANA.Horizon(ANA.Horizon>6) = 6;
                 ANA  = tapply(ANA , {'Horizon' , 'Day' ,'SN' , 'seqNumb'} , {'MT' , 'nanmean(x)'},{'MT_pred' , 'nanmean(x)'});
@@ -798,11 +799,11 @@ switch what
                 xlabel('Viewing Window')
                 title('Actual')
                 
-                subplot(211)
+                subplot(212)
                 hold on
                 for sn = 0:1
-                    plotshade([1:length(unique(Daybenefit.Horizon))],plot_red{sn+1},err_red{sn+1},'transp' , .6 , 'patchcolor' , colz{3,sn+1} , 'linecolor' , colz{3,sn+1} , 'linewidth' , 3);
-                    plot([1:length(unique(Daybenefit.Horizon))],plot_red{sn+1}, '-o' , 'MarkerSize' , 10 , 'color' , colz{3,sn+1},'MarkerFaceColor',colz{3,sn+1} , 'LineWidth' , 3);
+                    plotshade([1:length(unique(Daybenefit.Horizon))],plot_pred_red{sn+1},err_pred_red{sn+1},'transp' , .6 , 'patchcolor' , colz{3,sn+1} , 'linecolor' , colz{3,sn+1} , 'linewidth' , 3);
+                    plot([1:length(unique(Daybenefit.Horizon))],plot_pred_red{sn+1}, '-o' , 'MarkerSize' , 10 , 'color' , colz{3,sn+1},'MarkerFaceColor',colz{3,sn+1} , 'LineWidth' , 3);
                 end
                 set(gca,'FontSize' , 20 , 'XTick' , [1:i*length(dayz)] , ...
                     'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 length(unique(Daybenefit.Horizon))], 'YLim' , [0 30],'YTick' ,...
@@ -810,7 +811,63 @@ switch what
                     'XTick' , [1:length(unique(Daybenefit.Horizon))] , 'XTickLabels' , {'1' , '2' , '3' , '4',  '5' , '6-13'});
                 ylabel('Sec' )
                 xlabel('Viewing Window')
+                title('Prediction')
+                
+            case 'Actual&fit%ChangeSeqType'
+                Hz = {[1] [2] [3] , [4] [5] [6:9]};
+                ANA = MT;
+                ANA.Horizon(ANA.Horizon>=6) = 6;
+                dayz = {[1] [2 3] [4 5]};
+                % pool dayz for better visual
+%                 ANA.Day(ANA.Day==3) = 2;
+%                 ANA.Day(ismember(ANA.Day , [4 5])) = 3;
+                ANA  = tapply(ANA , {'Horizon' , 'Day' ,'SN' , 'seqNumb'} , {'MT' , 'nanmean(x)'},{'MT_pred' , 'nanmean(x)'});
+                ANA.percChangeMT = zeros(length(ANA.MT),length(dayz)-1);
+                ANA.percChangeMT_pred = zeros(length(ANA.MT_pred),length(dayz)-1);
+                Seqbenefit = [];
+                for d = 1:length(dayz)
+                    Db1= getrow(ANA , ismember(ANA.Day , dayz{d}) & ANA.seqNumb == 1);
+                    Db = getrow(ANA , ismember(ANA.Day , dayz{d}) & ANA.seqNumb == 0);
+                    Db1.percChangeMT = 100*abs((Db.MT - Db1.MT)./Db.MT);
+                    Db1.percChangeMT_pred = 100*abs((Db.MT_pred - Db1.MT_pred)./Db.MT_pred);
+                    Seqbenefit = addstruct(Seqbenefit , Db1);
+                end
+                h1 = figure;
+                hold on
+                for d = 1:length(dayz)
+                    [coo_red{d},plot_red{d},err_red{d}] = lineplot([Seqbenefit.Horizon] , Seqbenefit.percChangeMT, 'subset', ismember(Seqbenefit.Day , dayz{d}));
+                    [coo_pred_red{d},plot_pred_red{d},err_pred_red{d}] = lineplot([Seqbenefit.Horizon] , Seqbenefit.percChangeMT_pred, 'subset', ismember(Seqbenefit.Day , dayz{d}));
+                end
+                close(h1)
+                
+                figure('color' , 'white')
+                subplot(211)
+                hold on
+                for d = 1:length(dayz)
+                    plotshade([1:length(unique(Seqbenefit.Horizon))],plot_red{d},err_red{d},'transp' , .6 , 'patchcolor' , avgCol{d} , 'linecolor' , avgCol{d} , 'linewidth' , 3);
+                    plot([1:length(unique(Seqbenefit.Horizon))],plot_red{d}, '-o' , 'MarkerSize' , 10 , 'color' , avgCol{d},'MarkerFaceColor',avgCol{d} , 'LineWidth' , 3);
+                end
+                set(gca,'FontSize' , 20 , 'XTick' , [1:i*length(dayz)] , ...
+                    'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 length(unique(Seqbenefit.Horizon))], 'YLim' , [0 15],'YTick' ,...
+                    [5 10 15] , 'YGrid' , 'on',...
+                    'XTick' , [1:length(unique(Seqbenefit.Horizon))] , 'XTickLabels' , {'1' , '2' , '3' , '4',  '5' , '6-13'});
+                ylabel('Sec' )
+                xlabel('Viewing Window')
                 title('Actual')
+                
+                subplot(212)
+                hold on
+                for d = 1:length(dayz)
+                    plotshade([1:length(unique(Daybenefit.Horizon))],plot_pred_red{sn+1},err_pred_red{sn+1},'transp' , .6 , 'patchcolor' , colz{3,sn+1} , 'linecolor' , colz{3,sn+1} , 'linewidth' , 3);
+                    plot([1:length(unique(Daybenefit.Horizon))],plot_pred_red{sn+1}, '-o' , 'MarkerSize' , 10 , 'color' , colz{3,sn+1},'MarkerFaceColor',colz{3,sn+1} , 'LineWidth' , 3);
+                end
+                set(gca,'FontSize' , 20 , 'XTick' , [1:i*length(dayz)] , ...
+                    'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 length(unique(Daybenefit.Horizon))], 'YLim' , [0 30],'YTick' ,...
+                    [10 20 30] , 'YGrid' , 'on',...
+                    'XTick' , [1:length(unique(Daybenefit.Horizon))] , 'XTickLabels' , {'1' , '2' , '3' , '4',  '5' , '6-13'});
+                ylabel('Sec' )
+                xlabel('Viewing Window')
+                title('Prediction')
                 
                 
 

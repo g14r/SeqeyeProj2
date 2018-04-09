@@ -5,7 +5,8 @@ out  = se2_pubFigs(Dall , 'MT','RandStructAcrossDays' , 'poolDays' , 1);
 out  = se2_pubFigs(Dall , 'MT','LearningEffect' , 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'MT','compareLearning' , 'poolDays' , 1);
 out  = se2_pubFigs(Dall , 'MT_asymptote','plotCoef', 'poolDays' , 0, 'MaxIter' , 50);
-out  = se2_pubFigs(Dall , 'MT_asymptote','Actual&fitDayz', 'poolDays' , 0, 'MaxIter' , 50);
+out  = se2_pubFigs(Dall , 'MT_asymptote','Actual&fit%ChangeDayz', 'poolDays' , 0, 'MaxIter' , 50);
+out  = se2_pubFigs(Dall , 'MT_asymptote','Actual&fit%ChangeSeqType', 'poolDays' , 0, 'MaxIter' , 50);
 
 out  = se2_pubFigs(Dall , 'test_MT_asymptote','', 'poolDays' , 1);
 
