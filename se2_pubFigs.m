@@ -791,13 +791,26 @@ switch what
                     plot([1:length(unique(Daybenefit.Horizon))],plot_red{sn+1}, '-o' , 'MarkerSize' , 10 , 'color' , colz{3,sn+1},'MarkerFaceColor',colz{3,sn+1} , 'LineWidth' , 3);
                 end
                 set(gca,'FontSize' , 20 , 'XTick' , [1:i*length(dayz)] , ...
-                    'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 length(unique(Daybenefit.Horizon))], 'YLim' , [2500 8000],'YTick' ,...
-                    [3000 4000 5000 6000 7000] , 'YTickLabels' , [3 4 5 6 7] , 'YGrid' , 'on',...
+                    'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 length(unique(Daybenefit.Horizon))], 'YLim' , [0 30],'YTick' ,...
+                    [10 20 30] , 'YGrid' , 'on',...
                     'XTick' , [1:length(unique(Daybenefit.Horizon))] , 'XTickLabels' , {'1' , '2' , '3' , '4',  '5' , '6-13'});
                 ylabel('Sec' )
                 xlabel('Viewing Window')
                 title('Actual')
                 
+                subplot(211)
+                hold on
+                for sn = 0:1
+                    plotshade([1:length(unique(Daybenefit.Horizon))],plot_red{sn+1},err_red{sn+1},'transp' , .6 , 'patchcolor' , colz{3,sn+1} , 'linecolor' , colz{3,sn+1} , 'linewidth' , 3);
+                    plot([1:length(unique(Daybenefit.Horizon))],plot_red{sn+1}, '-o' , 'MarkerSize' , 10 , 'color' , colz{3,sn+1},'MarkerFaceColor',colz{3,sn+1} , 'LineWidth' , 3);
+                end
+                set(gca,'FontSize' , 20 , 'XTick' , [1:i*length(dayz)] , ...
+                    'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 length(unique(Daybenefit.Horizon))], 'YLim' , [0 30],'YTick' ,...
+                    [10 20 30] , 'YGrid' , 'on',...
+                    'XTick' , [1:length(unique(Daybenefit.Horizon))] , 'XTickLabels' , {'1' , '2' , '3' , '4',  '5' , '6-13'});
+                ylabel('Sec' )
+                xlabel('Viewing Window')
+                title('Actual')
                 
                 
 
