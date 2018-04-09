@@ -60,6 +60,29 @@ if poolDays
 else
     dayz = {[1] [2] [3] [4] [5]};
 end
+
+clear tempcol
+c1 = [255, 153, 179]/255; % Random Red Tones
+ce = [153, 0, 51]/255;
+for rgb = 1:3
+    tempcol(rgb , :) = linspace(c1(rgb),ce(rgb) , 6);
+end
+for i = 1:length(tempcol)
+    colz{i,1} = tempcol(: , i);
+end
+
+clear tempcol
+c1 = [153, 194, 255]/255; % structured blue tones
+ce = [0, 0, 102]/255;
+for rgb = 1:3
+    tempcol(rgb , :) = linspace(c1(rgb),ce(rgb) , 6);
+end
+for i = 1:length(tempcol)
+    colz{i,2} = tempcol(: , i);
+    avgCol{i} = mean([colz{i,2} , colz{i,1}],2);
+end
+
+
 switch what
     
     case 'MT'
@@ -77,11 +100,7 @@ switch what
             
         end
         close(h1);
-
-      
-        colz_s = {[153, 194, 255]/255 , [77, 148, 255]/255,[0, 102, 255]/255,[0, 71, 179]/255, [0, 41, 102]/255};
-        colz_r = {[255, 153, 179]/255 , [255, 77, 121]/255,[255, 0, 64]/255,[179, 0, 45]/255, [102, 0, 26]/255};
-        if poolDays
+                if poolDays
             sigSeq = [NaN 3 2];
             sigMT  = [3 4 5;4 5 4];
         else
@@ -94,10 +113,10 @@ switch what
                 figure('color' , 'white');
                 for d=  1:length(dayz)
                     subplot(1,length(dayz),d)
-                    h1 = plotshade(xcoords{d}',PLOTs{d} , ERRORs{d},'transp' , .5 , 'patchcolor' , colz_s{d} ,...
-                        'linecolor' ,colz_s{d} , 'linewidth' , 3 );
+                    h1 = plotshade(xcoords{d}',PLOTs{d} , ERRORs{d},'transp' , .5 , 'patchcolor' , colz{d,2} ,...
+                        'linecolor' ,colz{d,2} , 'linewidth' , 3 );
                     hold on
-                    h2 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .5 , 'patchcolor' , colz_r{d} , 'linecolor' , colz_r{d} , 'linewidth' , 3 );
+                    h2 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .5 , 'patchcolor' , colz{d,1} , 'linecolor' , colz{d,1} , 'linewidth' , 3 );
                     set(gca,'FontSize' , 40 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
                         'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [2400 7000],'YTick' , [4000 5000 6000] ,...
                         'YTickLabels' , [4 5 6] , 'YGrid' , 'on','XLim' , [1 13]);
@@ -105,20 +124,20 @@ switch what
                     ylabel('Sec' )
                     xlabel('Viewing Horizon Size' )
                     hold on
-                    plot(xcoords{d},PLOTs{d} , 'o' , 'MarkerSize' , 10 , 'color' , colz_s{d},'MarkerFaceColor',colz_s{d})
-                    plot(xcoords{d},PLOTr{d} , 'o' , 'MarkerSize' , 10 , 'color' , colz_r{d},'MarkerFaceColor',colz_r{d})
-                    patch([sigSeq(d) 13 13 sigSeq(d)],[2400 2400 2600 2600] , (colz_s{d}+colz_r{d})/2,'EdgeColor' , 'none','FaceAlpha',1)
-                    line([sigSeq(d) sigSeq(d)] , [2400 6800] , 'color' , (colz_s{d}+colz_r{d})/2 , 'LineWidth' , 3 , 'LineStyle' , ':')
+                    plot(xcoords{d},PLOTs{d} , 'o' , 'MarkerSize' , 10 , 'color' , colz{d,2},'MarkerFaceColor',colz{d,2})
+                    plot(xcoords{d},PLOTr{d} , 'o' , 'MarkerSize' , 10 , 'color' , colz{d,1},'MarkerFaceColor',colz{d,1})
+                    patch([sigSeq(d) 13 13 sigSeq(d)],[2400 2400 2600 2600] , avgCol{d},'EdgeColor' , 'none','FaceAlpha',1)
+                    line([sigSeq(d) sigSeq(d)] , [2400 6800] , 'color' , avgCol{d}, 'LineWidth' , 3 , 'LineStyle' , ':')
                     %             legend([h1 h2] ,{'Structured Sequences' , 'Random Sequences'})
                 end
             case 'RandStructAcrossDays'
                 figure('color' , 'white');
                 subplot(1,2,1);hold on
                 for d=1:length(dayz)
-                    h1 = plotshade(xcoords{d}',PLOTs{d} , ERRORs{d},'transp' , .5 , 'patchcolor' , colz_s{d} , 'linecolor' , colz_s{d} , 'linewidth' , 3);
-                    plot(xcoords{d},PLOTs{d} , 'o' , 'MarkerSize' , 10 , 'color' , colz_s{d},'MarkerFaceColor',colz_s{d});
-                    patch([1 sigMT(2,d) sigMT(2,d) 1],[6800+(d-1)*200 6800+d*200 6800+d*200 7000+(d-1)*200] , colz_s{d},'EdgeColor' , 'none','FaceAlpha',.6)
-                    line([sigMT(2,d) sigMT(2,d)] , [PLOTs{d}(sigMT(2,d)) 7000+(d-1)*200] , 'color' , colz_s{d} , 'LineWidth' , 3 , 'LineStyle' , ':')
+                    h1 = plotshade(xcoords{d}',PLOTs{d} , ERRORs{d},'transp' , .5 , 'patchcolor' , colz{d,2} , 'linecolor' , colz{d,2} , 'linewidth' , 3);
+                    plot(xcoords{d},PLOTs{d} , 'o' , 'MarkerSize' , 10 , 'color' , colz{d,2},'MarkerFaceColor',colz{d,2});
+                    patch([1 sigMT(2,d) sigMT(2,d) 1],[6800+(d-1)*200 6800+d*200 6800+d*200 7000+(d-1)*200] , colz{d,2},'EdgeColor' , 'none','FaceAlpha',.6)
+                    line([sigMT(2,d) sigMT(2,d)] , [PLOTs{d}(sigMT(2,d)) 7000+(d-1)*200] , 'color' , colz{d,2} , 'LineWidth' , 3 , 'LineStyle' , ':')
                 end
                 set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
                     'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 13], 'YLim' , [3500 8000],'YTick' ,...
@@ -130,10 +149,10 @@ switch what
                 
                 subplot(1,2,2);hold on
                 for d=1:length(dayz)
-                    h1 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .5 , 'patchcolor' , colz_r{d} , 'linecolor' , colz_r{d} , 'linewidth' , 3);
-                    plot(xcoordr{d},PLOTr{d} , 'o' , 'MarkerSize' , 10 , 'color' , colz_r{d},'MarkerFaceColor',colz_r{d});
-                    patch([1 sigMT(1,d) sigMT(1,d) 1],[6800+(d-1)*200 6800+d*200 6800+d*200 7000+(d-1)*200] , colz_r{d},'EdgeColor' , 'none','FaceAlpha',.6)
-                    line([sigMT(1,d) sigMT(1,d)] , [PLOTr{d}(sigMT(1,d)) 7000+(d-1)*200] , 'color' , colz_r{d} , 'LineWidth' , 3 , 'LineStyle' , ':')
+                    h1 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .5 , 'patchcolor' , colz{d,1} , 'linecolor' , colz{d,1} , 'linewidth' , 3);
+                    plot(xcoordr{d},PLOTr{d} , 'o' , 'MarkerSize' , 10 , 'color' , colz{d,1},'MarkerFaceColor',colz{d,1});
+                    patch([1 sigMT(1,d) sigMT(1,d) 1],[6800+(d-1)*200 6800+d*200 6800+d*200 7000+(d-1)*200] , colz{d,1},'EdgeColor' , 'none','FaceAlpha',.6)
+                    line([sigMT(1,d) sigMT(1,d)] , [PLOTr{d}(sigMT(1,d)) 7000+(d-1)*200] , 'color' , colz{d,1} , 'LineWidth' , 3 , 'LineStyle' , ':')
                 end
                 set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
                     'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 13], 'YLim' , [3500 8000],'YTick' ,...
@@ -191,11 +210,11 @@ switch what
                 M = getrow(MT , MT.seqNumb~=0);
                 M.Day(ismember(M.Day , [2 3])) = 2;
                 M.Day(ismember(M.Day , [4 5])) = 3;
-                myboxplot(M.Horizon ,M.MT, 'notch',1 ,'plotall',0, 'fillcolor',colz_s,'linecolor',colz_s,...
+                myboxplot(M.Horizon ,M.MT, 'notch',1 ,'plotall',0, 'fillcolor',colz{1,2},'linecolor',colz{1,2},...
                     'whiskerwidth',3,'split' , M.Day,'xtickoff' );
                 hold on
                 for xl = 1:length(xs)
-                    text(xs(xl) , ystar_s(xl) , sigstars_s{xl} ,'FontSize' , 40,'color',colz_s{d_cols(xl)})
+                    text(xs(xl) , ystar_s(xl) , sigstars_s{xl} ,'FontSize' , 40,'color',colz{d_cols(xl),2})
                 end
                 
                 % title('Structured')
@@ -208,7 +227,7 @@ switch what
                 M = getrow(MT , MT.seqNumb==0);
                 M.Day(ismember(M.Day , [2 3])) = 2;
                 M.Day(ismember(M.Day , [4 5])) = 3;
-                myboxplot(M.Horizon ,M.MT, 'notch',1 ,'plotall',0, 'fillcolor',colz_r,'linecolor',colz_r,...
+                myboxplot(M.Horizon ,M.MT, 'notch',1 ,'plotall',0, 'fillcolor',colz{1,1},'linecolor',colz{1,1},...
                     'whiskerwidth',3,'split' , M.Day,'xtickoff');
                 ylabel('Sec')
                 % title('Random')
@@ -220,7 +239,7 @@ switch what
                 
                 hold on
                 for xl = 1:length(xs)
-                    text(xs(xl) , ystar_r(xl) , sigstars_r{xl} ,'FontSize' , 40,'color',colz_r{d_cols(xl)})
+                    text(xs(xl) , ystar_r(xl) , sigstars_r{xl} ,'FontSize' , 40,'color',colz{d_cols(xl),1})
                 end
             case 'BoxAcrosSeqType'
                 %% BOX PLOT 2
@@ -240,10 +259,9 @@ switch what
                 sigstars(3,:) = {'' , '' , '*' ,'*','*','*','*','*','*','*' , '*' , '*' ,'*','*','*','*','*','*'};
                 
                 figure('color' , 'white');
-                colz_s = {[128, 223, 255]/255 , [26, 198, 255]/255, [0, 134, 179]/255};
-                colz_r = {[255, 128, 159]/255 , [255, 26, 83]/255, [179, 0, 45]/255};
+                
                 for d = 1:length(dayz)
-                    cols = {colz_r{d} colz_s{d}};
+                    cols = {colz{d,1} colz{d,2}};
                     subplot(3,1,d);hold on
                     M = getrow(MT , ismember(MT.Day , dayz{d}));
                     myboxplot(M.Horizon ,M.MT, 'notch',1 ,'plotall',0, 'fillcolor',cols,'linecolor',cols,...
@@ -323,8 +341,8 @@ switch what
                 % the patch color represents the horizon size
                 horzcolor = linspace(0.2,.8 , length(unique(MT.Horizon)));
                 for i = 1:length(unique(MT.Horizon))
-                    h1 = plotshade([1:length(dayz)],P(i,:) , E(i,:),'transp' , .5 , 'patchcolor' , repmat(horzcolor(i) , 1,3) , 'linecolor' , colz_s{3} , 'linewidth' , 3);
-                    plot([1:length(dayz)],P(i,:) , '-o' , 'MarkerSize' , 10 , 'color' , colz_s{3},'MarkerFaceColor',repmat(horzcolor(i) , 1,3) , 'LineWidth' , 3);
+                    h1 = plotshade([1:length(dayz)],P(i,:) , E(i,:),'transp' , .5 , 'patchcolor' , repmat(horzcolor(i) , 1,3) , 'linecolor' , colz{3,2} , 'linewidth' , 3);
+                    plot([1:length(dayz)],P(i,:) , '-o' , 'MarkerSize' , 10 , 'color' , colz{3,2},'MarkerFaceColor',repmat(horzcolor(i) , 1,3) , 'LineWidth' , 3);
                 end
                 set(gca,'FontSize' , 20 , 'XTick' , [1:length(dayz)] , ...
                     'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 length(dayz)], 'YLim' , [2500 7000],'YTick' ,...
@@ -340,8 +358,8 @@ switch what
                 % the patch color represents the horizon size
                 horzcolor = linspace(0.2,.8 , length(unique(MT.Horizon)));
                 for i = 1:length(unique(MT.Horizon))
-                    h1 = plotshade([1:length(dayz)],P(i,:) , E(i,:),'transp' , .5 , 'patchcolor' , repmat(horzcolor(i) , 1,3) , 'linecolor' , colz_r{3} , 'linewidth' , 3);
-                    plot([1:length(dayz)],P(i,:) , '-o' , 'MarkerSize' , 10 , 'color' , colz_r{3},'MarkerFaceColor',repmat(horzcolor(i) , 1,3), 'LineWidth' , 3);
+                    h1 = plotshade([1:length(dayz)],P(i,:) , E(i,:),'transp' , .5 , 'patchcolor' , repmat(horzcolor(i) , 1,3) , 'linecolor' , colz{3,1} , 'linewidth' , 3);
+                    plot([1:length(dayz)],P(i,:) , '-o' , 'MarkerSize' , 10 , 'color' , colz{3,1},'MarkerFaceColor',repmat(horzcolor(i) , 1,3), 'LineWidth' , 3);
                 end
                 set(gca,'FontSize' , 20 , 'XTick' , [1:length(dayz)] , ...
                     'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 length(dayz)], 'YLim' , [2500 7000],'YTick' ,...
@@ -370,10 +388,10 @@ switch what
                 allX = [];
                 for i = [1: length(dayz)]
                     X = ((i-1)*(length(horz)))+[1:length(horz)];
-                    plotshade(X , As(i,:) , Bs(i,:),'transp' , .5 , 'patchcolor' , colz_s{i}  , 'linecolor' , colz_s{i} , 'linewidth' , 3);
-                    plot(X , As(i,:) , '-o' , 'MarkerSize' , 10 , 'color' , colz_s{i} ,'MarkerFaceColor',colz_s{i}  , 'LineWidth' , 3);
-                    plotshade(X , Ar(i,:) , Br(i,:),'transp' , .5 , 'patchcolor' , colz_r{i}  , 'linecolor' , colz_r{i} , 'linewidth' , 3);
-                    plot(X , Ar(i,:) , '-o' , 'MarkerSize' , 10 , 'color' , colz_r{i} ,'MarkerFaceColor',colz_r{i}  , 'LineWidth' , 3);
+                    plotshade(X , As(i,:) , Bs(i,:),'transp' , .5 , 'patchcolor' , colz{i,2}  , 'linecolor' , colz{i,2} , 'linewidth' , 3);
+                    plot(X , As(i,:) , '-o' , 'MarkerSize' , 10 , 'color' , colz{i,2} ,'MarkerFaceColor',colz{i,2}  , 'LineWidth' , 3);
+                    plotshade(X , Ar(i,:) , Br(i,:),'transp' , .5 , 'patchcolor' , colz{i,1}  , 'linecolor' , colz{i,1} , 'linewidth' , 3);
+                    plot(X , Ar(i,:) , '-o' , 'MarkerSize' , 10 , 'color' , colz{i,1} ,'MarkerFaceColor',colz{i,1}  , 'LineWidth' , 3);
                     allX = [allX X];
                 end
                 set(gca,'FontSize' , 20 , 'XTick' , allX , ...
@@ -575,8 +593,6 @@ switch what
         MT.b1 = zeros(size(MT.MT));
         MT.b2 = zeros(size(MT.MT));
         MT.b3 = zeros(size(MT.MT));
-        colz_s = {[153, 194, 255]/255 , [77, 148, 255]/255,[0, 102, 255]/255,[0, 71, 179]/255, [0, 41, 102]/255};
-        colz_r = {[255, 153, 179]/255 , [255, 77, 121]/255,[255, 0, 64]/255,[179, 0, 45]/255, [102, 0, 26]/255};
         if poolDays
             sigSeq = [NaN 3 2];
             sigMT  = [3 4 5;4 5 4];
@@ -659,13 +675,13 @@ switch what
                 for d = 1:length(dayz)
                     subplot(2,length(dayz),d)
                     hold on
-                    h1 = plotshade(coo0(:,d)',plot0(:,d)',err0(:,d)','transp' , .5 , 'patchcolor' , colz_r{d} , 'linecolor' , colz_r{d} , 'linewidth' , 3);
-                    plot(coo0(:,d)',plot0(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , colz_r{d},'MarkerFaceColor',colz_r{d});
-                    %             line([sigMT(1,d) sigMT(1,d)] , [plot0(sigMT(1,d),d) 7000+(d-1)*200] , 'color' , colz_r{d} , 'LineWidth' , 3 , 'LineStyle' , ':')
+                    h1 = plotshade(coo0(:,d)',plot0(:,d)',err0(:,d)','transp' , .5 , 'patchcolor' , colz{d,1} , 'linecolor' , colz{d,1} , 'linewidth' , 3);
+                    plot(coo0(:,d)',plot0(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , colz{d,1},'MarkerFaceColor',colz{d,1});
+                    %             line([sigMT(1,d) sigMT(1,d)] , [plot0(sigMT(1,d),d) 7000+(d-1)*200] , 'color' , colz{d,1} , 'LineWidth' , 3 , 'LineStyle' , ':')
                     
-                    h1 = plotshade(coo1(:,d)',plot1(:,d)',err1(:,d)','transp' , .5 , 'patchcolor' , colz_s{d} , 'linecolor' , colz_s{d} , 'linewidth' , 3);
-                    plot(coo1(:,d)',plot1(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , colz_s{d},'MarkerFaceColor',colz_s{d});
-                    %             line([sigMT(2,d) sigMT(2,d)] , [plot1(sigMT(2,d),d) 7000+(d-1)*200] , 'color' , colz_s{d} , 'LineWidth' , 3 , 'LineStyle' , ':')
+                    h1 = plotshade(coo1(:,d)',plot1(:,d)',err1(:,d)','transp' , .5 , 'patchcolor' , colz{d,2} , 'linecolor' , colz{d,2} , 'linewidth' , 3);
+                    plot(coo1(:,d)',plot1(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , colz{d,2},'MarkerFaceColor',colz{d,2});
+                    %             line([sigMT(2,d) sigMT(2,d)] , [plot1(sigMT(2,d),d) 7000+(d-1)*200] , 'color' , colz{d,2} , 'LineWidth' , 3 , 'LineStyle' , ':')
                     set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
                         'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 13], 'YLim' , [2000 8000],'YTick' ,...
                         [3000 4000 5000 6000] , 'YTickLabels' , [3 4 5 6] , 'YGrid' , 'on');
@@ -677,11 +693,11 @@ switch what
                 for d = 1:length(dayz)
                     subplot(2,length(dayz),length(dayz)+d)
                     hold on
-                    h1 = plotshade(coo0_pred(:,d)',plot0_pred(:,d)',err0_pred(:,d)' ,'transp' , .5 , 'patchcolor' , colz_r{d} , 'linecolor' , colz_r{d} , 'linewidth' , 3);
-                    plot(coo0_pred(:,d)',plot0_pred(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , colz_r{d},'MarkerFaceColor',colz_r{d});
+                    h1 = plotshade(coo0_pred(:,d)',plot0_pred(:,d)',err0_pred(:,d)' ,'transp' , .5 , 'patchcolor' , colz{d,1} , 'linecolor' , colz{d,1} , 'linewidth' , 3);
+                    plot(coo0_pred(:,d)',plot0_pred(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , colz{d,1},'MarkerFaceColor',colz{d,1});
                     
-                    h1 = plotshade(coo1_pred(:,d)',plot1_pred(:,d)',err1_pred(:,d)','transp' , .5 , 'patchcolor' , colz_s{d} , 'linecolor' , colz_s{d} , 'linewidth' , 3);
-                    plot(coo1_pred(:,d)',plot1_pred(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , colz_s{d},'MarkerFaceColor',colz_s{d});
+                    h1 = plotshade(coo1_pred(:,d)',plot1_pred(:,d)',err1_pred(:,d)','transp' , .5 , 'patchcolor' , colz{d,2} , 'linecolor' , colz{d,2} , 'linewidth' , 3);
+                    plot(coo1_pred(:,d)',plot1_pred(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , colz{d,2},'MarkerFaceColor',colz{d,2});
                     
                     set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
                         'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 13], 'YLim' , [2000 8000],'YTick' ,...
@@ -691,75 +707,120 @@ switch what
                     title(['fitted Chunked vs. fitted Random- Day(s) ' , num2str(dayz{d})])
                 end
             case 'Actual&fitDayz'
-                
-                Hz = {[1] [2] [3] , [4] [5:9]};
+                Hz = {[1] [2] [3] , [4] [5] [6:9]};
                 ANA = MT;
-                ANA.Horizon(ANA.Horizon>5) = 5;
+                ANA.Horizon(ANA.Horizon>6) = 6;
+                h1 = figure;
                 for d = 1:length(dayz)
                     [coo1_red(:,d),plot1_red(:,d),err1_red(:,d)] = lineplot([ANA.Horizon] , ANA.MT , 'subset' , ismember(ANA.seqNumb , [1])  & ismember(ANA.Day , dayz{d}));
                     [coo0_red(:,d),plot0_red(:,d),err0_red(:,d)] = lineplot([ANA.Horizon] , ANA.MT , 'subset' , ismember(ANA.seqNumb , [0]) & ismember(ANA.Day , dayz{d}));
                     
-                    [coo1_pred_red(:,d),coo1_pred_red(:,d),err1_pred_red(:,d)] = lineplot([ANA.Horizon] , ANA.MT_pred , 'subset' , ismember(ANA.seqNumb , [1]) & ismember(ANA.Day , dayz{d}));
+                    [coo1_pred_red(:,d),plot1_pred_red(:,d),err1_pred_red(:,d)] = lineplot([ANA.Horizon] , ANA.MT_pred , 'subset' , ismember(ANA.seqNumb , [1]) & ismember(ANA.Day , dayz{d}));
                     [coo0_pred_red(:,d),plot0_pred_red(:,d),err0_pred_red(:,d)] = lineplot([ANA.Horizon] , ANA.MT_pred , 'subset' , ismember(ANA.seqNumb , [0]) & ismember(ANA.Day , dayz{d}));
                 end
-                    horzcolor = linspace(0.2,.8 , length(unique(MT.Horizon)));
-                    figure('color' , 'white')
-                    hold on
-                    for i = 1%:length(unique(MT.Horizon))
-                        h1 = plotshade(coo1_red(i,:),plot1_red(i,:),err1_red(i,:),'transp' , .5 , 'patchcolor' , repmat(horzcolor(i) , 1,3) , 'linecolor' , colz_s{3} , 'linewidth' , 3);
-                        plot([1:length(dayz)],plot1_red(:,d) , '-o' , 'MarkerSize' , 10 , 'color' , colz_s{3},'MarkerFaceColor',repmat(horzcolor(i) , 1,3) , 'LineWidth' , 3);
-                    end
-                set(gca,'FontSize' , 20 , 'XTick' , [1:length(dayz)] , ...
-                    'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 length(dayz)], 'YLim' , [2500 7000],'YTick' ,...
-                    [3000 4000 5000 6000] , 'YTickLabels' , [3 4 5 6] , 'YGrid' , 'on');
+                close(h1)
+                scol = [200 200 200]/255;
+                ecol = [0, 0 0]/255;
+                for rgb = 1:3
+                    horzcolor(rgb , :) = linspace(scol(rgb),ecol(rgb) , length(unique(ANA.Horizon)));
+                end
+%                 horzcolor = transpose([107, 91, 149;254, 178, 54;214, 65, 97;255, 123, 37;128, 206, 214;241, 137, 115]/255);
+                
+                figure('color' , 'white')
+                subplot(211)
+                hold on
+                for i = [1:length(unique(ANA.Horizon))]
+                    plotshade((i-1)*length(dayz)+[1:length(dayz)],plot1_red(i,:),err1_red(i,:),'transp' , .6 , 'patchcolor' , horzcolor(:,i) , 'linecolor' , colz{6-i+1,2} , 'linewidth' , 3);
+                    plot((i-1)*length(dayz)+[1:length(dayz)],plot1_red(i,:) , '-o' , 'MarkerSize' , 10 , 'color' , colz{6-i+1,2},'MarkerFaceColor',colz{6-i+1,2} , 'LineWidth' , 3);
+                    
+                    plotshade((i-1)*length(dayz)+[1:length(dayz)],plot0_red(i,:),err0_red(i,:),'transp' , .6 , 'patchcolor' , horzcolor(:,i) , 'linecolor' , colz{6-i+1,1} , 'linewidth' , 3);
+                    plot((i-1)*length(dayz)+[1:length(dayz)],plot0_red(i,:) , '-o' , 'MarkerSize' , 10 , 'color' , colz{6-i+1,1},'MarkerFaceColor',colz{6-i+1,1} , 'LineWidth' , 3);
+                end
+                set(gca,'FontSize' , 20 , 'XTick' , [1:i*length(dayz)] , ...
+                    'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 i*length(dayz)], 'YLim' , [2500 8000],'YTick' ,...
+                    [3000 4000 5000 6000 7000] , 'YTickLabels' , [3 4 5 6 7] , 'YGrid' , 'on',...
+                    'XTickLabels' , repmat({'S1' , 'S2' , 'S3' , 'S4' ,'S5'} , 1 ,length(unique(ANA.Horizon))));
                 ylabel('Sec' )
                 xlabel('Training Session')
+                title('Actual')
                 
-                
-                
-                
-                
-                for d = 1:Hz
-                    subplot(121)
-                    hold on
-                    h1 = plotshade(coo0(:,d)',plot0(:,d)',err0(:,d)','transp' , .5 , 'patchcolor' , colz_r{d} , 'linecolor' , colz_r{d} , 'linewidth' , 3);
-                    plot(coo0(:,d)',plot0(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , colz_r{d},'MarkerFaceColor',colz_r{d});
-                    %             line([sigMT(1,d) sigMT(1,d)] , [plot0(sigMT(1,d),d) 7000+(d-1)*200] , 'color' , colz_r{d} , 'LineWidth' , 3 , 'LineStyle' , ':')
+                subplot(212)
+                hold on
+                for i = [1:length(unique(ANA.Horizon))]
+                    plotshade((i-1)*length(dayz)+[1:length(dayz)],plot1_pred_red(i,:),err1_pred_red(i,:),'transp' , .6 , 'patchcolor' , horzcolor(:,i) , 'linecolor' , colz{6-i+1,2} , 'linewidth' , 3);
+                    plot((i-1)*length(dayz)+[1:length(dayz)],plot1_pred_red(i,:) , '-o' , 'MarkerSize' , 10 , 'color' , colz{6-i+1,2},'MarkerFaceColor',colz{6-i+1,2} , 'LineWidth' , 3);
                     
-                    h1 = plotshade(coo1(:,d)',plot1(:,d)',err1(:,d)','transp' , .5 , 'patchcolor' , colz_s{d} , 'linecolor' , colz_s{d} , 'linewidth' , 3);
-                    plot(coo1(:,d)',plot1(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , colz_s{d},'MarkerFaceColor',colz_s{d});
-                    %             line([sigMT(2,d) sigMT(2,d)] , [plot1(sigMT(2,d),d) 7000+(d-1)*200] , 'color' , colz_s{d} , 'LineWidth' , 3 , 'LineStyle' , ':')
-                    set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
-                        'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 13], 'YLim' , [2000 8000],'YTick' ,...
-                        [3000 4000 5000 6000] , 'YTickLabels' , [3 4 5 6] , 'YGrid' , 'on');
-                    ylabel('Sec' )
-                    xlabel('Viewing Horizon' )
-                    title(['Chunked MT vs. Random on Day(s) ' , num2str(dayz{d})])
+                    plotshade((i-1)*length(dayz)+[1:length(dayz)],plot0_pred_red(i,:),err0_pred_red(i,:),'transp' , .6 , 'patchcolor' , horzcolor(:,i) , 'linecolor' , colz{6-i+1,1} , 'linewidth' , 3);
+                    plot((i-1)*length(dayz)+[1:length(dayz)],plot0_pred_red(i,:) , '-o' , 'MarkerSize' , 10 , 'color' , colz{6-i+1,1},'MarkerFaceColor',colz{6-i+1,1} , 'LineWidth' , 3);
                 end
-                legend({'Chunked' , 'Random'}, 'Box' , 'off')
-                for d = 1:length(dayz)
-                    subplot(2,length(dayz),length(dayz)+d)
-                    hold on
-                    h1 = plotshade(coo0_pred(:,d)',plot0_pred(:,d)',err0_pred(:,d)' ,'transp' , .5 , 'patchcolor' , colz_r{d} , 'linecolor' , colz_r{d} , 'linewidth' , 3);
-                    plot(coo0_pred(:,d)',plot0_pred(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , colz_r{d},'MarkerFaceColor',colz_r{d});
-                    
-                    h1 = plotshade(coo1_pred(:,d)',plot1_pred(:,d)',err1_pred(:,d)','transp' , .5 , 'patchcolor' , colz_s{d} , 'linecolor' , colz_s{d} , 'linewidth' , 3);
-                    plot(coo1_pred(:,d)',plot1_pred(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , colz_s{d},'MarkerFaceColor',colz_s{d});
-                    
-                    set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
-                        'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 13], 'YLim' , [2000 8000],'YTick' ,...
-                        [3000 4000 5000 6000] , 'YTickLabels' , [3 4 5 6] , 'YGrid' , 'on');
-                    ylabel('Sec' )
-                    xlabel('Viewing Horizon' )
-                    title(['fitted Chunked vs. fitted Random- Day(s) ' , num2str(dayz{d})])
+                set(gca,'FontSize' , 20 , 'XTick' , [1:i*length(dayz)] , ...
+                    'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 i*length(dayz)], 'YLim' , [2500 8000],'YTick' ,...
+                    [3000 4000 5000 6000 7000] , 'YTickLabels' , [3 4 5 6 7] , 'YGrid' , 'on',...
+                    'XTickLabels' , repmat({'S1' , 'S2' , 'S3' , 'S4' ,'S5'} , 1 ,length(unique(ANA.Horizon))));
+                ylabel('Sec' )
+                xlabel('Training Session')
+                title('Fitted')
+                %%
+                ANA = MT;
+                ANA.Horizon(ANA.Horizon>6) = 6;
+                ANA  = tapply(ANA , {'Horizon' , 'Day' ,'SN' , 'seqNumb'} , {'MT' , 'nanmean(x)'},{'MT_pred' , 'nanmean(x)'});
+                ANA.percChangeMT = zeros(size(ANA.MT));
+                ANA.percChangeMT_pred = zeros(size(ANA.MT_pred));
+
+                Daybenefit = [];
+                for sn = 0:1
+                    Db1= getrow(ANA , ANA.Day == 1 & ANA.seqNumb==sn);
+                    Db5 = getrow(ANA , ANA.Day == length(dayz) & ANA.seqNumb==sn);
+                    Db1.percChangeMT = 100*abs((Db1.MT - Db5.MT)./Db1.MT);
+                    Db1.percChangeMT_pred = 100*abs((Db1.MT_pred - Db5.MT_pred)./Db1.MT_pred);
+                    Daybenefit = addstruct(Daybenefit , Db1);
                 end
+                h1 = figure;
+                hold on
+                for sn = 0:1
+                    [coo_red{sn+1},plot_red{sn+1},err_red{sn+1}] = lineplot([Daybenefit.Horizon] , Daybenefit.percChangeMT, 'subset', ismember(Daybenefit.seqNumb , sn));
+                    [coo_pred_red{sn+1},plot_pred_red{sn+1},err_pred_red{sn+1}] = lineplot([Daybenefit.Horizon] , Daybenefit.percChangeMT_pred, 'subset', ismember(Daybenefit.seqNumb , sn));
+                end
+                close(h1)
+                
+                figure('color' , 'white')
+                subplot(211)
+                hold on
+                for sn = 0:1
+                    plotshade([1:length(unique(Daybenefit.Horizon))],plot_red{sn+1},err_red{sn+1},'transp' , .6 , 'patchcolor' , colz{3,sn+1} , 'linecolor' , colz{3,sn+1} , 'linewidth' , 3);
+                    plot([1:length(unique(Daybenefit.Horizon))],plot_red{sn+1}, '-o' , 'MarkerSize' , 10 , 'color' , colz{3,sn+1},'MarkerFaceColor',colz{3,sn+1} , 'LineWidth' , 3);
+                end
+                set(gca,'FontSize' , 20 , 'XTick' , [1:i*length(dayz)] , ...
+                    'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 length(unique(Daybenefit.Horizon))], 'YLim' , [0 30],'YTick' ,...
+                    [10 20 30] , 'YGrid' , 'on',...
+                    'XTick' , [1:length(unique(Daybenefit.Horizon))] , 'XTickLabels' , {'1' , '2' , '3' , '4',  '5' , '6-13'});
+                ylabel('Sec' )
+                xlabel('Viewing Window')
+                title('Actual')
+                
+                subplot(211)
+                hold on
+                for sn = 0:1
+                    plotshade([1:length(unique(Daybenefit.Horizon))],plot_red{sn+1},err_red{sn+1},'transp' , .6 , 'patchcolor' , colz{3,sn+1} , 'linecolor' , colz{3,sn+1} , 'linewidth' , 3);
+                    plot([1:length(unique(Daybenefit.Horizon))],plot_red{sn+1}, '-o' , 'MarkerSize' , 10 , 'color' , colz{3,sn+1},'MarkerFaceColor',colz{3,sn+1} , 'LineWidth' , 3);
+                end
+                set(gca,'FontSize' , 20 , 'XTick' , [1:i*length(dayz)] , ...
+                    'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 length(unique(Daybenefit.Horizon))], 'YLim' , [0 30],'YTick' ,...
+                    [10 20 30] , 'YGrid' , 'on',...
+                    'XTick' , [1:length(unique(Daybenefit.Horizon))] , 'XTickLabels' , {'1' , '2' , '3' , '4',  '5' , '6-13'});
+                ylabel('Sec' )
+                xlabel('Viewing Window')
+                title('Actual')
+                
+                
+
             case 'ActualvsfitHorz'
                 figure('color' , 'white')
                 for d = 1:length(dayz)
                     subplot(2,length(dayz),d)
                     hold on
-                    h1 = plotshade(coo1(:,d)',plot1(:,d)',err1(:,d)','transp' , .5 , 'patchcolor' , colz_s{d} , 'linecolor' , colz_s{d} , 'linewidth' , 3);
-                    plot(coo1(:,d)',plot1(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , colz_s{d},'MarkerFaceColor',colz_s{d});
+                    h1 = plotshade(coo1(:,d)',plot1(:,d)',err1(:,d)','transp' , .5 , 'patchcolor' , colz{d,2} , 'linecolor' , colz{d,2} , 'linewidth' , 3);
+                    plot(coo1(:,d)',plot1(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , colz{d,2},'MarkerFaceColor',colz{d,2});
                     h1 = plotshade(coo1_pred(:,d)',plot1_pred(:,d)',err1_pred(:,d)','transp' , .3 , 'patchcolor' , [.5 .5 .5] , 'linecolor' , [.5 .5 .5] , 'linewidth' , 3);
                     plot(coo1_pred(:,d)',plot1_pred(:,d)' , 'o' , 'MarkerSize' , 8 , 'color' , [.5 .5 .5],'MarkerFaceColor',[.5 .5 .5]);
                     set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
@@ -774,8 +835,8 @@ switch what
                 for d = 1:length(dayz)
                     subplot(2,length(dayz),length(dayz)+d)
                     hold on
-                    h1 = plotshade(coo0(:,d)',plot0(:,d)',err0(:,d)','transp' , .5 , 'patchcolor' , colz_r{d} , 'linecolor' , colz_r{d} , 'linewidth' , 3);
-                    plot(coo0(:,d)',plot0(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , colz_r{d},'MarkerFaceColor',colz_r{d});
+                    h1 = plotshade(coo0(:,d)',plot0(:,d)',err0(:,d)','transp' , .5 , 'patchcolor' , colz{d,1} , 'linecolor' , colz{d,1} , 'linewidth' , 3);
+                    plot(coo0(:,d)',plot0(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , colz{d,1},'MarkerFaceColor',colz{d,1});
                     h1 = plotshade(coo0_pred(:,d)',plot0_pred(:,d)',err0_pred(:,d)','transp' , .3 , 'patchcolor' , [.5 .5 .5] , 'linecolor' , [.5 .5 .5] , 'linewidth' , 3);
                     plot(coo0_pred(:,d)',plot0_pred(:,d)' , 'o' , 'MarkerSize' , 8 , 'color' , [.5 .5 .5],'MarkerFaceColor',[.5 .5 .5]);
                     set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
@@ -837,10 +898,10 @@ switch what
                 figure('color' , 'white')
                 subplot(221)
                 hold on
-                h1 = plotshade(coo1_b1',plot1_b1,err1_b1,'transp' , .5 , 'patchcolor' , colz_s{3} , 'linecolor' , colz_s{3} , 'linewidth' , 3);
-                plot(coo1_b1,plot1_b1, 'o' , 'MarkerSize' , 10 , 'color' , colz_s{3},'MarkerFaceColor',colz_s{3});
-                h1 = plotshade(coo0_b1',plot0_b1,err0_b1,'transp' , .5 , 'patchcolor' , colz_r{3} , 'linecolor' , colz_r{3} , 'linewidth' , 3);
-                plot(coo0_b1,plot0_b1, 'o' , 'MarkerSize' , 10 , 'color' , colz_r{3},'MarkerFaceColor',colz_r{3});
+                h1 = plotshade(coo1_b1',plot1_b1,err1_b1,'transp' , .5 , 'patchcolor' , colz{3,2} , 'linecolor' , colz{3,2} , 'linewidth' , 3);
+                plot(coo1_b1,plot1_b1, 'o' , 'MarkerSize' , 10 , 'color' , colz{3,2},'MarkerFaceColor',colz{3,2});
+                h1 = plotshade(coo0_b1',plot0_b1,err0_b1,'transp' , .5 , 'patchcolor' , colz{3,1} , 'linecolor' , colz{3,1} , 'linewidth' , 3);
+                plot(coo0_b1,plot0_b1, 'o' , 'MarkerSize' , 10 , 'color' , colz{3,1},'MarkerFaceColor',colz{3,1});
                 set(gca, 'XTick' , [1:length(dayz)],'FontSize' , 20, 'Box' , 'off','GridAlpha' , .5,'YGrid' , 'on')
                 hold on
                 xlabel('Training session')
@@ -848,10 +909,10 @@ switch what
                 
                 subplot(222)
                 hold on
-                h1 = plotshade(coo1_b2',plot1_b2,err1_b2,'transp' , .5 , 'patchcolor' , colz_s{3} , 'linecolor' , colz_s{3} , 'linewidth' , 3);
-                plot(coo1_b2,plot1_b2, 'o' , 'MarkerSize' , 10 , 'color' , colz_s{3},'MarkerFaceColor',colz_s{3});
-                h1 = plotshade(coo0_b2',plot0_b2,err0_b2,'transp' , .5 , 'patchcolor' , colz_r{3} , 'linecolor' , colz_r{3} , 'linewidth' , 3);
-                plot(coo0_b2,plot0_b2, 'o' , 'MarkerSize' , 10 , 'color' , colz_r{3},'MarkerFaceColor',colz_r{3});
+                h1 = plotshade(coo1_b2',plot1_b2,err1_b2,'transp' , .5 , 'patchcolor' , colz{3,2} , 'linecolor' , colz{3,2} , 'linewidth' , 3);
+                plot(coo1_b2,plot1_b2, 'o' , 'MarkerSize' , 10 , 'color' , colz{3,2},'MarkerFaceColor',colz{3,2});
+                h1 = plotshade(coo0_b2',plot0_b2,err0_b2,'transp' , .5 , 'patchcolor' , colz{3,1} , 'linecolor' , colz{3,1} , 'linewidth' , 3);
+                plot(coo0_b2,plot0_b2, 'o' , 'MarkerSize' , 10 , 'color' , colz{3,1},'MarkerFaceColor',colz{3,1});
                 set(gca, 'XTick' , [1:length(dayz)],'FontSize' , 20, 'Box' , 'off','GridAlpha' , .5,'YGrid' , 'on')
                 hold on
                 xlabel('Training session')
@@ -859,10 +920,10 @@ switch what
                 
                 subplot(223)
                 hold on
-                h1 = plotshade(coo1_b3',plot1_b3,err1_b3,'transp' , .5 , 'patchcolor' , colz_s{3} , 'linecolor' , colz_s{3} , 'linewidth' , 3);
-                plot(coo1_b1,plot1_b3, 'o' , 'MarkerSize' , 10 , 'color' , colz_s{3},'MarkerFaceColor',colz_s{3});
-                h1 = plotshade(coo0_b3',plot0_b3,err0_b3,'transp' , .5 , 'patchcolor' , colz_r{3} , 'linecolor' , colz_r{3} , 'linewidth' , 3);
-                plot(coo0_b3,plot0_b3, 'o' , 'MarkerSize' , 10 , 'color' , colz_r{3},'MarkerFaceColor',colz_r{3});
+                h1 = plotshade(coo1_b3',plot1_b3,err1_b3,'transp' , .5 , 'patchcolor' , colz{3,2} , 'linecolor' , colz{3,2} , 'linewidth' , 3);
+                plot(coo1_b1,plot1_b3, 'o' , 'MarkerSize' , 10 , 'color' , colz{3,2},'MarkerFaceColor',colz{3,2});
+                h1 = plotshade(coo0_b3',plot0_b3,err0_b3,'transp' , .5 , 'patchcolor' , colz{3,1} , 'linecolor' , colz{3,1} , 'linewidth' , 3);
+                plot(coo0_b3,plot0_b3, 'o' , 'MarkerSize' , 10 , 'color' , colz{3,1},'MarkerFaceColor',colz{3,1});
                 set(gca, 'XTick' , [1:length(dayz)],'FontSize' , 20, 'Box' , 'off','GridAlpha' , .5,'YGrid' , 'on')
                 hold on
                 xlabel('Training session')
@@ -871,10 +932,10 @@ switch what
                 
                 subplot(224)
                 hold on
-                h1 = plotshade(coo1_invb3',plot1_invb3,err1_invb3,'transp' , .5 , 'patchcolor' , colz_s{3} , 'linecolor' , colz_s{3} , 'linewidth' , 3);
-                plot(coo1_invb3,plot1_invb3, 'o' , 'MarkerSize' , 10 , 'color' , colz_s{3},'MarkerFaceColor',colz_s{3});
-                h1 = plotshade(coo0_invb3',plot0_invb3,err0_invb3,'transp' , .5 , 'patchcolor' , colz_r{3} , 'linecolor' , colz_r{3} , 'linewidth' , 3);
-                plot(coo0_invb3,plot0_invb3, 'o' , 'MarkerSize' , 10 , 'color' , colz_r{3},'MarkerFaceColor',colz_r{3});
+                h1 = plotshade(coo1_invb3',plot1_invb3,err1_invb3,'transp' , .5 , 'patchcolor' , colz{3,2} , 'linecolor' , colz{3,2} , 'linewidth' , 3);
+                plot(coo1_invb3,plot1_invb3, 'o' , 'MarkerSize' , 10 , 'color' , colz{3,2},'MarkerFaceColor',colz{3,2});
+                h1 = plotshade(coo0_invb3',plot0_invb3,err0_invb3,'transp' , .5 , 'patchcolor' , colz{3,1} , 'linecolor' , colz{3,1} , 'linewidth' , 3);
+                plot(coo0_invb3,plot0_invb3, 'o' , 'MarkerSize' , 10 , 'color' , colz{3,1},'MarkerFaceColor',colz{3,1});
                 set(gca, 'XTick' , [1:length(dayz)],'FontSize' , 20, 'Box' , 'off','GridAlpha' , .5 ,'YGrid' , 'on')
                 hold on
                 xlabel('Training session')
