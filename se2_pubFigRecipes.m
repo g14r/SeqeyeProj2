@@ -4,9 +4,25 @@ out  = se2_pubFigs(Dall , 'MT','RandvsStructCommpare');
 out  = se2_pubFigs(Dall , 'MT','RandStructAcrossDays' , 'poolDays' , 1); 
 out  = se2_pubFigs(Dall , 'MT','LearningEffect' , 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'MT','compareLearning' , 'poolDays' , 1);
+
+out  = se2_pubFigs(Dall , 'RT','RandvsStructCommpare','poolDays' , 1); 
+out  = se2_pubFigs(Dall , 'RT','RandStructAcrossDays' , 'poolDays' , 0); 
+out  = se2_pubFigs(Dall , 'RT','BoxAcrossDays' , 'poolDays' , 1);
+out  = se2_pubFigs(Dall , 'RT','BoxAcrosSeqType' , 'poolDays' , 1);
+out  = se2_pubFigs(Dall , 'RT','LearningEffectHeat' , 'poolDays' , 0);
+out  = se2_pubFigs(Dall , 'RT','LearningEffectShade' , 'poolDays' , 1);
+out  = se2_pubFigs(Dall , 'RT','compareLearning' , 'poolDays' , 1);
+
+
 out  = se2_pubFigs(Dall , 'MT_asymptote','plotCoef', 'poolDays' , 0, 'MaxIter' , 50);
 out  = se2_pubFigs(Dall , 'MT_asymptote','Actual&fit%ChangeDayz', 'poolDays' , 0, 'MaxIter' , 50);
 out  = se2_pubFigs(Dall , 'MT_asymptote','Actual&fit%ChangeSeqType', 'poolDays' , 0, 'MaxIter' , 50);
+out  = se2_pubFigs(Dall , 'MT_asymptote','plotCoef', 'poolDays' , 0, 'MaxIter' , 50);
+
+
+out  = se2_pubFigs(Dall , 'IPI','IPIFullDispHeat', 'poolDays' , 0);
+out  = se2_pubFigs(Dall , 'IPI','IPIFullDispShade', 'poolDays' , 0);
+out  = se2_pubFigs(Dall , 'IPI','compareLearning', 'poolDays' , 0);
 
 out  = se2_pubFigs(Dall , 'test_MT_asymptote','', 'poolDays' , 1);
 
