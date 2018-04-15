@@ -1186,43 +1186,48 @@ switch what
                 hold on
                 for sn = 0:1
                     for d = 1:length(dayz)-1
-                        [coo_red{sn+1,d},plot_red{sn+1,d},err_red{sn+1,d}] = lineplot([Daybenefit.Horizon] , Daybenefit.percChangeMT(:,d), 'subset', ismember(Daybenefit.seqNumb , sn) & ismember(Daybenefit.Day , [d+1]));
-                        [coo_pred_red{sn+1,d},plot_pred_red{sn+1,d},err_pred_red{sn+1,d}] = lineplot([Daybenefit.Horizon] , Daybenefit.percChangeMT_pred, 'subset', ismember(Daybenefit.seqNumb , sn) & ismember(Daybenefit.Day , [d+1]));
+                        [~,plot_red{sn+1}(d,:),err_red{sn+1}(d,:)] = lineplot([Daybenefit.Horizon] , Daybenefit.percChangeMT(:,d), 'subset', ismember(Daybenefit.seqNumb , sn) & ismember(Daybenefit.Day , [d+1]));
+                        [~,plot_pred_red{sn+1}(d,:),err_pred_red{sn+1}(d,:)] = lineplot([Daybenefit.Horizon] , Daybenefit.percChangeMT_pred(:,d), 'subset', ismember(Daybenefit.seqNumb , sn) & ismember(Daybenefit.Day , [d+1]));
                     end
                 end
                 close(h1)
-                
                 figure('color' , 'white')
                 subplot(211)
                 hold on
+                Nh = length(unique(Daybenefit.Horizon));
                 for sn = 0:1
-                    for d = 1:length(dayz)-1
-                        Xcoor = (d-1)*(length(unique(Daybenefit.Horizon))+1)+[1:length(unique(Daybenefit.Horizon))];
-                        plotshade(Xcoor,plot_red{sn+1,d},err_red{sn+1,d},'transp' , .6 , 'patchcolor' , colz{d+1,sn+1} , 'linecolor' , colz{d+1,sn+1} , 'linewidth' , 3);
-                        plot(Xcoor,plot_red{sn+1,d}, '-o' , 'MarkerSize' , 15 , 'color' , colz{d+1,sn+1},'MarkerFaceColor',colz{d+1,sn+1} , 'LineWidth' , 4);
+                    xtick = [];
+                    for h = 1:length(unique(Daybenefit.Horizon))
+                        Xcoor = (h-1)*(length(dayz))+[1:length(dayz)-1];
+                        plotshade(Xcoor',plot_red{sn+1}(:,h),2*err_red{sn+1}(:,h),'transp' , .6 , 'patchcolor' , colz{4,sn+1} , 'linecolor' , colz{4,sn+1} , 'linewidth' , 3);
+                        plot(Xcoor,plot_red{sn+1}(:,h), '-o' , 'MarkerSize' , 15 , 'color' , colz{4,sn+1},'MarkerFaceColor',colz{4,sn+1} , 'LineWidth' , 4);
+                        xtick = [xtick  Xcoor];
                     end
                 end
-                set(gca,'FontSize' , 18 , 'XTick' , [1:i*length(dayz)] , ...
-                    'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 length(unique(Daybenefit.Horizon))], 'YLim' , [0 35],'YTick' ,...
-                    [10 20 30] , 'YGrid' , 'on',...
-                    'XTick' , [1:length(unique(Daybenefit.Horizon))] , 'XTickLabels' , {'1' , '2' , '3' , '4',  '5' , '6-13'});
-                ylabel('%' ,'FontSize' , 20)
-                xlabel('Viewing Window size','FontSize' , 20)
-                title('Reduction in Sequence Execution Time From First to Last Day (Actual)' ,'FontSize' , 24)
-                
+                set(gca,'FontSize' , 20 , 'XTick' , xtick , 'XTickLabels' , repmat({'Session 1 to 2,3' , 'Sessions 2,3 to 4,5'} , length(dayz)-1),...
+                    'XTickLabelRotation' , 30, 'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [0 max(xtick)], 'YLim' , [0 35],'YTick' ,...
+                    [10 20 30] , 'YGrid' , 'on');
+                ylabel('%' ,'FontSize' , 22)
+                xlabel('Viewing Window size','FontSize' , 22)
+                title('Day-to-day Improvement in Performance in Different Viewing Window Sizes (W)' ,'FontSize' , 28)
+
                 subplot(212)
                 hold on
                 for sn = 0:1
-                    plotshade([1:length(unique(Daybenefit.Horizon))],plot_pred_red{sn+1},err_pred_red{sn+1},'transp' , .6 , 'patchcolor' , colz{3,sn+1} , 'linecolor' , colz{3,sn+1} , 'linewidth' , 3);
-                    plot([1:length(unique(Daybenefit.Horizon))],plot_pred_red{sn+1}, '-o' , 'MarkerSize' , 10 , 'color' , colz{3,sn+1},'MarkerFaceColor',colz{3,sn+1} , 'LineWidth' , 3);
+                    xtick = [];
+                    for d = 1:length(dayz)-1
+                        Xcoor = (d-1)*(length(unique(Daybenefit.Horizon))+1)+[1:length(unique(Daybenefit.Horizon))];
+                        plotshade(Xcoor,plot_pred_red{sn+1,d},err_pred_red{sn+1,d},'transp' , .6 , 'patchcolor' , colz{d+1,sn+1} , 'linecolor' , colz{d+1,sn+1} , 'linewidth' , 3);
+                        plot(Xcoor,plot_pred_red{sn+1,d}, '-o' , 'MarkerSize' , 15 , 'color' , colz{d+1,sn+1},'MarkerFaceColor',colz{d+1,sn+1} , 'LineWidth' , 4);
+                        xtick = [xtick  Xcoor];
+                    end
                 end
-                set(gca,'FontSize' , 18 , 'XTick' , [1:i*length(dayz)] , ...
-                    'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 length(unique(Daybenefit.Horizon))], 'YLim' , [0 35],'YTick' ,...
-                    [10 20 30] , 'YGrid' , 'on',...
-                    'XTick' , [1:length(unique(Daybenefit.Horizon))] , 'XTickLabels' , {'1' , '2' , '3' , '4',  '5' , '6-13'});
-                ylabel('%' )
-                xlabel('Viewing Window Size')
-                title('Reduction in Sequence Execution Time From First to Last Day (Fitted)' ,'FontSize' , 24)
+                 set(gca,'FontSize' , 20 , 'XTick' , xtick , 'XTickLabels' , repmat({'Session 1 to 2,3' , 'Sessions 2,3 to 4,5'} , length(dayz)-1),...
+                    'XTickLabelRotation' , 30, 'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [0 max(xtick)], 'YLim' , [0 35],'YTick' ,...
+                    [10 20 30] , 'YGrid' , 'on');
+                ylabel('%' ,'FontSize' , 22)
+                xlabel('Viewing Window size','FontSize' , 22)
+                title('Day-to-day Improvement in Fitted Performance in Different Viewing Window Sizes (W)' ,'FontSize' , 28)
             case 'Actual&fit%ChangeSeqType'
                 Hz = {[1] [2] [3] , [4] [5:9]};
                 ANA = MT;
