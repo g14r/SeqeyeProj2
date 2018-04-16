@@ -85,8 +85,8 @@ end
 
 colIPI(:,1) = colz(:,1);    % Random IPIs, same as Random sequences
 clear tempcol
-c1 = [221, 153, 255]/255;   % Between chunk green tones
-ce = [51, 0, 77]/255;
+c1 = [214, 153, 255]/255;   % Between chunk Fuscia tones
+ce = [61, 0, 102]/255;
 for rgb = 1:3
     tempcol(rgb , :) = linspace(c1(rgb),ce(rgb) , 6);
 end
@@ -435,6 +435,7 @@ switch what
         out = [];
     case 'IPI'
         structNumb = [1 2];
+        out = [];
         %         plotfcn = input('nanmean or nanmean?' , 's');
         %% IPIs vs horizon
         % this is the output of the case: 'transitions_All' that is saved to disc
@@ -587,8 +588,6 @@ switch what
                 close(h1)
                 hoz = max(ipitable.Horizon);
                 figure('color' , 'white');
-                subplot(311)
-                
                 for d = 1:length(dayz)
                     hold on
                     xtick = [];
@@ -599,26 +598,33 @@ switch what
                         xtick = [xtick ; chp*(hz+1)+xcoords{d ,chp+1}];
                     end
                 end
-                set(gca,'FontSize' , 20, 'XTick' , xtick,'GridAlpha' , .2 , 'Box' , 'off','YGrid' , 'on','XTickLabel' , repmat([1:hz] , 1,chp));
-                xlabel('Viewing Window')
-                subplot(312)
+                set(gca,'FontSize' , 18, 'XTick' , xtick,'GridAlpha' , .2 , 'Box' , 'off','YGrid' , 'on','XTickLabel' , ...
+                    repmat({'1' '2' '3' '4' '5-13'} , 1,chp) , 'YLim' , [250 550] , 'YTick' , [300 400 500],...
+                    'YTickLabel' , [0.3 0.4 0.5]);
+                xlabel('IPI Type (sub-catagory Viewing Window 1,2,3,4,5-13)' ,'FontSize' , 20)
+                ylabel('Sec','FontSize' , 20)
+                title('Learning Effect as a Function of Inter-Press-Interval Placement Within the Sequence' ,'FontSize' , 24)
                 
+                figure('color' , 'white');
                 hold on
                 d = length(dayz);
                 for  chp = 0:2
                     xtick = [];
                     for hz=  1:length(unique(ipitable.Horizon))
-                        h1 = plotshade((hz-1)*(d+1)+xcoordshz{hz ,chp+1}',PLOTshz{hz,chp+1},ERRORshz{hz,chp+1},'transp' , .5 , 'patchcolor' , colIPI{d,chp+1} , 'linecolor' , colIPI{d,chp+1} , 'linewidth' , 3);
-                        plot((hz-1)*(d+1)+xcoordshz{hz ,chp+1},PLOTshz{hz,chp+1} , 'o' , 'MarkerSize' , 10 , 'color' , colIPI{d,chp+1},'MarkerFaceColor',colIPI{d,chp+1});
+                        h1 = plotshade((hz-1)*(d+1)+xcoordshz{hz ,chp+1}',PLOTshz{hz,chp+1},ERRORshz{hz,chp+1},'transp' , .5 , 'patchcolor' , colIPI{4,chp+1} , 'linecolor' , colIPI{4,chp+1} , 'linewidth' , 3);
+                        plot((hz-1)*(d+1)+xcoordshz{hz ,chp+1},PLOTshz{hz,chp+1} , 'o' , 'MarkerSize' , 10 , 'color' , colIPI{4,chp+1},'MarkerFaceColor',colIPI{4,chp+1});
                         xtick = [xtick ; (hz-1)*(d+1)+xcoordshz{hz ,chp+1}];
                     end
                 end
-                set(gca,'FontSize' , 20, 'XTick' , xtick,'GridAlpha' , .2 , 'Box' , 'off','YGrid' , 'on','XTickLabel' , repmat([1:d] , 1,hz-1));
-                xlabel('Training Sessions')
+                set(gca,'FontSize' , 20, 'XTick' , xtick,'GridAlpha' , .2 , 'Box' , 'off','YGrid' , 'on','XTickLabel' ,...
+                    repmat([1:d] , 1 , chp+1), 'YLim' , [250 550] , 'YTick' , [300 400 500],...
+                    'YTickLabel' , [0.3 0.4 0.5]);
+                title('Learning Effect as a Function of Inter-Press-Interval Placement Within the Sequence' ,'FontSize' , 24)
+                ylabel('Sec','FontSize' , 20)
+                xlabel('Viewing Window 1,2,3,4,5-13 (sub-catagory days)','FontSize' , 20)
                 
-                subplot(313)
+                figure('color' , 'white');
                 d = length(dayz);
-                
                 hold on
                 for d=  1:length(dayz)
                     xtick = [];
@@ -628,8 +634,12 @@ switch what
                         xtick = [xtick ; (hz-1)*3+xcoordsch{hz ,d}];
                     end
                 end
-                set(gca,'FontSize' , 20, 'XLim' , [-1 (hz-1)*3+2] , 'XTick' , xtick,'GridAlpha' , .2 , 'Box' , 'off','YGrid' , 'on','XTickLabel' , repmat({'R' , 'S_W' , 'S_B'} , 1,hz-1));
-                xlabel('IPI Type')
+                set(gca,'FontSize' , 20, 'XLim' , [-1 (hz-1)*3+2] , 'XTick' , xtick,'GridAlpha' , .2 , 'Box' , 'off','YGrid' , 'on','XTickLabel' , ...
+                    repmat({'R' , 'S_W' , 'S_B'} , 1,hz-1),'YLim' , [250 550] , 'YTick' , [300 400 500],...
+                    'YTickLabel' , [0.3 0.4 0.5]);
+                title('Learning Effect as a Function of Inter-Press-Interval Placement Within the Sequence' ,'FontSize' , 24)
+                ylabel('Sec','FontSize' , 20)
+                xlabel('Viewing Window 1,2,3,4,5-13 ((sub-catagory IPI Type)','FontSize' , 20)
         end
     case 'RT'
         ANA = getrow(Dall , ismember(Dall.SN , subjnum) & Dall.isgood & ismember(Dall.seqNumb , [0 1 2]) & ~Dall.isError);
@@ -1190,6 +1200,11 @@ switch what
                         [~,plot_pred_red{sn+1}(d,:),err_pred_red{sn+1}(d,:)] = lineplot([Daybenefit.Horizon] , Daybenefit.percChangeMT_pred(:,d), 'subset', ismember(Daybenefit.seqNumb , sn) & ismember(Daybenefit.Day , [d+1]));
                     end
                 end
+                if poolDays
+                    daylab = {'Session 1 to 2,3' , 'Sessions 2,3 to 4,5'};
+                else
+                    daylab = {'Session 1 to 2' , 'Session 2 to 3' , 'Session 3 to 4' , 'Session 4 to 5'};
+                end
                 close(h1)
                 figure('color' , 'white')
                 subplot(211)
@@ -1199,12 +1214,12 @@ switch what
                     xtick = [];
                     for h = 1:length(unique(Daybenefit.Horizon))
                         Xcoor = (h-1)*(length(dayz))+[1:length(dayz)-1];
-                        plotshade(Xcoor',plot_red{sn+1}(:,h),2*err_red{sn+1}(:,h),'transp' , .6 , 'patchcolor' , colz{4,sn+1} , 'linecolor' , colz{4,sn+1} , 'linewidth' , 3);
+                        plotshade(Xcoor,plot_red{sn+1}(:,h)',err_red{sn+1}(:,h)','transp' , .6 , 'patchcolor' , colz{4,sn+1} , 'linecolor' , colz{4,sn+1} , 'linewidth' , 3);
                         plot(Xcoor,plot_red{sn+1}(:,h), '-o' , 'MarkerSize' , 15 , 'color' , colz{4,sn+1},'MarkerFaceColor',colz{4,sn+1} , 'LineWidth' , 4);
                         xtick = [xtick  Xcoor];
                     end
                 end
-                set(gca,'FontSize' , 20 , 'XTick' , xtick , 'XTickLabels' , repmat({'Session 1 to 2,3' , 'Sessions 2,3 to 4,5'} , length(dayz)-1),...
+                set(gca,'FontSize' , 20 , 'XTick' , xtick , 'XTickLabels' , repmat(daylab , length(dayz)-1),...
                     'XTickLabelRotation' , 30, 'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [0 max(xtick)], 'YLim' , [0 35],'YTick' ,...
                     [10 20 30] , 'YGrid' , 'on');
                 ylabel('%' ,'FontSize' , 22)
@@ -1213,16 +1228,17 @@ switch what
 
                 subplot(212)
                 hold on
+                Nh = length(unique(Daybenefit.Horizon));
                 for sn = 0:1
                     xtick = [];
-                    for d = 1:length(dayz)-1
-                        Xcoor = (d-1)*(length(unique(Daybenefit.Horizon))+1)+[1:length(unique(Daybenefit.Horizon))];
-                        plotshade(Xcoor,plot_pred_red{sn+1,d},err_pred_red{sn+1,d},'transp' , .6 , 'patchcolor' , colz{d+1,sn+1} , 'linecolor' , colz{d+1,sn+1} , 'linewidth' , 3);
-                        plot(Xcoor,plot_pred_red{sn+1,d}, '-o' , 'MarkerSize' , 15 , 'color' , colz{d+1,sn+1},'MarkerFaceColor',colz{d+1,sn+1} , 'LineWidth' , 4);
+                    for h = 1:length(unique(Daybenefit.Horizon))
+                        Xcoor = (h-1)*(length(dayz))+[1:length(dayz)-1];
+                        plotshade(Xcoor,plot_pred_red{sn+1}(:,h)',err_pred_red{sn+1}(:,h)','transp' , .6 , 'patchcolor' , colz{4,sn+1} , 'linecolor' , colz{4,sn+1} , 'linewidth' , 3);
+                        plot(Xcoor,plot_pred_red{sn+1}(:,h), '-o' , 'MarkerSize' , 15 , 'color' , colz{4,sn+1},'MarkerFaceColor',colz{4,sn+1} , 'LineWidth' , 4);
                         xtick = [xtick  Xcoor];
                     end
                 end
-                 set(gca,'FontSize' , 20 , 'XTick' , xtick , 'XTickLabels' , repmat({'Session 1 to 2,3' , 'Sessions 2,3 to 4,5'} , length(dayz)-1),...
+                set(gca,'FontSize' , 20 , 'XTick' , xtick , 'XTickLabels' , repmat(daylab , length(dayz)-1),...
                     'XTickLabelRotation' , 30, 'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [0 max(xtick)], 'YLim' , [0 35],'YTick' ,...
                     [10 20 30] , 'YGrid' , 'on');
                 ylabel('%' ,'FontSize' , 22)
@@ -1463,7 +1479,6 @@ switch what
                 hold on
                 xlabel('Training session')
                 title('b3 Coefficient')
-                
             case 'testCoef'
                 x = [1:10];
                 b1 = 6;

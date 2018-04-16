@@ -2,8 +2,10 @@
  
 out  = se2_pubFigs(Dall , 'MT','RandvsStructCommpare'); 
 out  = se2_pubFigs(Dall , 'MT','RandStructAcrossDays' , 'poolDays' , 0); 
-out  = se2_pubFigs(Dall , 'MT','LearningEffect' , 'poolDays' , 0);
-out  = se2_pubFigs(Dall , 'MT','compareLearning' , 'poolDays' , 1);
+out  = se2_pubFigs(Dall , 'MT','compareLearning' , 'poolDays' , 0);
+out  = se2_pubFigs(Dall , 'MT','LearningEffectShade' , 'poolDays' , 0);
+
+
 
 out  = se2_pubFigs(Dall , 'RT','RandvsStructCommpare','poolDays' , 1); 
 out  = se2_pubFigs(Dall , 'RT','RandStructAcrossDays' , 'poolDays' , 0); 
@@ -14,8 +16,11 @@ out  = se2_pubFigs(Dall , 'RT','LearningEffectShade' , 'poolDays' , 1);
 out  = se2_pubFigs(Dall , 'RT','compareLearning' , 'poolDays' , 1);
 
 
-out  = se2_pubFigs(Dall , 'MT_asymptote','plotCoef', 'poolDays' , 0, 'MaxIter' , 50);
-out  = se2_pubFigs(Dall , 'MT_asymptote','Actual&fit%ChangeDayz', 'poolDays' , 0, 'MaxIter' , 50);
+out  = se2_pubFigs(Dall , 'MT_asymptote','Actual&fitHorz', 'poolDays' , 0, 'MaxIter' , 50);
+out  = se2_pubFigs(Dall , 'MT_asymptote','Actual&fitDayz', 'poolDays' , 0, 'MaxIter' , 50);
+out  = se2_pubFigs(Dall , 'MT_asymptote','Actual&fit%ChangeDayzTotalLearning', 'poolDays' , 0, 'MaxIter' , 50);
+out  = se2_pubFigs(Dall , 'MT_asymptote','Actual&fit%ChangeDay2Day', 'poolDays' , 0, 'MaxIter' , 50);
+
 out  = se2_pubFigs(Dall , 'MT_asymptote','Actual&fit%ChangeSeqType', 'poolDays' , 0, 'MaxIter' , 50);
 out  = se2_pubFigs(Dall , 'MT_asymptote','plotCoef', 'poolDays' , 0, 'MaxIter' , 50);
 
@@ -46,7 +51,8 @@ for s = 1:length(S)
     hpval{s}( hpval{s}~=1) = 0;
 end
 %% IPI seg test
-se2_SigTest(Dall , 'MT' , 'seqNumb' , [0] , 'Day' , [4:5] , 'Horizon' , [4:13],...
+se2_SigTest(Dall , 'IPI' , 'seqNumb' , [1:2] , 'Day' , [1 2] , 'Horizon' , [5],...
      'PoolDays' , 1,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
      'PoolHorizons' , []);
+ 
  %% b = []

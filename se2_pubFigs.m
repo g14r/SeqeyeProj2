@@ -85,8 +85,8 @@ end
 
 colIPI(:,1) = colz(:,1);    % Random IPIs, same as Random sequences
 clear tempcol
-c1 = [221, 153, 255]/255;   % Between chunk green tones
-ce = [51, 0, 77]/255;
+c1 = [214, 153, 255]/255;   % Between chunk Fuscia tones
+ce = [61, 0, 102]/255;
 for rgb = 1:3
     tempcol(rgb , :) = linspace(c1(rgb),ce(rgb) , 6);
 end
@@ -435,6 +435,7 @@ switch what
         out = [];
     case 'IPI'
         structNumb = [1 2];
+        out = [];
         %         plotfcn = input('nanmean or nanmean?' , 's');
         %% IPIs vs horizon
         % this is the output of the case: 'transitions_All' that is saved to disc
@@ -587,8 +588,6 @@ switch what
                 close(h1)
                 hoz = max(ipitable.Horizon);
                 figure('color' , 'white');
-                subplot(311)
-                
                 for d = 1:length(dayz)
                     hold on
                     xtick = [];
@@ -599,26 +598,33 @@ switch what
                         xtick = [xtick ; chp*(hz+1)+xcoords{d ,chp+1}];
                     end
                 end
-                set(gca,'FontSize' , 20, 'XTick' , xtick,'GridAlpha' , .2 , 'Box' , 'off','YGrid' , 'on','XTickLabel' , repmat([1:hz] , 1,chp));
-                xlabel('Viewing Window')
-                subplot(312)
+                set(gca,'FontSize' , 18, 'XTick' , xtick,'GridAlpha' , .2 , 'Box' , 'off','YGrid' , 'on','XTickLabel' , ...
+                    repmat({'1' '2' '3' '4' '5-13'} , 1,chp) , 'YLim' , [250 550] , 'YTick' , [300 400 500],...
+                    'YTickLabel' , [0.3 0.4 0.5]);
+                xlabel('IPI Type (sub-catagory Viewing Window 1,2,3,4,5-13)' ,'FontSize' , 20)
+                ylabel('Sec','FontSize' , 20)
+                title('Learning Effect as a Function of Inter-Press-Interval Placement Within the Sequence' ,'FontSize' , 24)
                 
+                figure('color' , 'white');
                 hold on
                 d = length(dayz);
                 for  chp = 0:2
                     xtick = [];
                     for hz=  1:length(unique(ipitable.Horizon))
-                        h1 = plotshade((hz-1)*(d+1)+xcoordshz{hz ,chp+1}',PLOTshz{hz,chp+1},ERRORshz{hz,chp+1},'transp' , .5 , 'patchcolor' , colIPI{d,chp+1} , 'linecolor' , colIPI{d,chp+1} , 'linewidth' , 3);
-                        plot((hz-1)*(d+1)+xcoordshz{hz ,chp+1},PLOTshz{hz,chp+1} , 'o' , 'MarkerSize' , 10 , 'color' , colIPI{d,chp+1},'MarkerFaceColor',colIPI{d,chp+1});
+                        h1 = plotshade((hz-1)*(d+1)+xcoordshz{hz ,chp+1}',PLOTshz{hz,chp+1},ERRORshz{hz,chp+1},'transp' , .5 , 'patchcolor' , colIPI{4,chp+1} , 'linecolor' , colIPI{4,chp+1} , 'linewidth' , 3);
+                        plot((hz-1)*(d+1)+xcoordshz{hz ,chp+1},PLOTshz{hz,chp+1} , 'o' , 'MarkerSize' , 10 , 'color' , colIPI{4,chp+1},'MarkerFaceColor',colIPI{4,chp+1});
                         xtick = [xtick ; (hz-1)*(d+1)+xcoordshz{hz ,chp+1}];
                     end
                 end
-                set(gca,'FontSize' , 20, 'XTick' , xtick,'GridAlpha' , .2 , 'Box' , 'off','YGrid' , 'on','XTickLabel' , repmat([1:d] , 1,hz-1));
-                xlabel('Training Sessions')
+                set(gca,'FontSize' , 20, 'XTick' , xtick,'GridAlpha' , .2 , 'Box' , 'off','YGrid' , 'on','XTickLabel' ,...
+                    repmat([1:d] , 1 , chp+1), 'YLim' , [250 550] , 'YTick' , [300 400 500],...
+                    'YTickLabel' , [0.3 0.4 0.5]);
+                title('Learning Effect as a Function of Inter-Press-Interval Placement Within the Sequence' ,'FontSize' , 24)
+                ylabel('Sec','FontSize' , 20)
+                xlabel('Viewing Window 1,2,3,4,5-13 (sub-catagory days)','FontSize' , 20)
                 
-                subplot(313)
+                figure('color' , 'white');
                 d = length(dayz);
-                
                 hold on
                 for d=  1:length(dayz)
                     xtick = [];
@@ -628,8 +634,12 @@ switch what
                         xtick = [xtick ; (hz-1)*3+xcoordsch{hz ,d}];
                     end
                 end
-                set(gca,'FontSize' , 20, 'XLim' , [-1 (hz-1)*3+2] , 'XTick' , xtick,'GridAlpha' , .2 , 'Box' , 'off','YGrid' , 'on','XTickLabel' , repmat({'R' , 'S_W' , 'S_B'} , 1,hz-1));
-                xlabel('IPI Type')
+                set(gca,'FontSize' , 20, 'XLim' , [-1 (hz-1)*3+2] , 'XTick' , xtick,'GridAlpha' , .2 , 'Box' , 'off','YGrid' , 'on','XTickLabel' , ...
+                    repmat({'R' , 'S_W' , 'S_B'} , 1,hz-1),'YLim' , [250 550] , 'YTick' , [300 400 500],...
+                    'YTickLabel' , [0.3 0.4 0.5]);
+                title('Learning Effect as a Function of Inter-Press-Interval Placement Within the Sequence' ,'FontSize' , 24)
+                ylabel('Sec','FontSize' , 20)
+                xlabel('Viewing Window 1,2,3,4,5-13 ((sub-catagory IPI Type)','FontSize' , 20)
         end
     case 'RT'
         ANA = getrow(Dall , ismember(Dall.SN , subjnum) & Dall.isgood & ismember(Dall.seqNumb , [0 1 2]) & ~Dall.isError);
@@ -1469,7 +1479,6 @@ switch what
                 hold on
                 xlabel('Training session')
                 title('b3 Coefficient')
-                
             case 'testCoef'
                 x = [1:10];
                 b1 = 6;
