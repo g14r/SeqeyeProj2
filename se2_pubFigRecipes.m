@@ -23,6 +23,7 @@ out  = se2_pubFigs(Dall , 'MT_asymptote','Actual&fit%ChangeDay2Day', 'poolDays' 
 
 out  = se2_pubFigs(Dall , 'MT_asymptote','Actual&fit%ChangeSeqType', 'poolDays' , 0, 'MaxIter' , 50);
 out  = se2_pubFigs(Dall , 'MT_asymptote','plotCoef', 'poolDays' , 0, 'MaxIter' , 50);
+out  = se2_pubFigs(Dall , 'IPI_asymptote','plotCoef', 'poolDays' , 0, 'MaxIter' , 50);
 
 
 out  = se2_pubFigs(Dall , 'IPI','IPIFullDispHeat', 'poolDays' , 0);
@@ -51,8 +52,17 @@ for s = 1:length(S)
     hpval{s}( hpval{s}~=1) = 0;
 end
 %% IPI seg test
-se2_SigTest(Dall , 'IPI' , 'seqNumb' , [0:2] , 'Day' , [1  5] , 'Horizon' , [1],...
-     'PoolDays' , 1,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
-     'PoolHorizons' , []);
- 
+clear hpval
+horz = {[1] [2] [3] [4] [5] [6:13]};
+for h = length(horz)
+    for ch = 0:2
+        for d  = 2:5
+            stats = se2_SigTest(Dall , 'IPI' , 'seqNumb' , [0:2] , 'Day' , [1 d] , 'Horizon' , [horz{h}],...
+                'PoolDays' , 0,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
+                'PoolHorizons' , [6:13],'ipiOfInterest' , ch , 'poolIPIs' , 0);
+            hpval{ch+1}(d,h) = stats.eff(2).p;
+            close all
+        end
+    end
+end
  %% b = []

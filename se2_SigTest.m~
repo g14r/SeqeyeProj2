@@ -2,7 +2,7 @@ function stats = se2_SigTest(Dall , what , varargin)
 
 c=  1;
 PoolSequences = 0;
-PoolDays = 1;
+PoolDays = 1; 
 PoolHorizons = [];
 while(c<=length(varargin))
     switch(varargin{c})
@@ -35,15 +35,10 @@ while(c<=length(varargin))
             eval([varargin{c} '= varargin{c+1};']);
             c=c+2;
         case {'ipiOfInterest'}
-            % in the case of 'ipiOfInterest' IPI of interest to test --> Steady State =[4:10]
-            % in the case of 'compareLearning' 0 1 2
+            % IPI of interest to test --> Steady State =[4:10]
             eval([varargin{c} '= varargin{c+1};']);
             c=c+2;
-        case {'poolIPIs'}
-            % in the case of 'compareLearning'
-            % 'Pool [Random and Between (1)] , [within and between (2) , [nothing (0)]]
-            eval([varargin{c} '= varargin{c+1};']);
-            c=c+2;
+            ipiOfInterest
         otherwise
             error(sprintf('Unknown option: %s',varargin{c}));
     end
@@ -78,7 +73,7 @@ switch what
             eval(['var = [var ANA.',FCTR{f},'];']);
         end
         stats = anovaMixed(ANA.MT  , ANA.SN ,'within',var ,FCTR,'intercept',1) ;
-        %         anovan(ANA.MT,var,'model','interaction','varnames',FCTR)  % between subject
+%         anovan(ANA.MT,var,'model','interaction','varnames',FCTR)  % between subject
         figure('color' , 'white')
         lineplot(var, ANA.MT , 'style_shade' , 'markertype' , 'o'  , ...
             'markersize' , 10 , 'markerfill' , 'w');
@@ -119,12 +114,12 @@ switch what
                 index = fliplr([reshape(ipiNum , numel(ipiNum) , 1) reshape(H, numel(H) , 1)]);
                 data  = reshape(ANA1.IPI , numel(ANA1.IPI) , 1);
                 lineplot(index , data , 'style_shade');
-                hold on
+                hold on 
                 midPlaces = [3.1 : 5.2:3.1+8*5.2];
                 for m = 1:length(midPlaces)
                     line([midPlaces(m) midPlaces(m)],[min(min(ANA1.IPI)) max(max(ANA1.IPI))] , 'color' , 'k')
                 end
-                
+
                 ipiss = ANA.IPI(:,4:10);
                 ipibeg = ANA.IPI(:,ipiOfInterest);
                 
@@ -189,7 +184,7 @@ switch what
                         A(A~=2 & A~=1) = 0;
                         imagesc(A)
                         title([SN{sn} , ' on ' , Days{d}])
-                        hold on
+                        hold on 
                         for h = .5:1:11.5
                             line([h+1 h+1], [.5 9.5] , 'color' , 'k' , 'LineWidth' , 2);
                         end
@@ -207,8 +202,8 @@ switch what
             case 'WithBetRand'
                 ipiss = ANA.IPI(:,4:10);
                 FCTR = FCTR(~strcmp(FCTR,'seqNumb'));
-                nn= ipiOfInterest;
-                mm= poolIPIs;
+                nn= input('What IPIs to include?(0 random, 1 between, 2 within)');
+                mm= input('Pool [Random and Between (1)] , [within and between (2) , [nothing (0)]]?');
                 ipiLab = {'Random' , 'Between','Within'};
                 ipiLab = ipiLab(nn+1);
                 L = ipiLab{1};
@@ -228,7 +223,6 @@ switch what
                 A.seqNumb = repmat(ANA.seqNumb , size(ipiss , 2) , 1);
                 A.SN = repmat(ANA.SN , size(ipiss , 2) , 1);
                 A = getrow(A , ismember(A.IPIArr , nn));
-                %% sig test on the IPIs
                 var = [];
                 for f = 1:length(FCTR)
                     eval(['var = [var A.',FCTR{f},'];']);
@@ -237,28 +231,10 @@ switch what
                     var = [A.IPIArr var];
                     FCTR = [L FCTR];
                 end
+                B = tapply(A , {'Horizon' , 'Day' ,'SN' , 'seqNumb','IPIArr'} , {'IPI' , 'nanmean(x)'});
                 stats = anovaMixed(A.IPI  , A.SN ,'within',var ,FCTR,'intercept',1) ;
-                %% sig test on the median IPIs
-%                 B = tapply(A , {'Horizon' , 'Day' ,'SN' , 'seqNumb','IPIArr'} , {'IPI' , 'nanmedian(x)'});
-%                 var = [];
-%                 for f = 1:length(FCTR)
-%                     eval(['var = [var B.',FCTR{f},'];']);
-%                 end
-%                 if length(ipiLab)>1
-%                     var = [B.IPIArr var];
-%                     FCTR = [L FCTR];
-%                 end
-%                 stats = anovaMixed(B.IPI  , B.SN ,'within',var ,FCTR,'intercept',1) ;
-                %%
-                
-                var = [];
-                for f = 1:length(FCTR)
-                    eval(['var = [var A.',FCTR{f},'];']);
-                end
-                if length(ipiLab)>1
-                    var = [A.IPIArr var];
-                    FCTR = [L FCTR];
-                end
+                stats = anovaMixed(A.IPI  , A.SN ,'within',var ,FCTR,'intercept',1) ;
+%                 anovan(A.IPI,var,'model','interaction','varnames',FCTR)  % between subject
                 figure('color' , 'white')
                 lineplot(var, A.IPI , 'style_shade' , 'markertype' , 'o'  , ...
                     'markersize' , 10 , 'markerfill' , 'w');
