@@ -322,22 +322,20 @@ switch what
         ylabel('Viewing Window Size', 'FontSize' , 21)
     case 'PerSubjMTLearning'
         if PoolDays
-            dayz = {[2] [5]};
+            dayz = {[1] [2 3] [4 5]}
         else
-            dayz = {[2] , [3] , [4] , [5]};
-        end
-        horz = {[1] [2] [3] [4] [5] [6:13] }
-        clear pval effHorz hval stats Learn
+            dayz = {[1] , [2] }
+        clear pval effHorz hval stats
         % subject specific learning
         seqN = {[0] , [1 2]};
         allcount = 1;
         for sn = 1:13
             for sq = 1:length(seqN)
-                for h = 1:length(horz)
-                    for d  = 1:length(dayz)
-                        stats = se2_SigTest(Dall , 'MT' , 'seqNumb' , seqN{sq} , 'Day' , [1,dayz{d}] , 'Horizon' , horz{h},...
+                for h = [1:8 , 13]
+                    for d  = [2:5]
+                        stats = se2_SigTest(Dall , 'MT' , 'seqNumb' , seqN{sq} , 'Day' , [1,d] , 'Horizon' , [h],...
                             'PoolDays' , 0,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
-                            'PoolHorizons' , [6:13],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , [sn]);
+                            'PoolHorizons' , [],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , [sn]);
                         Learn.sq(allcount , 1) = sq;
                         Learn.SN(allcount , 1) = sn;
                         Learn.Horizon(allcount , 1) = h;
@@ -353,7 +351,7 @@ switch what
         
         for sq = 1:length(seqN)
             figure('color' , 'white')
-            barplot([ Learn.Horizon Learn.Day] ,Learn.isSig , 'subset' , Learn.sq == sq  ,'plotfcn' , 'sum','style_rainbow');% , 'split' , Learn.Day);
+            barplot([Learn.Horizon Learn.Day] ,Learn.isSig , 'subset' , Learn.sq == sq  ,'plotfcn' , 'sum','style_rainbow');% , 'split' , Learn.Day);
             set(gca , 'FontSize' , 18 , 'YLim' , [1 13] , 'YTick' , [1 :13])
             title('Number of Particpnats (N) Showing Significant Learning Effect in Different Viewing Window Sizes and Sessions' , 'FontSize' , 24)
             ylabel('N', 'FontSize' , 21)

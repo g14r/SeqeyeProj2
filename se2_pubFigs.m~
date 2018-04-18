@@ -1408,12 +1408,12 @@ switch what
                     subplot(2,length(dayz),d)
                     hold on
                     for sn = 1
+                        h1 = plotshade(coo_pred{sn+1}(:,d)',plot_pred{sn+1}(:,d)',err_pred{sn+1}(:,d)','transp' , .5 , 'patchcolor' , .5*colz{d,sn+1} , 'linecolor' , .5*colz{d,sn+1} , 'linewidth' , 3);
+                        plot(coo_pred{sn+1}(:,d)',plot_pred{sn+1}(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , .5*colz{d,sn+1},'MarkerFaceColor',.5*colz{d,sn+1});
+                        
                         h1 = plotshade(coo{sn+1}(:,d)',Plot{sn+1}(:,d)',err{sn+1}(:,d)','transp' , .5 , 'patchcolor' , colz{d,sn+1} , 'linecolor' , colz{d,sn+1} , 'linewidth' , 3);
                         plot(coo{sn+1}(:,d)',Plot{sn+1}(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , colz{d,sn+1},'MarkerFaceColor',colz{d,sn+1});
-                        
-                        h1 = plotshade(coo_pred{sn+1}(:,d)',plot_pred{sn+1}(:,d)',err_pred{sn+1}(:,d)','transp' , .5 , 'patchcolor' , .2*colz{d,sn+1} , 'linecolor' , .2*colz{d,sn+1} , 'linewidth' , 3);
-                        plot(coo_pred{sn+1}(:,d)',plot_pred{sn+1}(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , .2*colz{d,sn+1},'MarkerFaceColor',.2*colz{d,sn+1});
-                    end
+                     end
                     set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
                         'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 13], 'YLim' , [2000 8000],'YTick' ,...
                         [3000 4000 5000 6000] , 'YTickLabels' , [3 4 5 6] , 'YGrid' , 'on');
@@ -1427,11 +1427,11 @@ switch what
                     subplot(2,length(dayz),length(dayz)+d)
                     hold on
                     for sn = 0
+                        h1 = plotshade(coo_pred{sn+1}(:,d)',plot_pred{sn+1}(:,d)',err_pred{sn+1}(:,d)','transp' , .5 , 'patchcolor' , .5*colz{d,sn+1} , 'linecolor' , .5*colz{d,sn+1} , 'linewidth' , 3);
+                        plot(coo_pred{sn+1}(:,d)',plot_pred{sn+1}(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , .5*colz{d,sn+1},'MarkerFaceColor',.5*colz{d,sn+1});
+                        
                         h1 = plotshade(coo{sn+1}(:,d)',Plot{sn+1}(:,d)',err{sn+1}(:,d)','transp' , .5 , 'patchcolor' , colz{d,sn+1} , 'linecolor' , colz{d,sn+1} , 'linewidth' , 3);
                         plot(coo{sn+1}(:,d)',Plot{sn+1}(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , colz{d,sn+1},'MarkerFaceColor',colz{d,sn+1});
-                        
-                        h1 = plotshade(coo_pred{sn+1}(:,d)',plot_pred{sn+1}(:,d)',err_pred{sn+1}(:,d)','transp' , .5 , 'patchcolor' , .2*colz{d,sn+1} , 'linecolor' , .2*colz{d,sn+1} , 'linewidth' , 3);
-                        plot(coo_pred{sn+1}(:,d)',plot_pred{sn+1}(:,d)' , 'o' , 'MarkerSize' , 10 , 'color' , .2*colz{d,sn+1},'MarkerFaceColor',.2*colz{d,sn+1});
                     end
                     set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
                         'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 13], 'YLim' , [2000 8000],'YTick' ,...

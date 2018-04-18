@@ -23,6 +23,7 @@ out  = se2_pubFigs(Dall , 'MT_asymptote','Actual&fit%ChangeDay2Day', 'poolDays' 
 out  = se2_pubFigs(Dall , 'MT_asymptote','Actual&fit%ChangeSeqType', 'poolDays' , 0, 'MaxIter' , 50);
 out  = se2_pubFigs(Dall , 'MT_asymptote','plotCoef', 'poolDays' , 0, 'MaxIter' , 150);
 
+
 out  = se2_pubFigs(Dall , 'IPI_asymptote','Actual&fitHorz', 'poolDays' , 0, 'MaxIter' , 150);
 out  = se2_pubFigs(Dall , 'IPI_asymptote','plotCoef', 'poolDays' , 0, 'MaxIter' , 200);
 
@@ -67,42 +68,26 @@ for h = [1:8,13]
 end
 pval = hpval;
 pval(pval>0.05) = NaN;
-%% single subject sig test
-clear pval effHorz
-seqN = {[0] , [1 2]};
-allcount = 1;
-for sn = 1:13
-    dcount = 1;
-    for d  = [1,5]
-        for sq = 1:length(seqN)
-            effHorz.Day(allcount,1) = d;
-            effHorz.SN(allcount,1) = sn;
-            effHorz.sq(allcount,1) = sq;
-            for h = [1:8]
-                stats = se2_SigTest(Dall , 'MT' , 'seqNumb' , seqN{sq} , 'Day' , d , 'Horizon' , [h:13],...
-                    'PoolDays' , 0,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
-                    'PoolHorizons' , [],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , sn);
-                pval{sq}(sn,h,dcount) = stats(1);
-                close all
-            end
-            temp = squeeze(pval{sq}(sn,:,dcount));
-            effHorz.effH(allcount,1) = find(temp>0.05 ,1 , 'first');
-            allcount = allcount+1;
-        end
-        dcount = dcount+1;
-    end
-end
+%%
+stats = se2_SigTest(Dall , 'MT' , 'seqNumb' , [0] , 'Day' , [1,5] , 'Horizon' , [1],...
+    'PoolDays' , 0,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
+    'PoolHorizons' , [],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , [1:13]);
+%%
 
-figure('color' , 'white')
-barplot([effHorz.Day effHorz.sq] ,effHorz.effH);
-set(gca , 'FontSize' , 18 , 'YLim' , [1 4] , 'YTick' , [1 2 3 4])
-title('The Effective Window Size Grows Significantly from First to Last Day in Random Sequences' , 'FontSize' , 24)
-ylabel('Viewing Window Size', 'FontSize' , 21)
+%%
+
+stats = se2_SigTest(Dall , 'IPI' , 'seqNumb' , [0:2] , 'Day' , [1,5] , 'Horizon' , [1],...
+    'PoolDays' , 0,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
+    'PoolHorizons' , [],'ipiOfInterest' , [1] , 'poolIPIs' , 0 , 'subjnum' , [1:13]);
 
 
-        
-        
-        
+stats = se2_SigTest(Dall , 'PerSubjMTHorz' , 'seqNumb' , [0:2] , 'Day' , [1,5] , 'Horizon' , [1],...
+    'PoolDays' , 0,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
+    'PoolHorizons' , [],'ipiOfInterest' , [1] , 'poolIPIs' , 0 , 'subjnum' , [1:13]);
+
+
+
+out  = se2_pubFigs(Dall , 'MT_asymptote','', 'poolDays' , 0, 'MaxIter' , 150);
         
         
         
