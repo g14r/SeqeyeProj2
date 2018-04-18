@@ -97,7 +97,7 @@ figure('color' , 'white')
 barplot([effHorz.Day effHorz.sq] ,effHorz.effH);
 set(gca , 'FontSize' , 18 , 'YLim' , [1 4] , 'YTick' , [1 2 3 4])
 title('The Effective Window Size Grows Significantly from First to Last Day in Random Sequences' , 'FontSize' , 24)
-ylabel('Viewing Window Size', 'FontSize' , 21)
+X
 
 
         

@@ -4,6 +4,7 @@ c=  1;
 PoolSequences = 0;
 PoolDays = 1;
 PoolHorizons = [];
+subjnum = [1:13];
 while(c<=length(varargin))
     switch(varargin{c})
         case {'seqNumb'}
@@ -44,6 +45,9 @@ while(c<=length(varargin))
             % 'Pool [Random and Between (1)] , [within and between (2) , [nothing (0)]]
             eval([varargin{c} '= varargin{c+1};']);
             c=c+2;
+        case {'subjnum'}
+            eval([varargin{c} '= varargin{c+1};']);
+            c=c+2;
         otherwise
             error(sprintf('Unknown option: %s',varargin{c}));
     end
@@ -51,7 +55,7 @@ end
 
 ANA = getrow(Dall , Dall.isgood & ~Dall.isError & ...
     ismember(Dall.Horizon , Horizon) & ...
-    ismember(Dall.Day , Day) & ismember(Dall.seqNumb , seqNumb));
+    ismember(Dall.Day , Day) & ismember(Dall.seqNumb , seqNumb) &ismember(Dall.SN , subjnum));
 ANA.RT = ANA.AllPressTimes(:,1);
 ANA.seqNumb(ANA.seqNumb>1) = 1;
 if PoolSequences
@@ -77,20 +81,24 @@ switch what
         for f = 1:length(FCTR)
             eval(['var = [var ANA.',FCTR{f},'];']);
         end
-        stats = anovaMixed(ANA.MT  , ANA.SN ,'within',var ,FCTR,'intercept',1) ;
-        %         anovan(ANA.MT,var,'model','interaction','varnames',FCTR)  % between subject
-        figure('color' , 'white')
-        lineplot(var, ANA.MT , 'style_shade' , 'markertype' , 'o'  , ...
-            'markersize' , 10 , 'markerfill' , 'w');
-        tAdd = FCTR{1};
-        for f =2:length(FCTR)
-            tAdd = [tAdd , ' and ' , FCTR{f}];
+        if length(subjnum) == 1
+            stats = anovan(ANA.MT,var,'model','interaction','varnames',FCTR , 'display' , 'off') ; % between subject;
+        else
+            stats = anovaMixed(ANA.MT  , ANA.SN ,'within',var ,FCTR,'intercept',1) ;
         end
-        title(['Effect of ' , tAdd ,' on Execution Time']);
-        grid on
-        set(gca , 'FontSize' , 20 , 'Box' , 'off')
-        xlabel(FCTR{end})
-        ylabel('msec')
+        subjnum
+%         figure('color' , 'white')
+%         lineplot(var, ANA.MT , 'style_shade' , 'markertype' , 'o'  , ...
+%             'markersize' , 10 , 'markerfill' , 'w');
+%         tAdd = FCTR{1};
+%         for f =2:length(FCTR)
+%             tAdd = [tAdd , ' and ' , FCTR{f}];
+%         end
+%         title(['Effect of ' , tAdd ,' on Execution Time']);
+%         grid on
+%         set(gca , 'FontSize' , 20 , 'Box' , 'off')
+%         xlabel(FCTR{end})
+%         ylabel('msec')
     case 'IPI'
         switch whatIPI
             case 'ipiOfInterest'
