@@ -4,7 +4,7 @@ out  = se2_pubFigs(Dall , 'MT','RandvsStructCommpare');
 out  = se2_pubFigs(Dall , 'MT','RandStructAcrossDays' , 'poolDays' , 0); 
 out  = se2_pubFigs(Dall , 'MT','compareLearning' , 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'MT','LearningEffectShade' , 'poolDays' , 0);
-
+out  = se2_pubFigs(Dall , 'MT','BoxFirstLastDays' , 'poolDays' , 0);
 
 
 out  = se2_pubFigs(Dall , 'RT','RandvsStructCommpare','poolDays' , 1); 
@@ -69,7 +69,7 @@ end
 pval = hpval;
 pval(pval>0.05) = NaN;
 %%
-stats = se2_SigTest(Dall , 'MT' , 'seqNumb' , [0] , 'Day' , [1,5] , 'Horizon' , [1],...
+stats = se2_SigTest(Dall , 'MT' , 'seqNumb' , [0] , 'Day' , [1:5] , 'Horizon' , [1:8 , 13],...
     'PoolDays' , 0,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
     'PoolHorizons' , [],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , [1:13]);
 %%
@@ -78,8 +78,8 @@ stats = se2_SigTest(Dall , 'MT' , 'seqNumb' , [0] , 'Day' , [1,5] , 'Horizon' , 
 
 stats = se2_SigTest(Dall , 'IPI' , 'seqNumb' , [0:2] , 'Day' , [1,5] , 'Horizon' , [1],...
     'PoolDays' , 0,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
-    'PoolHorizons' , [],'ipiOfInterest' , [1] , 'poolIPIs' , 0 , 'subjnum' , [1:13]);
-
+    'PoolHorizons' , [],'ipiOfInterest' , [0] , 'poolIPIs' , 0 , 'subjnum' , [1:13]);
+%%
 
 stats = se2_SigTest(Dall , 'PerSubjMTHorz' , 'seqNumb' , [0:2] , 'Day' , [1,5] , 'Horizon' , [1],...
     'PoolDays' , 0,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
