@@ -259,14 +259,14 @@ switch what
                 %                 stats = anovaMixed(B.IPI  , B.SN ,'within',var ,FCTR,'intercept',1) ;
                 %%
                 
-                var = [];
-                for f = 1:length(FCTR)
-                    eval(['var = [var A.',FCTR{f},'];']);
-                end
-                if length(ipiLab)>1
-                    var = [A.IPIArr var];
-                    FCTR = [L FCTR];
-                end
+%                 var = [];
+%                 for f = 1:length(FCTR)
+%                     eval(['var = [var A.',FCTR{f},'];']);
+%                 end
+%                 if length(ipiLab)>1
+%                     var = [A.IPIArr var];
+%                     FCTR = [L FCTR];
+%                 end
                 figure('color' , 'white')
                 lineplot(var, A.IPI , 'style_shade' , 'markertype' , 'o'  , ...
                     'markersize' , 10 , 'markerfill' , 'w');
