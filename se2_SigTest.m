@@ -359,16 +359,20 @@ switch what
             ylabel('N', 'FontSize' , 21)
         end
     case 'PercentseqType'
+        
         dayz = unique(ANA.Day);
         D = ANA;
-        ANA  = tapply(D , [FCTR , 'SN'] , {'MT' , 'nanmean(x)'});
+        ANA  = tapply(D , {'Horizon' , 'Day' ,'SN' , 'seqNumb'} , {'MT' , 'nanmean(x)'});
         ANA.percChangeMT = zeros(length(ANA.MT),length(dayz)-1);
         Seqbenefit = [];
         for d = 1:length(dayz)
-            Db1= getrow(ANA , ismember(ANA.Day , d) & ANA.seqNumb == 1);
-            Db = getrow(ANA , ismember(ANA.Day , d) & ANA.seqNumb == 0);
+            Db1= getrow(ANA , ismember(ANA.Day , dayz(d)) & ANA.seqNumb == 1);
+            Db = getrow(ANA , ismember(ANA.Day , dayz(d)) & ANA.seqNumb == 0);
             Db1.percChangeMT = 100*abs((Db.MT - Db1.MT)./Db.MT);
             Seqbenefit = addstruct(Seqbenefit , Db1);
+        end
+        if ~isempty(find(ismember(FCTR  , 'seqNumb')))
+            FCTR = FCTR(~ismember(FCTR  , 'seqNumb'));
         end
         var = [];
         for f = 1:length(FCTR)
