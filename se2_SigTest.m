@@ -348,7 +348,7 @@ switch what
                 end
             end
         end
-%         Learn = tapply(Learn , {'sq' , 'Horizon' , 'Day'} , {'isSig' , 'sum'});
+        %         Learn = tapply(Learn , {'sq' , 'Horizon' , 'Day'} , {'isSig' , 'sum'});
         
         
         for sq = 1:length(seqN)
@@ -358,5 +358,31 @@ switch what
             title('Number of Particpnats (N) Showing Significant Learning Effect in Different Viewing Window Sizes and Sessions' , 'FontSize' , 24)
             ylabel('N', 'FontSize' , 21)
         end
+    case 'PercentseqType'
+        dayz = unique(ANA.Day);
+        D = ANA;
+        ANA  = tapply(D , [FCTR , 'SN'] , {'MT' , 'nanmean(x)'});
+        ANA.percChangeMT = zeros(length(ANA.MT),length(dayz)-1);
+        Seqbenefit = [];
+        for d = 1:length(dayz)
+            Db1= getrow(ANA , ismember(ANA.Day , d) & ANA.seqNumb == 1);
+            Db = getrow(ANA , ismember(ANA.Day , d) & ANA.seqNumb == 0);
+            Db1.percChangeMT = 100*abs((Db.MT - Db1.MT)./Db.MT);
+            Seqbenefit = addstruct(Seqbenefit , Db1);
+        end
+        var = [];
+        for f = 1:length(FCTR)
+            eval(['var = [var Seqbenefit.',FCTR{f},'];']);
+        end
+        if length(subjnum) == 1
+            stats = anovan(Seqbenefit.percChangeMT,var,'model','interaction','varnames',FCTR , 'display' , 'off') ; % between subject;
+        else
+            stats = anovaMixed(Seqbenefit.percChangeMT  , Seqbenefit.SN ,'within',var ,FCTR,'intercept',1) ;
+        end
+        h1 = figure;
+        hold on
+        lineplot(var , Seqbenefit.percChangeMT , 'style_shade' , 'markertype' , 'o'  , ...
+                     'markersize' , 10 , 'markerfill' , 'w');
+        
 
 end

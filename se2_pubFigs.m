@@ -1251,21 +1251,20 @@ switch what
                 close(h1)
                 
                 figure('color' , 'white')
-                subplot(211)
                 hold on
                 for d = 1:length(dayz)
                     plotshade([1:length(unique(Seqbenefit.Horizon))],plot_red{d},err_red{d},'transp' , .6 , 'patchcolor' , avgCol{2*d} , 'linecolor' , avgCol{2*d} , 'linewidth' , 3);
                     plot([1:length(unique(Seqbenefit.Horizon))],plot_red{d}, '-o' , 'MarkerSize' , 15 , 'color' , avgCol{2*d},'MarkerFaceColor',avgCol{2*d} , 'LineWidth' , 4);
                 end
-                set(gca,'FontSize' , 20 , 'XTick' , [1:i*length(dayz)] , ...
+                set(gca,'FontSize' , 18 , 'XTick' , [1:i*length(dayz)] , ...
                     'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 length(unique(Seqbenefit.Horizon))], 'YLim' , [0 15],'YTick' ,...
                     [5 10 15] , 'YGrid' , 'on',...
-                    'XTick' , [1:length(unique(Seqbenefit.Horizon))] , 'XTickLabels' , {'1' , '2' , '3' , '4',  '5-13'});
-                ylabel('%','FontSize' , 22 )
-                xlabel('Viewing Window Size','FontSize' , 22)
-                title('Relative Percent Performance Improvement in Structured Sequencs Compared to Random','FontSize' , 28)
+                    'XTick' , [1:length(unique(Seqbenefit.Horizon))] , 'XTickLabels' , {'1' , '2' , '3' , '4', '5' , '6-13'});
+                ylabel('%','FontSize' , 21 )
+                xlabel('Viewing Window Size','FontSize' , 21)
+                title('Relative Percent Performance Improvement in Structured Sequencs Compared to Random','FontSize' , 24)
                 
-                subplot(212)
+                figure('color' , 'white')
                 hold on
                 for d = 1:length(dayz)
                     plotshade([1:length(unique(Seqbenefit.Horizon))],plot_pred_red{d},err_pred_red{d},'transp' , .6 , 'patchcolor' , avgCol{2*d} , 'linecolor' , avgCol{2*d} , 'linewidth' , 3);

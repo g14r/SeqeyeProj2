@@ -83,6 +83,13 @@ stats = se2_SigTest(Dall , 'PerSubjMTHorz' , 'seqNumb' , [0:2] , 'Day' , [1,5] ,
     'PoolDays' , 0,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
     'PoolHorizons' , [],'ipiOfInterest' , [1] , 'poolIPIs' , 0 , 'subjnum' , [1:13]);
 
+%% 
+stats = se2_SigTest(Dall , 'PercentseqType' , 'seqNumb' , [0:2] , 'Day' , [1:5] , 'Horizon' , [1:2],...
+    'PoolDays' , 0,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
+    'PoolHorizons' , [],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , [1:13]);
+
+
+%%
 
 
 out  = se2_pubFigs(Dall , 'MT_asymptote','', 'poolDays' , 0, 'MaxIter' , 150);
