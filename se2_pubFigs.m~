@@ -1625,12 +1625,12 @@ switch what
             end
         end
         IPIs_Pred = tapply(IPIs , {'Horizon' , 'Day' ,'SN' , 'ChunkBndry'} , {'IPI_pred' , 'nanmean(x)'} , {'IPI' , 'nanmean(x)'});
-        IPIs_Pred = normData(IPIs_Pred , {'IPI' , 'IPI_pred'});
+        IPItable = normData(IPItable , {'IPI' , 'IPI_pred'});
         h0 = figure;
         for d = 1:length(dayz)
             for subjnum = 1:length(subj_name)-1
                 for chp = 0:2
-                    [coo{chp+1}(:,d),Plot{chp+1}(:,d),err{chp+1}(:,d)] = lineplot([IPIs_Pred.Horizon] , IPIs_Pred.normIPI , 'subset' , ismember(IPIs_Pred.ChunkBndry , chp)  & ismember(IPIs_Pred.Day ,d));
+                    [coo{chp+1}(:,d),Plot{chp+1}(:,d),err{chp+1}(:,d)] = lineplot([IPIs.Horizon] , IPIs.normIPI , 'subset' , ismember(IPIs.ChunkBndry , chp)  & ismember(IPIs.Day ,d));
                     [coo_pred{chp+1}(:,d),plot_pred{chp+1}(:,d),err_pred{chp+1}(:,d)] = lineplot([IPIs_Pred.Horizon] , IPIs_Pred.normIPI_pred , 'subset' , ismember(IPIs_Pred.ChunkBndry , chp) & ismember(IPIs_Pred.Day , d));
                 end
             end
@@ -1755,13 +1755,12 @@ switch what
                     Db1.percChangeIPI_pred = 100*abs((Db1.IPI_pred - Db5.IPI_pred)./Db1.IPI_pred);
                     Daybenefit = addstruct(Daybenefit , Db1);
                 end
-                Daybenefit  = tapply(Daybenefit , {'Horizon' , 'Day' ,'SN' , 'ChunkBndry'} , {'percChangeIPI' , 'nanmean(x)'},{'percChangeIPI_pred' ,  'nanmean(x)'});
-                Daybenefit = normData(Daybenefit , {'percChangeIPI' , 'percChangeIPI_pred'});
+                Daybenefit  = tapply(Daybenefit , {'Horizon' , 'Day' ,'SN' , 'ChunkBndry'} , {'percChangeIPI' , 'nanmean(x)'}{'percChangeIPI_pred' , });
                 h1 = figure;
                 hold on
                 for chp = 0:2
                     [coo_red{chp+1},plot_red{chp+1},err_red{chp+1}] = lineplot([Daybenefit.Horizon] , Daybenefit.normpercChangeIPI, 'subset', ismember(Daybenefit.ChunkBndry , chp));
-                    [coo_pred_red{chp+1},plot_pred_red{chp+1},err_pred_red{chp+1}] = lineplot([Daybenefit.Horizon] , Daybenefit.normpercChangeIPI_pred, 'subset', ismember(Daybenefit.ChunkBndry , chp));
+                    [coo_pred_red{chp+1},plot_pred_red{chp+1},err_pred_red{chp+1}] = lineplot([Daybenefit.Horizon] , Daybenefit.percChangeIPI_pred, 'subset', ismember(Daybenefit.ChunkBndry , chp));
                 end
                 close(h1)
                 
@@ -1810,15 +1809,12 @@ switch what
                         Daybenefit = addstruct(Daybenefit , Db);
                     end
                 end
-                
-                Daybenefit  = tapply(Daybenefit , {'Horizon' , 'Day' ,'SN' , 'ChunkBndry'} , {'percChangeIPI' , 'nanmean(x)'},{'percChangeIPI_pred' ,  'nanmean(x)'});
-                Daybenefit = normData(Daybenefit , {'percChangeIPI' , 'percChangeIPI_pred'});
                 h1 = figure;
                 hold on
                 for chp = 0:2
                     for d = 1:length(dayz)-1
-                        [~,plot_red{chp+1}(d,:),err_red{chp+1}(d,:)] = lineplot([Daybenefit.Horizon] , Daybenefit.normpercChangeIPI(:,d), 'subset', ismember(Daybenefit.ChunkBndry , chp) & ismember(Daybenefit.Day , [d+1]));
-                        [~,plot_pred_red{chp+1}(d,:),err_pred_red{chp+1}(d,:)] = lineplot([Daybenefit.Horizon] , Daybenefit.normpercChangeIPI_pred(:,d), 'subset', ismember(Daybenefit.ChunkBndry , chp) & ismember(Daybenefit.Day , [d+1]));
+                        [~,plot_red{chp+1}(d,:),err_red{chp+1}(d,:)] = lineplot([Daybenefit.Horizon] , Daybenefit.percChangeIPI(:,d), 'subset', ismember(Daybenefit.ChunkBndry , chp) & ismember(Daybenefit.Day , [d+1]));
+                        [~,plot_pred_red{chp+1}(d,:),err_pred_red{chp+1}(d,:)] = lineplot([Daybenefit.Horizon] , Daybenefit.percChangeIPI_pred(:,d), 'subset', ismember(Daybenefit.ChunkBndry , chp) & ismember(Daybenefit.Day , [d+1]));
                     end
                 end
                 if poolDays
@@ -1897,9 +1893,6 @@ switch what
                     IPIs.Day(IPIs.Day==3) = 2;
                     IPIs.Day(ismember(IPIs.Day , [4 5])) = 3;
                 end
-                
-                IPIs  = tapply(IPIs , {'Day' ,'SN' , 'ChunkBndry'} , {'b1' , 'nanmean(x)'},{'b2' ,  'nanmean(x)'},{'b3' ,  'nanmean(x)'});
-                IPIs = normData(IPIs , {'b1' , 'b2' , 'b3'});
                 for chp = 0:2
                     [coo_b1{chp+1},plot_b1{chp+1},err_b1{chp+1}] = lineplot([coefs.Day] , coefs.b1 , 'subset' , ismember(coefs.ChunkBndry , [chp]));
                     [coo_b2{chp+1},plot_b2{chp+1},err_b2{chp+1}] = lineplot([coefs.Day] , coefs.b2 , 'subset' , ismember(coefs.ChunkBndry , [chp]));

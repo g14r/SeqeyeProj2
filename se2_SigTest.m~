@@ -446,18 +446,16 @@ switch what
         
         
         %% sig test on the IPIs
-        FCTR = FCTR(~ismember(FCTR  , 'seqNumb'));
-        
-        if length(ipiLab)>1
-            FCTR = [FCTR 'IPIArr'];
-        end
         var = [];
         for f = 1:length(FCTR)
-            eval(['var = [var Daybenefit.',FCTR{f},'];']);
+            eval(['var = [var A.',FCTR{f},'];']);
         end
-
-        
-        stats = anovaMixed(Daybenefit.percChangeIPI  , Daybenefit.SN ,'within',var ,FCTR,'intercept',1) ;
+        if length(ipiLab)>1
+            var = [A.IPIArr var];
+            FCTR = [L FCTR];
+        end
+     
+        stats = anovaMixed(Daybenefit.percChangeIPI  , Daybenefit.IPIArr ,'within',var ,FCTR,'intercept',1) ;
         
 
 end
