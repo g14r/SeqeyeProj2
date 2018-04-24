@@ -31,6 +31,8 @@ out  = se2_pubFigs(Dall , 'IPI_asymptote','plotCoef', 'poolDays' , 0, 'MaxIter' 
 out  = se2_pubFigs(Dall , 'IPI','IPIFullDispHeat', 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'IPI','IPIFullDispShade', 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'IPI','compareLearning', 'poolDays' , 0);
+out  = se2_pubFigs(Dall , 'IPI','compareLearning_histogram', 'poolDays' , 0);
+
 
 out  = se2_pubFigs(Dall , 'test_MT_asymptote','', 'poolDays' , 1);
 
@@ -74,14 +76,14 @@ stats = se2_SigTest(Dall , 'MT' , 'seqNumb' , [1:2] , 'Day' , [1:5] , 'Horizon' 
     'PoolHorizons' , [],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , [1:13]);
 
 %%
-stats = se2_SigTest(Dall , 'IPI' , 'seqNumb' , [0:2] , 'Day' , [1:5] , 'Horizon' , [1],...
+stats = se2_SigTest(Dall , 'IPI' , 'seqNumb' , [0:2] , 'Day' , [1:5] , 'Horizon' , [1:13],...
     'PoolDays' , 0,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
-    'PoolHorizons' , [],'ipiOfInterest' , [0 2] , 'poolIPIs' , 0 , 'subjnum' , [1:13]);
+    'PoolHorizons' , [],'ipiOfInterest' , [0:2] , 'poolIPIs' , 0 , 'subjnum' , [1:13]);
 %%
 
 stats = se2_SigTest(Dall , 'PerSubjMTHorz' , 'seqNumb' , [0:2] , 'Day' , [5] , 'Horizon' , [1:13],...
     'PoolDays' , 0,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
-    'PoolHorizons' , [],'ipiOfInterest' , [0:2] , 'poolIPIs' , 0 , 'subjnum' , [1:13]);
+    'PoolHorizons' , [],'ipiOfInterest' , [0 2] , 'poolIPIs' , 0 , 'subjnum' , [1:13]);
 
 %% 
 stats = se2_SigTest(Dall , 'PercentseqType' , 'seqNumb' , [0:2] , 'Day' , [1:5] , 'Horizon' , [1:13],...

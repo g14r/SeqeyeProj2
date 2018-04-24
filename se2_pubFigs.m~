@@ -384,11 +384,11 @@ switch what
                 ANA.IPI_norm(tn , :) = diff(nIdx(tn ,:) , 1 , 2);
             end
             for tn  = 1:length(ANA.TN)
-                ANA.ChunkBndry(tn , :) = diff(ANA.ChnkArrang(tn,:));
-                a = find(ANA.ChunkBndry(tn , :));
-                ANA.ChunkBndry(tn , a-1) = 3;
-                ANA.ChunkBndry(tn , end) = 3;
-                ANA.ChunkBndry(tn , ANA.ChunkBndry(tn , :) == 0) = 2;
+%                 ANA.ChunkBndry(tn , :) = diff(ANA.ChnkArrang(tn,:));
+%                 a = find(ANA.ChunkBndry(tn , :));
+%                 ANA.ChunkBndry(tn , a-1) = 3;
+%                 ANA.ChunkBndry(tn , end) = 3;
+%                 ANA.ChunkBndry(tn , ANA.ChunkBndry(tn , :) == 0) = 2;
                 ANA.IPI_Horizon(tn , :) = ANA.Horizon(tn)*ones(1,13);
                 ANA.IPI_SN(tn , :) = ANA.SN(tn)*ones(1,13);
                 ANA.IPI_Day(tn , :) = ANA.Day(tn)*ones(1,13);
@@ -491,22 +491,26 @@ switch what
             case 'compareLearning'
                 horz = {[1] [2] [3] [4] [5] [6:13]};
                 hlab = repmat({'1' , '2' , '3' , '4'  , '5' , '6 - 13'} , 1 , length(dayz));
-                ipitable = getrow(IPItable , ismember(IPItable.prsnumb , [4:10]));
-                ipitable.Horizon(ipitable.Horizon>6) = 6;
-                horzcolor = repmat(linspace(0.2,.8 , length(unique(ipitable.Horizon))) , 3,1);
-                %                 ipi  = tapply(ipitable , {'Horizon' , 'Day' ,'SN' , 'ChunkBndry'} , {'IPI' , 'nanmean(x)'});
+                IPIs = getrow(IPItable , ismember(IPItable.prsnumb , [4:10]));
+                IPIs.Horizon(IPIs.Horizon>6) = 6;
+                horzcolor = repmat(linspace(0.2,.8 , length(unique(IPIs.Horizon))) , 3,1);
+                ipitable = [];
+                for h = 1:length(horz)
+                    for d = 1:length(dayz)
+                        for ch = 0:2
+                            T = getrow(IPIs , ismember(IPIs.Horizon , horz{h}) & ismember(IPIs.Day , dayz{d}) & ismember(IPIs.ChunkBndry , ch));
+                            T = normData(T, {'IPI'});
+                            ipitable = addstruct(ipitable , T);
+                        end
+                    end
+                end
+                ipitable = normData(IPIs, {'IPI'});
                 h1 = figure('color' , 'white');
                 hold on
                 for hz=  1:length(unique(ipitable.Horizon))
                     for chp=  0:2
                         hc = 1;
                         [xcoordshz{hz ,chp+1},PLOTshz{hz,chp+1},ERRORshz{hz,chp+1}] = lineplot(ipitable.Day,ipitable.IPI , 'plotfcn' , 'nanmean' , 'subset' , ipitable.ChunkBndry == chp &...
-                            ismember(ipitable.Horizon , horz{hz}));
-                    end
-                end
-                for hz=  1:length(unique(ipitable.Horizon))
-                    for d=  1:length(dayz)
-                        [xcoordsch{hz ,d},PLOTsch{hz,d},ERRORsch{hz,d}] = lineplot(ipitable.ChunkBndry,ipitable.IPI , 'plotfcn' , 'nanmean' , 'subset' , ismember(ipitable.Day , dayz{d}) &...
                             ismember(ipitable.Horizon , horz{hz}));
                     end
                 end
@@ -523,7 +527,6 @@ switch what
                     hold on
                     xtick = [];
                     for chp = 0:2
-                        
                         h1 = plotshade(chp*(hz+1)+xcoords{d ,chp+1}',PLOTs{d,chp+1},ERRORs{d,chp+1},'transp' , .5 , 'patchcolor' , colIPI{d,chp+1} , 'linecolor' , colIPI{d,chp+1} , 'linewidth' , 3);
                         plot(chp*(hz+1)+xcoords{d ,chp+1},PLOTs{d,chp+1} , 'o' , 'MarkerSize' , 10 , 'color' , colIPI{d,chp+1},'MarkerFaceColor',colIPI{d,chp+1});
                         xtick = [xtick ; chp*(hz+1)+xcoords{d ,chp+1}];
@@ -554,23 +557,57 @@ switch what
                 ylabel('Sec','FontSize' , 20)
                 xlabel('Viewing Window 1,2,3,4,5-13 (sub-catagory days)','FontSize' , 20)
                 
-                figure('color' , 'white');
-                d = length(dayz);
-                hold on
-                for d=  1:length(dayz)
-                    xtick = [];
-                    for  hz=  1:length(unique(ipitable.Horizon))
-                        h1 = plotshade((hz-1)*3+xcoordsch{hz ,d}',PLOTsch{hz,d},ERRORsch{hz,d},'transp' , .5 , 'patchcolor' , horzcolor(:,d) , 'linecolor' , horzcolor(:,d) , 'linewidth' , 3);
-                        plot((hz-1)*3+xcoordsch{hz ,d}',PLOTsch{hz,d} , 'o' , 'MarkerSize' , 10 , 'color' , horzcolor(:,d),'MarkerFaceColor',horzcolor(:,d));
-                        xtick = [xtick ; (hz-1)*3+xcoordsch{hz ,d}];
+%                 figure('color' , 'white');
+%                 d = length(dayz);
+%                 hold on
+%                 for d=  1:length(dayz)
+%                     xtick = [];
+%                     for  hz=  1:length(unique(ipitable.Horizon))
+%                         h1 = plotshade((hz-1)*3+xcoordsch{hz ,d}',PLOTsch{hz,d},ERRORsch{hz,d},'transp' , .5 , 'patchcolor' , horzcolor(:,d) , 'linecolor' , horzcolor(:,d) , 'linewidth' , 3);
+%                         plot((hz-1)*3+xcoordsch{hz ,d}',PLOTsch{hz,d} , 'o' , 'MarkerSize' , 10 , 'color' , horzcolor(:,d),'MarkerFaceColor',horzcolor(:,d));
+%                         xtick = [xtick ; (hz-1)*3+xcoordsch{hz ,d}];
+%                     end
+%                 end
+%                 set(gca,'FontSize' , 20, 'XLim' , [-1 (hz-1)*3+2] , 'XTick' , xtick,'GridAlpha' , .2 , 'Box' , 'off','YGrid' , 'on','XTickLabel' , ...
+%                     repmat({'R' , 'S_W' , 'S_B'} , 1,hz-1),'YLim' , [250 550] , 'YTick' , [300 400 500],...
+%                     'YTickLabel' , [0.3 0.4 0.5]);
+%                 title('Learning Effect as a Function of Inter-Press-Interval Placement Within the Sequence' ,'FontSize' , 24)
+%                 ylabel('Sec','FontSize' , 20)
+%                 xlabel('Viewing Window 1,2,3,4,5-13 ((sub-catagory IPI Type)','FontSize' , 20)
+                
+            case 'compareLearning_histogram'
+                horz = {[1] [2] [3] [4] [5] [6:13]};
+                hlab = repmat({'1' , '2' , '3' , '4'  , '5' , '6 - 13'} , 1 , length(dayz));
+                IPIs = getrow(IPItable , ismember(IPItable.prsnumb , [4:10]));
+                IPIs.Horizon(IPIs.Horizon>6) = 6;
+                horzcolor = repmat(linspace(0.2,.8 , length(unique(IPIs.Horizon))) , 3,1);
+                ipitable = [];
+                for h = 1:length(horz)
+                    for d = 1:length(dayz)
+                        for ch = 0:2
+                            T = getrow(IPIs , ismember(IPIs.Horizon , horz{h}) & ismember(IPIs.Day , dayz{d}) & ismember(IPIs.ChunkBndry , ch));
+                            T = normData(T, {'IPI'});
+                            ipitable = addstruct(ipitable , T);
+                        end
                     end
                 end
-                set(gca,'FontSize' , 20, 'XLim' , [-1 (hz-1)*3+2] , 'XTick' , xtick,'GridAlpha' , .2 , 'Box' , 'off','YGrid' , 'on','XTickLabel' , ...
-                    repmat({'R' , 'S_W' , 'S_B'} , 1,hz-1),'YLim' , [250 550] , 'YTick' , [300 400 500],...
-                    'YTickLabel' , [0.3 0.4 0.5]);
-                title('Learning Effect as a Function of Inter-Press-Interval Placement Within the Sequence' ,'FontSize' , 24)
-                ylabel('Sec','FontSize' , 20)
-                xlabel('Viewing Window 1,2,3,4,5-13 ((sub-catagory IPI Type)','FontSize' , 20)
+                ipitable = normData(IPIs, {'IPI'});
+                figure('color' , 'white')
+                fcount = 1;
+                for d = 1:length(dayz)
+                    for h = 1:length(horz)
+                        subplot(length(dayz) , length(horz) , fcount)
+                        hold on
+                        for ch = 0:2
+                            temp = getrow(ipitable , ismember(ipitable.ChunkBndry ,ch) & ismember(ipitable.Horizon , horz{h}) & ismember(ipitable.Day , dayz{d}));
+                            histogram(temp.IPI);
+                            M(ch+1) = nanmean(temp.IPI);
+                        end
+                        legend({'r' , 'b' , 'w'})
+                        fcount = fcount + 1;
+                        title(['H = ' , num2str(h) , 'd = ' , num2str(dayz{d}) , ' ' , num2str(M)])
+                    end
+                end
         end
     case 'RT'
         ANA = getrow(Dall , ismember(Dall.SN , subjnum) & Dall.isgood & ismember(Dall.seqNumb , [0 1 2]) & ~Dall.isError);

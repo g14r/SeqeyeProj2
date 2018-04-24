@@ -100,6 +100,7 @@ switch what
         %         xlabel(FCTR{end})
         %         ylabel('msec')
     case 'IPI'
+
         switch whatIPI
             case 'ipiOfInterest'
                 ipi = ANA.IPI(:,ipiOfInterest);
@@ -224,6 +225,7 @@ switch what
                     L = [L,'/',ipiLab{l}];
                 end
                 A.IPIArr= reshape(ANA.IPIarrangement(:,4:10) , numel(ipiss) , 1);
+                
                 switch mm
                     case{1}
                         A.IPIArr(A.IPIArr==1) = 0;
@@ -267,7 +269,22 @@ switch what
 %                     var = [A.IPIArr var];
 %                     FCTR = [L FCTR];
 %                 end
+                A = normData(A, {'IPI'});
                 figure('color' , 'white')
+                subplot(211)
+                lineplot(var, A.IPI , 'style_shade' , 'markertype' , 'o'  , ...
+                    'markersize' , 10 , 'markerfill' , 'w');
+                tAdd = FCTR{1};
+                for f =2:length(FCTR)
+                    tAdd = [tAdd , ' and ' , FCTR{f}];
+                end
+                title(['Effect of ' , tAdd ,' on Execution Time']);
+                grid on
+                set(gca , 'FontSize' , 20 , 'Box' , 'off')
+                xlabel(FCTR{end})
+                ylabel('msec')
+                A.IPI = A.normIPI;
+                subplot(212)
                 lineplot(var, A.IPI , 'style_shade' , 'markertype' , 'o'  , ...
                     'markersize' , 10 , 'markerfill' , 'w');
                 tAdd = FCTR{1};
