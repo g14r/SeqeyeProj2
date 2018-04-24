@@ -384,11 +384,6 @@ switch what
                 ANA.IPI_norm(tn , :) = diff(nIdx(tn ,:) , 1 , 2);
             end
             for tn  = 1:length(ANA.TN)
-%                 ANA.ChunkBndry(tn , :) = diff(ANA.ChnkArrang(tn,:));
-%                 a = find(ANA.ChunkBndry(tn , :));
-%                 ANA.ChunkBndry(tn , a-1) = 3;
-%                 ANA.ChunkBndry(tn , end) = 3;
-%                 ANA.ChunkBndry(tn , ANA.ChunkBndry(tn , :) == 0) = 2;
                 ANA.IPI_Horizon(tn , :) = ANA.Horizon(tn)*ones(1,13);
                 ANA.IPI_SN(tn , :) = ANA.SN(tn)*ones(1,13);
                 ANA.IPI_Day(tn , :) = ANA.Day(tn)*ones(1,13);
@@ -1536,48 +1531,39 @@ switch what
         %         plotfcn = input('nanmean or nanmean?' , 's');
         %% IPIs vs horizon
         % this is the output of the case: 'transitions_All' that is saved to disc
-        calc = 1;
-        if ~ calc
-            load([baseDir , '/se2_TranProb.mat'] , 'All');
-            IPItable = All;
-            IPItable = getrow(IPItable , ismember(IPItable.Day , dayz{day}));
-        else
-            ANA = getrow(Dall , ismember(Dall.SN , subjnum) & Dall.isgood & ismember(Dall.seqNumb , [0 , structNumb])  & ~Dall.isError);
-            ANA.seqNumb(ANA.seqNumb==2) = 1;
-            for tn = 1:length(ANA.TN)
-                n = (ANA.AllPressIdx(tn , sum(~isnan(ANA.AllPressIdx(tn , :))))  - ANA.AllPressIdx(tn , 1)) / 1000;
-                nIdx(tn , :) = (ANA.AllPressIdx(tn , :) - ANA.AllPressIdx(tn , 1))/n;
-                ANA.IPI_norm(tn , :) = diff(nIdx(tn ,:) , 1 , 2);
-            end
-            for tn  = 1:length(ANA.TN)
-                ANA.ChunkBndry(tn , :) = diff(ANA.ChnkArrang(tn,:));
-                a = find(ANA.ChunkBndry(tn , :));
-                ANA.ChunkBndry(tn , a-1) = 3;
-                ANA.ChunkBndry(tn , end) = 3;
-                ANA.ChunkBndry(tn , ANA.ChunkBndry(tn , :) == 0) = 2;
-                ANA.IPI_Horizon(tn , :) = ANA.Horizon(tn)*ones(1,13);
-                ANA.IPI_SN(tn , :) = ANA.SN(tn)*ones(1,13);
-                ANA.IPI_Day(tn , :) = ANA.Day(tn)*ones(1,13);
-                ANA.IPI_prsnumb(tn , :) = [1 :13];
-                ANA.IPI_seqNumb(tn , :) = ANA.seqNumb(tn)*ones(1,13);
-            end
-            IPItable.IPI = reshape(ANA.IPI , numel(ANA.IPI) , 1);
-            IPItable.ChunkBndry = reshape(ANA.IPIarrangement , numel(ANA.IPI) , 1);
-            IPItable.Horizon = reshape(ANA.IPI_Horizon , numel(ANA.IPI) , 1);
-            IPItable.SN  = reshape(ANA.IPI_SN , numel(ANA.IPI) , 1);
-            IPItable.Day = reshape(ANA.IPI_Day , numel(ANA.IPI) , 1);
-            IPItable.prsnumb = reshape(ANA.IPI_prsnumb , numel(ANA.IPI) , 1);
-            IPItable.seqNumb = reshape(ANA.IPI_seqNumb , numel(ANA.IPI) , 1);
+        
+        ANA = getrow(Dall , ismember(Dall.SN , subjnum) & Dall.isgood & ismember(Dall.seqNumb , [0 , structNumb])  & ~Dall.isError);
+        ANA.seqNumb(ANA.seqNumb==2) = 1;
+        for tn = 1:length(ANA.TN)
+            n = (ANA.AllPressIdx(tn , sum(~isnan(ANA.AllPressIdx(tn , :))))  - ANA.AllPressIdx(tn , 1)) / 1000;
+            nIdx(tn , :) = (ANA.AllPressIdx(tn , :) - ANA.AllPressIdx(tn , 1))/n;
+            ANA.IPI_norm(tn , :) = diff(nIdx(tn ,:) , 1 , 2);
         end
-
+        for tn  = 1:length(ANA.TN)
+            ANA.IPI_Horizon(tn , :) = ANA.Horizon(tn)*ones(1,13);
+            ANA.IPI_SN(tn , :) = ANA.SN(tn)*ones(1,13);
+            ANA.IPI_Day(tn , :) = ANA.Day(tn)*ones(1,13);
+            ANA.IPI_prsnumb(tn , :) = [1 :13];
+            ANA.IPI_seqNumb(tn , :) = ANA.seqNumb(tn)*ones(1,13);
+        end
+        IPItable.IPI = reshape(ANA.IPI , numel(ANA.IPI) , 1);
+        IPItable.ChunkBndry = reshape(ANA.IPIarrangement , numel(ANA.IPI) , 1);
+        IPItable.Horizon = reshape(ANA.IPI_Horizon , numel(ANA.IPI) , 1);
+        IPItable.SN  = reshape(ANA.IPI_SN , numel(ANA.IPI) , 1);
+        IPItable.Day = reshape(ANA.IPI_Day , numel(ANA.IPI) , 1);
+        IPItable.prsnumb = reshape(ANA.IPI_prsnumb , numel(ANA.IPI) , 1);
+        IPItable.seqNumb = reshape(ANA.IPI_seqNumb , numel(ANA.IPI) , 1);
+        
+        
+        IPItable = getrow(IPItable , ismember(IPItable.prsnumb , [4:10]));
         IPItable.IPI_pred = zeros(size(IPItable.IPI));
-        IPItable  = tapply(IPItable , {'Horizon' , 'Day' ,'SN' , 'ChunkBndry'} , {'IPI' , 'nanmedian(x)'});
+%         IPItable  = tapply(IPItable , {'Horizon' , 'Day' ,'SN' , 'ChunkBndry'} , {'IPI' , 'nanmedian(x)'});
         for d = 1:length(dayz)
             IPItable.Day(ismember(IPItable.Day , dayz{d})) = d;
         end
         coefs = [];
         IPIs = [];
-
+        
         for subjnum = 1:length(subj_name)-1
             for chp = 0:2
                 for d = 1:length(dayz)
@@ -1717,7 +1703,6 @@ switch what
                 title(['Fitted IPIs - Day(s) ' , num2str(dayz{d})])
             case 'Actual&fitDayz'
                 Hz = {[1] [2] [3] , [4] [5] [6:9]};
-                
                 h1 = figure;
                 for d = 1:length(dayz)
                     for chp = 0:2
@@ -1794,9 +1779,10 @@ switch what
                 end
                 h1 = figure;
                 hold on
+                Daybenefit = normData(Daybenefit , {'percChangeIPI' , 'percChangeIPI_pred'});
                 for chp = 0:2
-                    [coo_red{chp+1},plot_red{chp+1},err_red{chp+1}] = lineplot([Daybenefit.Horizon] , Daybenefit.percChangeIPI, 'subset', ismember(Daybenefit.ChunkBndry , chp));
-                    [coo_pred_red{chp+1},plot_pred_red{chp+1},err_pred_red{chp+1}] = lineplot([Daybenefit.Horizon] , Daybenefit.percChangeIPI_pred, 'subset', ismember(Daybenefit.ChunkBndry , chp));
+                    [coo_red{chp+1},plot_red{chp+1},err_red{chp+1}] = lineplot([Daybenefit.Horizon] , Daybenefit.normpercChangeIPI, 'subset', ismember(Daybenefit.ChunkBndry , chp));
+                    [coo_pred_red{chp+1},plot_pred_red{chp+1},err_pred_red{chp+1}] = lineplot([Daybenefit.Horizon] , Daybenefit.normpercChangeIPI_pred, 'subset', ismember(Daybenefit.ChunkBndry , chp));
                 end
                 close(h1)
                 
@@ -1828,7 +1814,7 @@ switch what
                 xlabel('Viewing Window Size')
                 title('Reduction in Inter-Press Intervals From First to Last Day (Fitted)' ,'FontSize' , 24)
             case 'Actual&fit%ChangeDay2Day'
-                 Hz = {[1] [2] [3] , [4] [5] [6:9]};
+                Hz = {[1] [2] [3] , [4] [5] [6:9]};
                 ANA = IPIs;
                 ANA.Horizon(ANA.Horizon>6) = 6;
                 ANA  = tapply(ANA , {'Horizon' , 'Day' ,'SN' , 'ChunkBndry'} , {'IPI' , 'nanmean(x)'},{'IPI_pred' , 'nanmean(x)'});
