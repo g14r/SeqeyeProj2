@@ -405,7 +405,7 @@ switch what
         lineplot(var , Seqbenefit.percChangeMT , 'style_shade' , 'markertype' , 'o'  , ...
                      'markersize' , 10 , 'markerfill' , 'w');
     case 'PercentIPItype'
-        dayz = unique(ANA.Day);
+        dayz = unique([1;ANA.Day]);
         
         nn= ipiOfInterest;
         ipiLab = {'Random' , 'Between','Within'};

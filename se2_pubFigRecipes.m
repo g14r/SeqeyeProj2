@@ -64,9 +64,9 @@ stats = se2_SigTest(Dall , 'PercentseqType' , 'seqNumb' , [0:2] , 'Day' , [1:5] 
 
 
 %% significance test for percent change in IPIs (random within between)
-stats = se2_SigTest(Dall , 'PercentIPItype' , 'seqNumb' , [0:2] , 'Day' , [1:5] , 'Horizon' , [1:13],...
+stats = se2_SigTest(Dall , 'PercentIPItype' , 'seqNumb' , [0:2] , 'Day' , [5] , 'Horizon' , [1:13],...
     'PoolDays' , 0,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
-    'PoolHorizons' , [],'ipiOfInterest' , [2] , 'poolIPIs' , 0 , 'subjnum' , [1:13]);
+    'PoolHorizons' , [],'ipiOfInterest' , [0 2] , 'poolIPIs' , 0 , 'subjnum' , [1:13]);
 
 %%
 
