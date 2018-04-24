@@ -56,6 +56,16 @@ end
 ANA = getrow(Dall , Dall.isgood & ~Dall.isError & ...
     ismember(Dall.Horizon , Horizon) & ...
     ismember(Dall.Day , Day) & ismember(Dall.seqNumb , seqNumb) &ismember(Dall.SN , subjnum));
+
+
+if ismember(what , {'PercentseqType' , 'PercentIPItype'})
+    % day 1 has to be included
+    ANA = getrow(Dall , Dall.isgood & ~Dall.isError & ...
+        ismember(Dall.Horizon , Horizon) & ...
+        ismember(Dall.Day ,[1 Day]) & ismember(Dall.seqNumb , seqNumb) &ismember(Dall.SN , subjnum));
+end
+
+
 ANA.RT = ANA.AllPressTimes(:,1);
 ANA.seqNumb(ANA.seqNumb>1) = 1;
 if PoolSequences
@@ -405,7 +415,11 @@ switch what
         lineplot(var , Seqbenefit.percChangeMT , 'style_shade' , 'markertype' , 'o'  , ...
                      'markersize' , 10 , 'markerfill' , 'w');
     case 'PercentIPItype'
-        dayz = unique([1;ANA.Day]);
+        % day 1 has to be included
+        ANA = getrow(Dall , Dall.isgood & ~Dall.isError & ...
+            ismember(Dall.Horizon , Horizon) & ...
+            ismember(Dall.Day , [1 , Day]) & ismember(Dall.seqNumb , seqNumb) &ismember(Dall.SN , subjnum));
+        dayz = unique(ANA.Day);
         
         nn= ipiOfInterest;
         ipiLab = {'Random' , 'Between','Within'};
