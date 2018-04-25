@@ -36,8 +36,8 @@ function out  = se2_visualize(Dall , subjnum, what, distance, calc , day ,rep, G
 %     case 'crossvaldist_chunk'
 %%
 prefix = 'se1_';
-baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
-% baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
+% baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
+baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
 subj_name = {'AT1' , 'CG1' , 'HB1' , 'JT1' , 'CB1' , 'YM1' , 'NL1' , 'SR1' , 'IB1' , 'MZ1' , 'DW1', 'RA1' ,'CC1', 'All'};
 
 % subj_name = {'AT1' , 'CG1' , 'HB1' , 'JT1' , 'CB1' , 'YM1' , 'NL1' , 'SR1' , 'All'};
@@ -3027,12 +3027,15 @@ switch what
         disp(['Day 3 PervBenefit p-val = ' , num2str(out.PB(3).eff(2).p)])
         %         disp(['All Day PervBenefit p-val = ' , num2str(out.PB(4).eff(2).p)])
     case 'Sacc_All'
-        horz = input('Which horizon(s)?');
+        isSymmetric = input('symmetric or not(0 no/1 yes)?');
+        if isSymmetric 
+            filename = 'se2_eyeInfo.mat';
+        else
+            filename = 'se2_eyeInfo_asym.mat';
+        end
         if calc
-            isSymmetric = 1;
-%             subjnum = subjnum(~ismember(subjnum , 2)); % Chao's eye data is fucked up!!!!
-            eyeinfo.PB         = [];
-            eyeinfo.CB         = [];
+            eyeinfo.PB         = [];   % preview benefit
+            eyeinfo.CB         = [];   % chunk boundry
             eyeinfo.Hor        = [];
             eyeinfo.sn         = [];
             eyeinfo.day        = [];
@@ -3054,12 +3057,27 @@ switch what
                 ANA.ChunkBndry(tn , 1:ignorDig+1) = [-1 -1 -1];  % dont account for the first and last sseqeuce presses
                 ANA.ChunkBndry(tn , end-ignorDig:end) = [-1 -1 -1];% dont account for the first and last sseqeuce presses
                 ANA.DigFixWeighted(tn , :) = zeros(1 ,14);
-                
-                
+                window = 50; %samples = 100ms
                 if isSymmetric
-                    window = 50; %samples = 100ms
                     for p = 1:14
                         id = ANA.xEyePosDigit{tn , 1}<=p+.5 & ANA.xEyePosDigit{tn , 1}>p-.5;
+                        if sum(id)
+                            ANA.DigFixWeighted(tn , p) = mean(abs(ANA.xEyePosDigit{tn , 1}(id) - p))*(sum(id)/500)*1000;
+                        else
+                            ANA.DigFixWeighted(tn , p) = 0;
+                        end
+                        id = [ANA.AllPressIdx(tn , p) - window :ANA.AllPressIdx(tn , p) + window];
+                        if id(1) > length(ANA.xEyePosDigit{tn}) | sum(id<0)>0
+                             ANA.EyePressTimePos(tn , p) = NaN;
+                        elseif id(end)>length(ANA.xEyePosDigit{tn})
+                            ANA.EyePressTimePos(tn , p) = nanmedian(ANA.xEyePosDigit{tn}(id(1):end));
+                        else
+                            ANA.EyePressTimePos(tn , p) = nanmedian(ANA.xEyePosDigit{tn}(id));
+                        end
+                    end
+                else
+                    for p = 1:14
+                        id = ANA.xEyePosDigit{tn , 1}<=p+.3 & ANA.xEyePosDigit{tn , 1}>p-.7;
                         if sum(id)
                             ANA.DigFixWeighted(tn , p) = mean(abs(ANA.xEyePosDigit{tn , 1}(id) - p))*(sum(id)/500)*1000;
                         else
@@ -3104,9 +3122,9 @@ switch what
                 {'sacAmp' , 'nanmedian'} , {'sacPerSec' , 'nanmedian'}, {'PB' , 'nanmedian'},{'DigFixDur' , 'nanmedian'},...
                 'subset' , eyeinfo.CB~=-1);
             
-            save([baseDir , '/se2_eyeInfo.mat'] , 'eyeinfo' ,'K_withinChunk' , 'K_sqnum' , 'K_rand_chnk' , '-v7.3')
+            save([baseDir , '/' , filename] , 'eyeinfo' ,'K_withinChunk' , 'K_sqnum' , 'K_rand_chnk' , '-v7.3')
         else
-            load([baseDir , '/se2_eyeInfo.mat'])
+            load([baseDir , '/', filename])
         end
         ANA = getrow(Dall ,ismember(Dall.seqNumb , [0:2]) & ismember(Dall.SN , subjnum) & Dall.isgood & ~Dall.isError & cellfun(@length , Dall.xEyePosDigit)>1);
         h = figure;

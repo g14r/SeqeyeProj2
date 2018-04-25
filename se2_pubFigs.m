@@ -27,6 +27,10 @@ while(c<=length(varargin))
             % maximum number of iterations for exponential fitting
             eval([varargin{c} '= varargin{c+1};']);
             c=c+2;
+        case {'isSymmetric'}
+            % gaze filed around a digit symmetric or not(0 no/1 yes);
+            eval([varargin{c} '= varargin{c+1};']);
+            c=c+2;
         otherwise
             error('Unknown option: %s',varargin{c});
     end
@@ -34,8 +38,8 @@ end
 
 %%
 prefix = 'se1_';
-baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
-% baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
+% baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
+baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
 
 
 
@@ -1969,6 +1973,113 @@ switch what
                 set(gca , 'FontSize' , 20 , 'Box' , 'off', 'GridAlpha' , 1)
                 grid on
         end
+    case 'Eye'
+        calc = 1;
+        if isSymmetric 
+            filename = 'se2_eyeInfo.mat';
+        else
+            filename = 'se2_eyeInfo_asym.mat';
+        end
+        if calc
+            eyeinfo.PB         = [];   % preview benefit
+            eyeinfo.CB         = [];   % chunk boundry
+            eyeinfo.Hor        = [];
+            eyeinfo.sn         = [];
+            eyeinfo.day        = [];
+            eyeinfo.BN         = [];
+            eyeinfo.sacPerSec  = [];
+            eyeinfo.sacDur     = [];
+            eyeinfo.sacPeakVel = [];
+            eyeinfo.sacAmp     = [];
+            eyeinfo.seqNumb    = [];
+            eyeinfo.DigFixDur  = [];
+            eyeinfo.prsnumb    = [];
+            ANA = getrow(Dall ,ismember(Dall.seqNumb , [0:2]) & ismember(Dall.SN , subjnum) & Dall.isgood & ~Dall.isError & cellfun(@length , Dall.xEyePosDigit)>1);
+           
+            for tn  = 1:length(ANA.TN)
+                if ismember(ANA.seqNumb , [1:2])
+                    ANA.ChunkBndry(tn , :) = [1 diff(ANA.ChnkArrang(tn,:))];
+                    a = find(ANA.ChunkBndry(tn , :));
+                    ANA.ChunkBndry(tn , a(ignorDig:end)-1) = 3;
+                    ANA.ChunkBndry(tn , ANA.ChunkBndry(tn , :) == 0) = 2;
+                else
+                    ANA.ChunkBndry(tn , :) = ANA.ChnkArrang(tn,:);
+                end
+                ANA.DigFixWeighted(tn , :) = zeros(1 ,14);
+                window = 50; %samples = 100ms
+                if isSymmetric
+                    for p = 1:14
+                        id = ANA.xEyePosDigit{tn , 1}<=p+.5 & ANA.xEyePosDigit{tn , 1}>p-.5;
+                        if sum(id)
+                            ANA.DigFixWeighted(tn , p) = mean(abs(ANA.xEyePosDigit{tn , 1}(id) - p))*(sum(id)/500)*1000;
+                        else
+                            ANA.DigFixWeighted(tn , p) = 0;
+                        end
+                        id = [ANA.AllPressIdx(tn , p) - window :ANA.AllPressIdx(tn , p) + window];
+                        if id(1) > length(ANA.xEyePosDigit{tn}) | sum(id<0)>0
+                             ANA.EyePressTimePos(tn , p) = NaN;
+                        elseif id(end)>length(ANA.xEyePosDigit{tn})
+                            ANA.EyePressTimePos(tn , p) = nanmedian(ANA.xEyePosDigit{tn}(id(1):end));
+                        else
+                            ANA.EyePressTimePos(tn , p) = nanmedian(ANA.xEyePosDigit{tn}(id));
+                        end
+                    end
+                else
+                    for p = 1:14
+                        id = ANA.xEyePosDigit{tn , 1}<=p+.3 & ANA.xEyePosDigit{tn , 1}>p-.7;
+                        if sum(id)
+                            ANA.DigFixWeighted(tn , p) = mean(abs(ANA.xEyePosDigit{tn , 1}(id) - p))*(sum(id)/500)*1000;
+                        else
+                            ANA.DigFixWeighted(tn , p) = 0;
+                        end
+                        id = [ANA.AllPressIdx(tn , p) - window :ANA.AllPressIdx(tn , p) + window];
+                        if id(1) > length(ANA.xEyePosDigit{tn}) | sum(id<0)>0
+                             ANA.EyePressTimePos(tn , p) = NaN;
+                        elseif id(end)>length(ANA.xEyePosDigit{tn})
+                            ANA.EyePressTimePos(tn , p) = nanmedian(ANA.xEyePosDigit{tn}(id(1):end));
+                        else
+                            ANA.EyePressTimePos(tn , p) = nanmedian(ANA.xEyePosDigit{tn}(id));
+                        end
+                    end
+                end
+                perv_Ben           = [1:14] - ANA.EyePressTimePos(tn , :);
+                goodid             = (perv_Ben>=-3.5 & perv_Ben<=-0.5);
+                prsnumb            = find(goodid);
+                count              = sum(goodid);
+                eyeinfo.PB         = [eyeinfo.PB ;perv_Ben(goodid)'];
+                eyeinfo.prsnumb    = [eyeinfo.prsnumb ;find(goodid')];
+                eyeinfo.CB         = [eyeinfo.CB ;ANA.ChunkBndry(tn ,goodid)'];
+                eyeinfo.Hor        = [eyeinfo.Hor ; ANA.Horizon(tn)*ones(count , 1)];
+                eyeinfo.sn         = [eyeinfo.sn ; ANA.SN(tn)*ones(count , 1)];
+                eyeinfo.day        = [eyeinfo.day ; ANA.Day(tn)*ones(count , 1)];
+                eyeinfo.BN         = [eyeinfo.BN ; ANA.BN(tn)*ones(count , 1)];
+                eyeinfo.sacPerSec  = [eyeinfo.sacPerSec ; ANA.SaccPerSec(tn)*ones(count , 1)];
+                eyeinfo.sacDur     = [eyeinfo.sacDur ; mean(ANA.SaccDuration{tn})*ones(count , 1)];
+                eyeinfo.sacPeakVel = [eyeinfo.sacPeakVel ; mean(ANA.SaccPeakVel{tn})*ones(count , 1)];
+                eyeinfo.sacAmp     = [eyeinfo.sacAmp ; mean(ANA.SaccAmplitude{tn})*ones(count , 1)];
+                eyeinfo.seqNumb    = [eyeinfo.seqNumb ; ANA.seqNumb(tn)*ones(count , 1)];
+                eyeinfo.DigFixDur  = [eyeinfo.DigFixDur ;ANA.DigFixWeighted(tn ,goodid)'];
+            end
+            K_withinChunk = tapply(eyeinfo , {'day' , 'Hor' , 'sn','CB'} , {'sacDur' , 'nanmedian'}, {'DigFixDur' , 'nanmedian'},...
+                {'sacAmp' , 'nanmedian'} , {'sacPerSec' , 'nanmedian'}, {'PB' , 'nanmedian'} , 'subset' ,...
+                eyeinfo.seqNumb ~= 0 & eyeinfo.CB~=-1);
+            
+            K_sqnum = tapply(eyeinfo , {'day' , 'Hor' , 'sn','seqNumb' , 'prsnumb'} , {'sacDur' , 'nanmedian'}, {'sacPeakVel' , 'nanmedian'},...
+                {'sacAmp' , 'nanmedian'} , {'sacPerSec' , 'nanmedian'}, {'PB' , 'nanmedian'},{'DigFixDur' , 'nanmedian'});
+            
+            K_rand_chnk = tapply(eyeinfo , {'day' , 'Hor' , 'sn','seqNumb'} , {'sacDur' , 'nanmedian'}, {'sacPeakVel' , 'nanmedian'},...
+                {'sacAmp' , 'nanmedian'} , {'sacPerSec' , 'nanmedian'}, {'PB' , 'nanmedian'},{'DigFixDur' , 'nanmedian'},...
+                'subset' , eyeinfo.CB~=-1);
+            
+            save([baseDir , '/' , filename] , 'eyeinfo' ,'K_withinChunk' , 'K_sqnum' , 'K_rand_chnk' , '-v7.3')
+        else
+            load([baseDir , '/', filename])
+        end
+        switch nowWhat
+            case 'sacDur'
+            
+        end
+        
     case 'Errors'
         for tn = 1:length(Dall.TN)
             Dall.MT(tn , 1) = Dall.AllPressTimes(tn , Dall.seqlength(tn)) - Dall.AllPressTimes(tn , 1);

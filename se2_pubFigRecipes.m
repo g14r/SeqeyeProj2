@@ -36,7 +36,7 @@ out  = se2_pubFigs(Dall , 'IPI','compareLearning', 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'IPI','compareLearning_histogram', 'poolDays' , 0);
 
 
-out  = se2_pubFigs(Dall , 'test_MT_asymptote','', 'poolDays' , 1);
+out  = se2_pubFigs(Dall , 'Eye', '' , 'isSymmetric' , 0 , 'poolDays' , 0);
 
 
 %% significance test recipes
