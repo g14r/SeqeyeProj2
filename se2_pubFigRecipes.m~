@@ -46,7 +46,7 @@ out  = se2_pubFigs(Dall , 'Eye', 'sacFreqSplitseqType' , 'isSymmetric' , 1 , 'po
 out  = se2_pubFigs(Dall , 'Eye', 'FixDurSplitipitype' , 'isSymmetric' , 1 , 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'Eye', 'FixDurSplitwindow' , 'isSymmetric' , 1 , 'poolDays' , 0);
 
-out  = se2_pubFigs(Dall , 'Eye', 'EyePrsTimePos' , 'isSymmetric' , 1 , 'poolDays' , 0);
+out  = se2_pubFigs(Dall , 'Eye', '' , 'isSymmetric' , 1 , 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'Eye', '' , 'isSymmetric' , 1 , 'poolDays' , 0);
 
 
@@ -79,8 +79,8 @@ stats = se2_SigTest(Dall , 'PercentIPItype' , 'seqNumb' , [0:2] , 'Day' , [5] , 
     'PoolDays' , 0,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
     'PoolHorizons' , [],'ipiOfInterest' , [0 2] , 'poolIPIs' , 0 , 'subjnum' , [1:13]);
 
-%% Saccade Frequency
-stats = se2_SigTest(Dall , 'Eye_seq_sacPerSec' , 'seqNumb' , [0:2] , 'Day' , [1:5] , 'Horizon' , [1:13],...
+%%
+stats = se2_SigTest(Dall , 'Eye_seq_sacPerSec' , 'seqNumb' , [1:2] , 'Day' , [5] , 'Horizon' , [2:13],...
     'PoolDays' , 1,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
     'PoolHorizons' , [],'ipiOfInterest' , [0 2] , 'poolIPIs' , 0 , 'subjnum' , [1:13],'isSymmetric' , 1);
 
@@ -93,9 +93,9 @@ stats = se2_SigTest(Dall , 'Eye_ipi_fixDur' , 'seqNumb' , [0:2] , 'Day' , [1:5] 
     'PoolDays' , 0,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
     'PoolHorizons' , [],'ipiOfInterest' , [0:3] , 'poolIPIs' , 0 , 'subjnum' , [1:13],'isSymmetric' , 1);
 %%
-stats = se2_SigTest(Dall , 'Eye_ipi_lookahead' , 'seqNumb' , [0:2] , 'Day' , [1:5] , 'Horizon' , [1],...
+stats = se2_SigTest(Dall , 'Eye_ipi_lookahead' , 'seqNumb' , [0:2] , 'Day' , [1 5] , 'Horizon' , [13],...
     'PoolDays' , 0,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
-    'PoolHorizons' , [],'ipiOfInterest' , [0 2] , 'poolIPIs' , 0 , 'subjnum' , [1:13],'isSymmetric' , 1);
+    'PoolHorizons' , [],'ipiOfInterest' , [0:3] , 'poolIPIs' , 1 , 'subjnum' , [1:13],'isSymmetric' , 1);
 
 
         

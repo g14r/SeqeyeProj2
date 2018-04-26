@@ -3066,7 +3066,7 @@ switch what
                         else
                             ANA.DigFixWeighted(tn , p) = 0;
                         end
-                        id = [ANA.AllPressIdx(tn , p) - 2*(window-5) :ANA.AllPressIdx(tn , p) + 5]; % 90 ms before to 10 ms after press
+                        id = [ANA.AllPressIdx(tn , p) - 2*window-5 :ANA.AllPressIdx(tn , p) + window];
                         if id(1) > length(ANA.xEyePosDigit{tn}) | sum(id<0)>0
                              ANA.EyePressTimePos(tn , p) = NaN;
                         elseif id(end)>length(ANA.xEyePosDigit{tn})
@@ -3083,7 +3083,7 @@ switch what
                         else
                             ANA.DigFixWeighted(tn , p) = 0;
                         end
-                        id = [ANA.AllPressIdx(tn , p) - 2*(window-5) :ANA.AllPressIdx(tn , p) + 5]; % 90 ms before to 10 ms after press
+                        id = [ANA.AllPressIdx(tn , p) - window :ANA.AllPressIdx(tn , p) + window];
                         if id(1) > length(ANA.xEyePosDigit{tn}) | sum(id<0)>0
                              ANA.EyePressTimePos(tn , p) = NaN;
                         elseif id(end)>length(ANA.xEyePosDigit{tn})
