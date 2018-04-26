@@ -2040,7 +2040,7 @@ switch what
                         end
                     end
                 end
-                id = [ANA.AllPressIdx(tn , p) - 2*(window-5) :ANA.AllPressIdx(tn , p) + 5]; % 90 ms before to 10 ms after press
+                id = [ANA.AllPressIdx(tn , p) - window :ANA.AllPressIdx(tn , p) + window]; % 90 ms before to 10 ms after press
                 if id(1) > length(ANA.xEyePosDigit{tn}) | sum(id<0)>0
                     ANA.EyePressTimePos(tn , p) = NaN;
                 elseif id(end)>length(ANA.xEyePosDigit{tn})
@@ -2247,14 +2247,14 @@ switch what
                 for d = 1:length(dayz)
                     subplot(1,length(dayz) , d)
                     lineplot([K.Horizon] , K.normDigFixDur , 'plotfcn' , 'nanmean',...
-                        'split', K.CB , 'subset' , ismember(K.Day , dayz{d}) , 'leg' , 'auto' , 'linecolor' , colIPI(d,1:4),...
+                        'split', K.CB , 'subset' , ismember(K.Day , dayz{d}) , 'leg' , {'Random' , 'First' , 'Middle' , 'Last'} , 'linecolor' , colIPI(d,1:4),...
                         'errorcolor' , colIPI(d,1:4) , 'errorbars' , repmat({'shade'} , 1 , 2) , 'shadecolor' ,colIPI(d,1:4),...
                         'linewidth' , 3 , 'markertype' , repmat({'o'} , 1  , 2) , 'markerfill' , colIPI(d,1:4),...
                         'markersize' , 10, 'markercolor' , colIPI(d,1:4));
                     ylabel('Mean digit fixation Duration [ms]' )
                     xlabel('Viewing window Size' )
-                    title('Breakdown of fixation duration as a function of IPI type')
-                    set(gca,'FontSize' , 18 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [20 140],'YTick' , [30:10:140] ,...
+                    title('Digit fixation duration')
+                    set(gca,'FontSize' , 18 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [40 140],'YTick' , [50:10:140] ,...
                         'YGrid' , 'on');
                     if d>1
                         set(gca,'YColor' , 'none');
@@ -2281,11 +2281,11 @@ switch what
                         'split', K.Day , 'subset' , ismember(K.Horizon , Ho(h)) , 'linecolor' , colorz,...
                         'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , length(dayz)) , 'shadecolor' ,colorz,...
                         'linewidth' , 3 , 'markertype' , repmat({'o'} , 1  , length(dayz)) , 'markerfill' , colorz,...
-                        'markersize' , 10, 'markercolor' , colorz);
+                        'markersize' , 10, 'markercolor' , colorz , 'leg' , {'day1' , 'day2' , 'day3' , 'day4' , 'day5'});
                     ylabel('Mean digit fixation Duration [ms]' )
                     xlabel('IPI type' )
-                    title(['Fixation duration W = ' , num2str(Ho(h))])
-                    set(gca,'FontSize' , 18 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [20 140],'YTick' , [30:10:140] ,...
+                    title(['W = ' , num2str(Ho(h))])
+                    set(gca,'FontSize' , 18 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [40 140],'YTick' , [50:10:140] ,...
                         'YGrid' , 'on');
                     if h>1
                         set(gca,'YColor' , 'none');
@@ -2308,7 +2308,7 @@ switch what
                     ylabel('Mean preview [digits]' )
                     xlabel('Viewing window Size' )
                     title(['Look-ahead - day ' , num2str(dayz{d})])
-                    set(gca,'FontSize' , 18 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [.2 1.5],'YTick' , [.3:.1:1.5] ,...
+                    set(gca,'FontSize' , 18 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [.7 1.7],'YTick' , [.7:.1:1.5] ,...
                         'YGrid' , 'on');
                     if d>1
                         set(gca,'YColor' , 'none');

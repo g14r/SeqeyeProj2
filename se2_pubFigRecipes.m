@@ -47,7 +47,7 @@ out  = se2_pubFigs(Dall , 'Eye', 'FixDurSplitipitype' , 'isSymmetric' , 1 , 'poo
 out  = se2_pubFigs(Dall , 'Eye', 'FixDurSplitwindow' , 'isSymmetric' , 1 , 'poolDays' , 0);
 
 out  = se2_pubFigs(Dall , 'Eye', 'EyePrsTimePos' , 'isSymmetric' , 1 , 'poolDays' , 0);
-out  = se2_pubFigs(Dall , 'Eye', '' , 'isSymmetric' , 1 , 'poolDays' , 0);
+out  = se2_pubFigs(Dall , 'Eye', 'previewSplitipitype' , 'isSymmetric' , 1 , 'poolDays' , 0);
 
 
 %% significance test recipes
