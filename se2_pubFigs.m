@@ -1983,7 +1983,7 @@ switch what
                 grid on
         end
     case 'Eye'
-        calc = 0;
+        calc = 1;
         if isSymmetric 
             filename = 'se2_eyeInfo.mat';
         else
@@ -1992,7 +1992,7 @@ switch what
         if calc
             eyeinfo.PB         = [];   % preview benefit
             eyeinfo.CB         = [];   % chunk boundry
-            eyeinfo.Horizon        = [];
+            eyeinfo.Horizon    = [];
             eyeinfo.sn         = [];
             eyeinfo.Day        = [];
             eyeinfo.BN         = [];
@@ -2018,8 +2018,7 @@ switch what
                     ANA.ChunkBndry(tn , :) = zeros(size(ANA.ChnkArrang(tn , :)));
                 end
                 ANA.DigFixWeighted(tn , :) = zeros(1 ,14);
-                window = 50; %samples = 100ms
-                
+                window = 50;
                 if isSymmetric
                     for p = 1:14
                         id = ANA.xEyePosDigit{tn , 1}<=p+.5 & ANA.xEyePosDigit{tn , 1}>p-.5;
@@ -2028,7 +2027,6 @@ switch what
                         else
                             ANA.DigFixWeighted(tn , p) = 0;
                         end
-                        
                     end
                 else
                     for p = 1:14
@@ -2039,14 +2037,18 @@ switch what
                             ANA.DigFixWeighted(tn , p) = 0;
                         end
                     end
+                    
                 end
-                id = [ANA.AllPressIdx(tn , p) - window :ANA.AllPressIdx(tn , p) + window]; % 90 ms before to 10 ms after press
-                if id(1) > length(ANA.xEyePosDigit{tn}) | sum(id<0)>0
-                    ANA.EyePressTimePos(tn , p) = NaN;
-                elseif id(end)>length(ANA.xEyePosDigit{tn})
-                    ANA.EyePressTimePos(tn , p) = nanmedian(ANA.xEyePosDigit{tn}(id(1):end));
-                else
-                    ANA.EyePressTimePos(tn , p) = nanmedian(ANA.xEyePosDigit{tn}(id));
+                
+                for p = 1:14
+                    id = [ANA.AllPressIdx(tn , p) - window/2 :ANA.AllPressIdx(tn , p) + window/2];
+                    if id(1) > length(ANA.xEyePosDigit{tn}) | sum(id<0)>0
+                        ANA.EyePressTimePos(tn , p) = NaN;
+                    elseif id(end)>length(ANA.xEyePosDigit{tn})
+                        ANA.EyePressTimePos(tn , p) = nanmedian(ANA.xEyePosDigit{tn}(id(1):end));
+                    else
+                        ANA.EyePressTimePos(tn , p) = nanmedian(ANA.xEyePosDigit{tn}(id));
+                    end
                 end
                 perv_Ben           = [1:14] - ANA.EyePressTimePos(tn , :);
                 goodid             = ~(abs(perv_Ben)>=3.5);
@@ -2293,7 +2295,7 @@ switch what
                 end
             case 'previewSplitipitype'
                 Ho  = unique(eyeinfo.Horizon);
-                K = tapply(eyeinfo , {'Day' , 'Horizon' , 'sn','CB'} , {'PB' , 'nanmean'} , ...
+                K = tapply(eyeinfo , {'Day' , 'Horizon' , 'sn','CB'} , {'PB' , 'nanmedian'} , ...
                     'subset' , ismember(eyeinfo.prsnumb , [4:10]));
                 
                 K = normData(K , {'PB'});
@@ -2308,7 +2310,7 @@ switch what
                     ylabel('Mean preview [digits]' )
                     xlabel('Viewing window Size' )
                     title(['Look-ahead - day ' , num2str(dayz{d})])
-                    set(gca,'FontSize' , 18 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [.7 1.7],'YTick' , [.7:.1:1.5] ,...
+                    set(gca,'FontSize' , 18 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [.4 1.4],'YTick' , [.5:.1:1.3] ,...
                         'YGrid' , 'on');
                     if d>1
                         set(gca,'YColor' , 'none');
@@ -2316,6 +2318,10 @@ switch what
                 end    
             case 'previewSplitwindow'
                 Ho  = unique(eyeinfo.Horizon);
+                
+                K = tapply(eyeinfo , {'Day' , 'Horizon' , 'sn','CB'} , {'PB' , 'nanmean'} , ...
+                    'subset' , ismember(eyeinfo.prsnumb , [4:10]));
+                K = normData(K , {'PB'});
                 scol = [200 200 200]/255;
                 ecol = [0, 0 0]/255;
                 for rgb = 1:3
@@ -2324,22 +2330,19 @@ switch what
                 for d = 1:length(dayz)
                     horzcolor{d} = temp(d,:);
                 end
-                K = tapply(eyeinfo , {'Day' , 'Horizon' , 'sn','CB'} , {'PB' , 'nanmean'} , ...
-                    'subset' , ismember(eyeinfo.prsnumb , [4:10]));
-                K = normData(K , {'PB'});
                 figure('color' , 'white')
                 for h = 1:length(Ho)
                     subplot(1,length(Ho) , h)
                     colorz  = horzcolor;
                     lineplot([K.CB] , -K.normPB , 'plotfcn' , 'nanmean',...
-                        'split', K.Day , 'subset' , ismember(K.Horizon , Ho(h)) , 'linecolor' , colorz,...
+                        'split', K.Day , 'subset' , ismember(K.Horizon , Ho(h)) & ismember(K.Day , [1 5]) , 'linecolor' , colorz,...
                         'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , length(dayz)) , 'shadecolor' ,colorz,...
                         'linewidth' , 3 , 'markertype' , repmat({'o'} , 1  , length(dayz)) , 'markerfill' , colorz,...
                         'markersize' , 10, 'markercolor' , colorz);
                     ylabel('Mean preview [digits]' )
                     xlabel('IPI type' )
                     title(['Look-ahead  W = ' , num2str(Ho(h))])
-                    set(gca,'FontSize' , 18 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [.7 1.7],'YTick' , [.7:.1:1.5] ,...
+                    set(gca,'FontSize' , 18 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [.4 1.4],'YTick' , [.5:.1:1.3] ,...
                         'YGrid' , 'on');
                     if h>1
                         set(gca,'YColor' , 'none');

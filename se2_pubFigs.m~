@@ -1983,7 +1983,7 @@ switch what
                 grid on
         end
     case 'Eye'
-        calc = 0;
+        calc = 1;
         if isSymmetric 
             filename = 'se2_eyeInfo.mat';
         else
@@ -1992,7 +1992,7 @@ switch what
         if calc
             eyeinfo.PB         = [];   % preview benefit
             eyeinfo.CB         = [];   % chunk boundry
-            eyeinfo.Horizon        = [];
+            eyeinfo.Horizon    = [];
             eyeinfo.sn         = [];
             eyeinfo.Day        = [];
             eyeinfo.BN         = [];
@@ -2293,7 +2293,7 @@ switch what
                 end
             case 'previewSplitipitype'
                 Ho  = unique(eyeinfo.Horizon);
-                K = tapply(eyeinfo , {'Day' , 'Horizon' , 'sn','CB'} , {'PB' , 'nanmean'} , ...
+                K = tapply(eyeinfo , {'Day' , 'Horizon' , 'sn','CB'} , {'PB' , 'nanmedian'} , ...
                     'subset' , ismember(eyeinfo.prsnumb , [4:10]));
                 
                 K = normData(K , {'PB'});
@@ -2339,7 +2339,7 @@ switch what
                     ylabel('Mean preview [digits]' )
                     xlabel('IPI type' )
                     title(['Look-ahead  W = ' , num2str(Ho(h))])
-                    set(gca,'FontSize' , 18 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [.2 1.5],'YTick' , [.3:.1:1.5] ,...
+                    set(gca,'FontSize' , 18 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [.7 1.7],'YTick' , [.7:.1:1.5] ,...
                         'YGrid' , 'on');
                     if h>1
                         set(gca,'YColor' , 'none');
