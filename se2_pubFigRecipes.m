@@ -36,7 +36,11 @@ out  = se2_pubFigs(Dall , 'IPI','compareLearning', 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'IPI','compareLearning_histogram', 'poolDays' , 0);
 
 
-out  = se2_pubFigs(Dall , 'Eye', '' , 'isSymmetric' , 0 , 'poolDays' , 0);
+out  = se2_pubFigs(Dall , 'Eye', 'sacDurSplitDay' , 'isSymmetric' , 1 , 'poolDays' , 0);
+out  = se2_pubFigs(Dall , 'Eye', 'sacDurSplitseqType' , 'isSymmetric' , 1 , 'poolDays' , 0);
+out  = se2_pubFigs(Dall , 'Eye', 'sacAmpSplitDay' , 'isSymmetric' , 1 , 'poolDays' , 0);
+out  = se2_pubFigs(Dall , 'Eye', 'sacAmpSplitseqType' , 'isSymmetric' , 1 , 'poolDays' , 0);
+out  = se2_pubFigs(Dall , 'Eye', 'FixDurSplitipitype' , 'isSymmetric' , 1 , 'poolDays' , 0);
 
 
 %% significance test recipes

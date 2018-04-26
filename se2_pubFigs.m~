@@ -27,14 +27,8 @@ while(c<=length(varargin))
             % maximum number of iterations for exponential fitting
             eval([varargin{c} '= varargin{c+1};']);
             c=c+2;
-         case {'isSymmetric'}
-              % gaze filed around a digit symmetric or not(0 no/1 yes);
-        if isSymmetric 
-            filename = 'se2_eyeInfo.mat';
-        else
-            filename = 'se2_eyeInfo_asym.mat';
-        end
-            % maximum number of iterations for exponential fitting
+        case {'isSymmetric'}
+            % gaze filed around a digit symmetric or not(0 no/1 yes);
             eval([varargin{c} '= varargin{c+1};']);
             c=c+2;
         otherwise
@@ -44,8 +38,8 @@ end
 
 %%
 prefix = 'se1_';
-% baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
-baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
+baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
+% baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
 
 
 
@@ -95,13 +89,23 @@ for i = 1:length(tempcol)
     colIPI{i,2} = tempcol(: , i)';
 end
 clear tempcol
-c1 = [179, 255, 153]/255; % within chunk green tones
+c1 = [179, 255, 153]/255; % middle chunk green tones
 ce = [19, 77, 0]/255;
 for rgb = 1:3
     tempcol(rgb , :) = linspace(c1(rgb),ce(rgb) , 6);
 end
 for i = 1:length(tempcol)
     colIPI{i,3} = tempcol(: , i)';
+end
+
+clear tempcol
+c1 = [255, 179, 255]/255; % last chunk fuscia tones
+ce = [102, 0, 102]/255;
+for rgb = 1:3
+    tempcol(rgb , :) = linspace(c1(rgb),ce(rgb) , 6);
+end
+for i = 1:length(tempcol)
+    colIPI{i,4} = tempcol(: , i)';
 end
 
 
@@ -1980,8 +1984,12 @@ switch what
                 grid on
         end
     case 'Eye'
-        calc = 1;
-        
+        calc = 0;
+        if isSymmetric 
+            filename = 'se2_eyeInfo.mat';
+        else
+            filename = 'se2_eyeInfo_asym.mat';
+        end
         if calc
             eyeinfo.PB         = [];   % preview benefit
             eyeinfo.CB         = [];   % chunk boundry
@@ -1989,6 +1997,7 @@ switch what
             eyeinfo.sn         = [];
             eyeinfo.day        = [];
             eyeinfo.BN         = [];
+            eyeinfo.TN         = [];
             eyeinfo.sacPerSec  = [];
             eyeinfo.sacDur     = [];
             eyeinfo.sacPeakVel = [];
@@ -2045,7 +2054,7 @@ switch what
                     end
                 end
                 perv_Ben           = [1:14] - ANA.EyePressTimePos(tn , :);
-                goodid             = (perv_Ben>=-3.5 & perv_Ben<=-0.5);
+                goodid             = ~(abs(perv_Ben)>=3.5);
                 prsnumb            = find(goodid);
                 count              = sum(goodid);
                 eyeinfo.PB         = [eyeinfo.PB ;perv_Ben(goodid)'];
@@ -2055,6 +2064,7 @@ switch what
                 eyeinfo.sn         = [eyeinfo.sn ; ANA.SN(tn)*ones(count , 1)];
                 eyeinfo.day        = [eyeinfo.day ; ANA.Day(tn)*ones(count , 1)];
                 eyeinfo.BN         = [eyeinfo.BN ; ANA.BN(tn)*ones(count , 1)];
+                eyeinfo.TN         = [eyeinfo.TN ; ANA.TN(tn)*ones(count , 1)];
                 eyeinfo.sacPerSec  = [eyeinfo.sacPerSec ; ANA.SaccPerSec(tn)*ones(count , 1)];
                 eyeinfo.sacDur     = [eyeinfo.sacDur ; mean(ANA.SaccDuration{tn})*ones(count , 1)];
                 eyeinfo.sacPeakVel = [eyeinfo.sacPeakVel ; mean(ANA.SaccPeakVel{tn})*ones(count , 1)];
@@ -2062,138 +2072,149 @@ switch what
                 eyeinfo.seqNumb    = [eyeinfo.seqNumb ; ANA.seqNumb(tn)*ones(count , 1)];
                 eyeinfo.DigFixDur  = [eyeinfo.DigFixDur ;ANA.DigFixWeighted(tn ,goodid)'];
             end
-            K_withinChunk = tapply(eyeinfo , {'day' , 'Hor' , 'sn','CB'} , {'sacDur' , 'nanmedian'}, {'DigFixDur' , 'nanmedian'},...
-                {'sacAmp' , 'nanmedian'} , {'sacPerSec' , 'nanmedian'}, {'PB' , 'nanmedian'} , 'subset' ,...
-                eyeinfo.seqNumb ~= 0 & eyeinfo.CB~=-1);
-            
-            K_sqnum = tapply(eyeinfo , {'day' , 'Hor' , 'sn','seqNumb' , 'prsnumb'} , {'sacDur' , 'nanmedian'}, {'sacPeakVel' , 'nanmedian'},...
-                {'sacAmp' , 'nanmedian'} , {'sacPerSec' , 'nanmedian'}, {'PB' , 'nanmedian'},{'DigFixDur' , 'nanmedian'});
-            
-            K_rand_chnk = tapply(eyeinfo , {'day' , 'Hor' , 'sn','seqNumb'} , {'sacDur' , 'nanmedian'}, {'sacPeakVel' , 'nanmedian'},...
-                {'sacAmp' , 'nanmedian'} , {'sacPerSec' , 'nanmedian'}, {'PB' , 'nanmedian'},{'DigFixDur' , 'nanmedian'},...
-                'subset' , eyeinfo.CB~=-1);
-            
-            save([baseDir , '/' , filename] , 'eyeinfo' ,'K_withinChunk' , 'K_sqnum' , 'K_rand_chnk' , '-v7.3')
+
+            save([baseDir , '/' , filename] , 'eyeinfo','-v7.3')
         else
             load([baseDir , '/', filename])
         end
-    case 'Errors'
-        for tn = 1:length(Dall.TN)
-            Dall.MT(tn , 1) = Dall.AllPressTimes(tn , Dall.seqlength(tn)) - Dall.AllPressTimes(tn , 1);
-        end
-        err = [];
-        err0 = [];
-        proberr = [];
-        proberr0 = [];
-        figure('color' , 'white')
-        for h = [1:8]
-            errh = [];
-            errh0 = [];
-            
-            for sub = subjnum
-                errhs = [];
-                errhs0 = [];
-                ANA = getrow(Dall , ismember(Dall.SN , sub) & ismember(Dall.seqNumb , [1:2]) & Dall.isError  & ismember(Dall.Day , days{day}) & ismember(Dall.Horizon , h));
-                ANA0 = getrow(Dall , ismember(Dall.SN , sub) & ismember(Dall.seqNumb , 0) & Dall.isError  & ismember(Dall.Day , days{day}) & ismember(Dall.Horizon , h));
-                
-                for tn  = 1:length(ANA.TN)
-                    ANA.ChunkBndry(tn , :) = diff(ANA.ChnkArrang(tn,:));
-                    a = find(ANA.ChunkBndry(tn , :));
-                    ANA.ChunkBndry(tn , a-1) = 3;
-                    ANA.ChunkBndry(tn , end) = 3;
-                    ANA.ChunkBndry(tn , ANA.ChunkBndry(tn , :) == 0) = 2;
-                    ANA.ChunkBndry(tn , 1:2) = [-1 -1];  % dont account for the first and last sseqeuce presses
-                    ANA.ChunkBndry(tn , end-1:end) = [-1 -1];% dont account for the first and last sseqeuce presses
-                    ANA.IPI_Horizon(tn , :) = ANA.Horizon(tn)*ones(1,13);
-                    a = find(ANA.AllPress(tn,:) ~= ANA.AllResponse(tn,:));
-                    err = [err ; [a(1) ANA.ChnkPlcmnt(tn,a(1)), ANA.Horizon(tn) , ANA.SN(tn) ]];
-                    errh = [errh ; [a(1) ANA.ChnkPlcmnt(tn,a(1)), ANA.Horizon(tn) , ANA.SN(tn) ]];
-                    errhs = [errhs ; [a(1) ANA.ChnkPlcmnt(tn,a(1)), ANA.Horizon(tn) , ANA.SN(tn) ]];
-                end
-                
-                for tn  = 1:length(ANA0.TN)
-                    a = find(ANA0.AllPress(tn,:) ~= ANA0.AllResponse(tn,:));
-                    err0 = [err0 ; [a(1) 0, ANA0.Horizon(tn) , ANA0.SN(tn) ]];
-                    errh0 = [errh0 ; [a(1) 0, ANA0.Horizon(tn) , ANA0.SN(tn) ]];
-                    errhs0 = [errhs0 ; [a(1) 0, ANA0.Horizon(tn) , ANA0.SN(tn) ]];
-                end
-                for p = 1:14
-                    proberr  = [proberr  ; 100*sum(errhs(:,1) == p)/size(errhs,1) sub h p];
-                    proberr0 = [proberr0 ; 100*sum(errhs0(:,1) == p)/size(errhs0,1) sub h p];
-                end
-            end
-            subplot(2,4,h)
-            ax = gca;
-            hold on
-            histogram(errh(:,2) , 'Normalization' , 'probability');
-            ylabel('Probability');
-            xlabel('Chunk placement')
-            title(['Errors in different chunk placements, H = ' , num2str(h)])
-            ax.YLim =[0: 1];
-            ax.XTick = [1:3];
-            ax.XTickLabel = {'First' , 'Middle' , 'Last'};
-        end
-        
-        out.Po1 = anovan(err(:,2) , err(:,3), 'display' , 'off' , 'model' , 'full' , 'varnames' , {'Horizon'});
-        
-        temp = pivottable(proberr(:,3) , proberr(:,4) , proberr(:,1) , 'nanmean');
-        figure('color' , 'white')
-        subplot(1,2,1)
-        imagesc(temp , [0 50])
-        colorbar
-        hold on
-        ax = gca;
-        ax.XTick = [1:14];
-        xlabel('Presses')
-        ax.YTickLabel  = fliplr({ 'H = 8' 'H = 7' 'H = 6' 'H = 5' 'H = 4' 'H = 3' 'H = 2' 'H = 1' });
-        title('%Errors per press in chunked sequences')
-        
-        temp0 = pivottable(proberr0(:,3) , proberr0(:,4) , proberr0(:,1) , 'nanmean');
-        subplot(1,2,2)
-        imagesc(temp0 , [0 50])
-        colorbar
-        hold on
-        ax = gca;
-        ax.XTick = [1:14];
-        xlabel('Presses')
-        ax.YTickLabel  = fliplr({ 'H = 8' 'H = 7' 'H = 6' 'H = 5' 'H = 4' 'H = 3' 'H = 2' 'H = 1' });
-        title('%Errors per press in Random sequences')
-        
-        %% error percetanges
-        errp = [];
-        
-        for h = [1:8]
-            for sub = subjnum
-                ANA = getrow(Dall , ismember(Dall.SN , sub) & ismember(Dall.seqNumb , [1:6])& ismember(Dall.Rep , Repetition) & ismember(Dall.Day , days{day}) & ismember(Dall.Horizon , h));
-                ANA0 = getrow(Dall , ismember(Dall.SN , sub) & ismember(Dall.seqNumb , 0) & ismember(Dall.Rep , Repetition) & ismember(Dall.Day , days{day}) & ismember(Dall.Horizon , h));
-                errp = [errp ; 100*sum(ANA.isError)/length(ANA.TN) h sub 1];
-                errp = [errp ; 100*sum(ANA0.isError)/length(ANA0.TN) h sub 0];
-            end
-        end
-        h1 = figure;
-        [xcoor1,PLOT1,ERROR1] = lineplot(errp(:,2) , errp(:,1) , 'subset' , errp(:,4) ==1);
-        hold on
-        [xcoor0,PLOT0,ERROR0] = lineplot(errp(:,2) , errp(:,1) , 'subset' , errp(:,4) ==0);
-        close(h1)
-        
-        out.EP = anovan(errp(:,1) , errp(:,[2,4]), 'display' , 'off' , 'model' , 'full' , 'varnames' , {'Horizon' , 'Rand/Chunk'});
-        figure('color' , 'white')
-        h1 = plotshade(xcoor1',PLOT1,ERROR1,'transp' , .2 , 'patchcolor' , 'b' , 'linecolor' , 'b' , 'linewidth' , 3 , 'linestyle' , ':');
-        hold on
-        h0 = plotshade(xcoor0',PLOT0,ERROR0,'transp' , .2 , 'patchcolor' , 'm' , 'linecolor' , 'm' , 'linewidth' , 3 , 'linestyle' , ':');
-        
-        title(['Error rate,  p(r/c) = ' , num2str(out.EP(2)) , '       No horizon effect, no interaction'])
-        legend([h1,h0] , {'Chunked' , 'Randon'})
-        hold on
-        ax = gca;
-        ax.XTick = [1:8];
-        xlabel('Horizon')
-        ylabel('Percent of Error trial');
-        grid on
-        
-        
-        
         out = [];
+        switch nowWhat
+            case 'sacDurSplitDay'
+                Ho  = unique(eyeinfo.Hor);
+                
+                K = tapply(eyeinfo , {'day' , 'Hor' , 'sn','seqNumb'} , {'sacDur' , 'nanmean'} , ...
+                    'subset' , ismember(eyeinfo.prsnumb , [4:10]));
+                K.seqNumb(K.seqNumb>1) = 1;
+                K = normData(K , {'sacDur'});
+                figure('color' , 'white')
+                subplot(121)
+                lineplot([K.Hor] , K.normsacDur , 'plotfcn' , 'nanmean',...
+                    'subset' , ismember(K.seqNumb , 0) ,'split', K.day , 'leg' , 'auto' , 'linecolor' , colz(1:length(dayz),1),...
+                    'errorcolor' , colz(1:length(dayz),1) , 'errorbars' , repmat({'shade'} , 1 , length(dayz)) , 'shadecolor' ,colz(1:length(dayz),1),...
+                    'linewidth' , 3 , 'markertype' , repmat({'o'} , 1  , length(dayz)) , 'markerfill' , colz(1:length(dayz),1),...
+                    'markersize' , 10, 'markercolor' , colz(1:length(dayz),1));
+                ylabel('Mean Saccade duration per trial [ms]' )
+                xlabel('Viewing window Size' )
+                title('Random Sequences')
+                set(gca,'FontSize' , 18 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [20  70],'YTick' , [30:10:70] ,...
+                    'YGrid' , 'on');
+                
+                subplot(122)
+                lineplot([K.Hor] , K.normsacDur , 'plotfcn' , 'nanmean',...
+                    'subset' , ismember(K.seqNumb , 1) ,'split', K.day , 'leg' , 'auto' , 'linecolor' , colz(1:length(dayz),2),...
+                    'errorcolor' , colz(1:length(dayz),2) , 'errorbars' , repmat({'shade'} , 1 , length(dayz)) , 'shadecolor' ,colz(1:length(dayz),2),...
+                    'linewidth' , 3 , 'markertype' , repmat({'o'} , 1  , length(dayz)) , 'markerfill' , colz(1:length(dayz),2),...
+                    'markersize' , 10, 'markercolor' , colz(1:length(dayz),2));
+                ylabel('Mean Saccade duration per trial [ms]' )
+                xlabel('Viewing window Size' )
+                title('Structured Sequences')
+                set(gca,'FontSize' , 18 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [20  70],'YTick' , [30:10:70] ,...
+                    'YGrid' , 'on');
+            case 'sacDurSplitseqType'
+                Ho  = unique(eyeinfo.Hor);
+                K = tapply(eyeinfo , {'day' , 'Hor' , 'sn','seqNumb'} , {'sacDur' , 'nanmean'} , ...
+                    'subset' , ismember(eyeinfo.prsnumb , [4:10]));
+                K.seqNumb(K.seqNumb>1) = 1;
+                K = normData(K , {'sacDur'});
+                figure('color' , 'white')
+                for d = 1:length(dayz)
+                    subplot(1,length(dayz) , d)
+                    lineplot([K.Hor] , K.normsacDur , 'plotfcn' , 'nanmean',...
+                        'split', K.seqNumb , 'subset' , ismember(K.day , dayz{d}) , 'leg' , 'auto' , 'linecolor' , colz(d,1:2),...
+                        'errorcolor' , colz(d,1:2) , 'errorbars' , repmat({'shade'} , 1 , 2) , 'shadecolor' ,colz(d,1:2),...
+                        'linewidth' , 3 , 'markertype' , repmat({'o'} , 1  , 2) , 'markerfill' , colz(d,1:2),...
+                        'markersize' , 10, 'markercolor' , colz(d,1:2));
+                    ylabel('Mean Saccade duration per trial [ms]' )
+                    xlabel('Viewing window Size' )
+                    title('Random Sequences')
+                    set(gca,'FontSize' , 18 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [20  70],'YTick' , [30:10:70] ,...
+                        'YGrid' , 'on');
+                    if d>1
+                        set(gca,'YColor' , 'none');
+                    end
+                end  
+            case 'sacAmpSplitDay'
+                Ho  = unique(eyeinfo.Hor);
+                
+                K = tapply(eyeinfo , {'day' , 'Hor' , 'sn','seqNumb'} , {'sacAmp' , 'nanmean'} , ...
+                    'subset' , ismember(eyeinfo.prsnumb , [4:10]));
+                K.seqNumb(K.seqNumb>1) = 1;
+                K = normData(K , {'sacAmp'});
+                figure('color' , 'white')
+                subplot(121)
+                lineplot([K.Hor] , K.normsacAmp , 'plotfcn' , 'nanmean',...
+                    'subset' , ismember(K.seqNumb , 0) ,'split', K.day , 'leg' , 'auto' , 'linecolor' , colz(1:length(dayz),1),...
+                    'errorcolor' , colz(1:length(dayz),1) , 'errorbars' , repmat({'shade'} , 1 , length(dayz)) , 'shadecolor' ,colz(1:length(dayz),1),...
+                    'linewidth' , 3 , 'markertype' , repmat({'o'} , 1  , length(dayz)) , 'markerfill' , colz(1:length(dayz),1),...
+                    'markersize' , 10, 'markercolor' , colz(1:length(dayz),1));
+                ylabel('Mean Saccade amplitude per trial [deg]' )
+                xlabel('Viewing window Size' )
+                title('Random Sequences')
+                set(gca,'FontSize' , 18 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [-4 20],'YTick' , [0:5:20] ,...
+                    'YGrid' , 'on');
+                
+                subplot(122)
+                lineplot([K.Hor] , K.normsacAmp , 'plotfcn' , 'nanmean',...
+                    'subset' , ismember(K.seqNumb , 1) ,'split', K.day , 'leg' , 'auto' , 'linecolor' , colz(1:length(dayz),2),...
+                    'errorcolor' , colz(1:length(dayz),2) , 'errorbars' , repmat({'shade'} , 1 , length(dayz)) , 'shadecolor' ,colz(1:length(dayz),2),...
+                    'linewidth' , 3 , 'markertype' , repmat({'o'} , 1  , length(dayz)) , 'markerfill' , colz(1:length(dayz),2),...
+                    'markersize' , 10, 'markercolor' , colz(1:length(dayz),2));
+                ylabel('Mean Saccade amplitude per trial [deg]' )
+                xlabel('Viewing window Size' )
+                title('Structured Sequences')
+                set(gca,'FontSize' , 18 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [-4 20],'YTick' , [0:5:20] ,...
+                    'YGrid' , 'on');
+            case 'sacAmpSplitseqType'
+                Ho  = unique(eyeinfo.Hor);
+                K = tapply(eyeinfo , {'day' , 'Hor' , 'sn','seqNumb'} , {'sacAmp' , 'nanmean'} , ...
+                    'subset' , ismember(eyeinfo.prsnumb , [4:10]));
+                K.seqNumb(K.seqNumb>1) = 1;
+                K = normData(K , {'sacAmp'});
+                figure('color' , 'white')
+                for d = 1:length(dayz)
+                    subplot(1,length(dayz) , d)
+                    lineplot([K.Hor] , K.normsacAmp , 'plotfcn' , 'nanmean',...
+                        'split', K.seqNumb , 'subset' , ismember(K.day , dayz{d}) , 'leg' , 'auto' , 'linecolor' , colz(d,1:2),...
+                        'errorcolor' , colz(d,1:2) , 'errorbars' , repmat({'shade'} , 1 , 2) , 'shadecolor' ,colz(d,1:2),...
+                        'linewidth' , 3 , 'markertype' , repmat({'o'} , 1  , 2) , 'markerfill' , colz(d,1:2),...
+                        'markersize' , 10, 'markercolor' , colz(d,1:2));
+                    ylabel('Mean Saccade amplitude per trial [deg]' )
+                    xlabel('Viewing window Size' )
+                    title('Random Sequences')
+                    set(gca,'FontSize' , 18 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [-4 20],'YTick' , [0:5:20] ,...
+                        'YGrid' , 'on');
+                    if d>1
+                        set(gca,'YColor' , 'none');
+                    end
+                end
+            case 'FixDurSplitipitype'
+                Ho  = unique(eyeinfo.Hor);
+                K = tapply(eyeinfo , {'day' , 'Hor' , 'sn','CB'} , {'DigFixDur' , 'nanmean'} , ...
+                    'subset' , ismember(eyeinfo.prsnumb , [4:10]));
+                
+                K = normData(K , {'DigFixDur'});
+                figure('color' , 'white')
+                for d = 1:length(dayz)
+                    subplot(1,length(dayz) , d)
+                    lineplot([K.Hor] , K.normDigFixDur , 'plotfcn' , 'nanmean',...
+                        'split', K.CB , 'subset' , ismember(K.day , dayz{d}) , 'leg' , 'auto' , 'linecolor' , colIPI(d,1:4),...
+                        'errorcolor' , colIPI(d,1:4) , 'errorbars' , repmat({'shade'} , 1 , 2) , 'shadecolor' ,colIPI(d,1:4),...
+                        'linewidth' , 3 , 'markertype' , repmat({'o'} , 1  , 2) , 'markerfill' , colIPI(d,1:4),...
+                        'markersize' , 10, 'markercolor' , colIPI(d,1:4));
+                    ylabel('Mean Saccade amplitude per trial [deg]' )
+                    xlabel('Viewing window Size' )
+                    title('Random Sequences')
+                    set(gca,'FontSize' , 18 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [20 140],'YTick' , [30:10:140] ,...
+                        'YGrid' , 'on');
+                    if d>1
+                        set(gca,'YColor' , 'none');
+                    end
+                end    
+               
+ 
+        end
+        
+    
 end
 
 
