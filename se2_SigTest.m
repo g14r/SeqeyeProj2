@@ -118,85 +118,76 @@ switch what
         %         xlabel(FCTR{end})
         %         ylabel('msec')
     case 'IPI'
-
+        ANA.seqNumb(ANA.seqNumb>=2) = 1;
+        for tn = 1:length(ANA.TN)
+            n = (ANA.AllPressIdx(tn , sum(~isnan(ANA.AllPressIdx(tn , :))))  - ANA.AllPressIdx(tn , 1)) / 1000;
+            nIdx(tn , :) = (ANA.AllPressIdx(tn , :) - ANA.AllPressIdx(tn , 1))/n;
+            ANA.IPI_norm(tn , :) = diff(nIdx(tn ,:) , 1 , 2);
+            if ismember(ANA.seqNumb(tn) , [1:6])
+                ANA.ChunkBndry(tn , :) = [1 diff(ANA.ChnkArrang(tn,:))];
+                a = find(ANA.ChunkBndry(tn , :));
+                ANA.ChunkBndry(tn , a(2:end)-1) = 3;
+                ANA.ChunkBndry(tn ,end) = 3;
+                ANA.ChunkBndry(tn , ANA.ChunkBndry(tn , :) == 0) = 2;
+            else
+                ANA.ChunkBndry(tn , :) = zeros(size(ANA.ChnkArrang(tn , :)));
+            end
+        end
+        for tn  = 1:length(ANA.TN)
+            ANA.IPI_Horizon(tn , :) = ANA.Horizon(tn)*ones(1,13);
+            ANA.IPI_SN(tn , :) = ANA.SN(tn)*ones(1,13);
+            ANA.IPI_Day(tn , :) = ANA.Day(tn)*ones(1,13);
+            ANA.IPI_prsnumb(tn , :) = [1 :13];
+            ANA.IPI_seqNumb(tn , :) = ANA.seqNumb(tn)*ones(1,13);
+            ANA.IPI_BN(tn , :) = ANA.BN(tn)*ones(1,13);
+        end
+        IPItable.IPI = reshape(ANA.IPI , numel(ANA.IPI) , 1);
+        IPItable.ChunkBndry = reshape(ANA.ChunkBndry(:,2:end) , numel(ANA.IPI) , 1);
+        IPItable.Horizon = reshape(ANA.IPI_Horizon , numel(ANA.IPI) , 1);
+        IPItable.SN  = reshape(ANA.IPI_SN , numel(ANA.IPI) , 1);
+        IPItable.Day = reshape(ANA.IPI_Day , numel(ANA.IPI) , 1);
+        IPItable.prsnumb = reshape(ANA.IPI_prsnumb , numel(ANA.IPI) , 1);
+        IPItable.seqNumb = reshape(ANA.IPI_seqNumb , numel(ANA.IPI) , 1);
+        IPItable.BN = reshape(ANA.IPI_BN , numel(ANA.IPI) , 1);
+        IPIs  = IPItable;
+        % pool last and within
+        IPIs.ChunkBndry(IPIs.ChunkBndry == 3) = 2;
+        
         switch whatIPI
-            case 'ipiOfInterest'
-                ipi = ANA.IPI(:,ipiOfInterest);
-                A.IPI = reshape(ipi , numel(ipi) , 1);
-                A.Horizon = repmat(ANA.Horizon , size(ipi , 2) , 1);
-                A.Day = repmat(ANA.Day , size(ipi , 2) , 1);
-                A.seqNumb = repmat(ANA.seqNumb , size(ipi , 2) , 1);
-                A.SN = repmat(ANA.SN , size(ipi , 2) , 1);
+
+            case 'ipistoEachother'
+                A = [];
+                for n = 1:length(ipiOfInterest)
+                    temp = getrow(IPIs , ismember(IPIs.prsnumb , ipiOfInterest{n}));
+                    temp.prsnumb = n*ones(size(temp.prsnumb));
+                    A = addstruct(A , temp);
+                end
+                if length(ipiOfInterest)>1
+                    FCTR = [FCTR , 'prsnumb'];
+                end
                 var = [];
                 for f = 1:length(FCTR)
                     eval(['var = [var A.',FCTR{f},'];']);
                 end
-                stats = anovaMixed(A.IPI  , A.SN ,'within',var ,FCTR,'intercept',1) ;
-                figure('color' , 'white')
-                lineplot(var, A.IPI, 'style_thickline');
-                title(['Effect of ' , FCTR , ' on ' , what]);
-            case 'ipiOfInterestToSS'
-                figure('color' , 'white')
-                ANA1 = getrow(Dall , Dall.isgood & ~Dall.isError & ...
-                    ismember(Dall.Day , Day) & ismember(Dall.seqNumb , seqNumb));
-                subplot(211)
-                ipiNum = repmat([1:size(ANA1.AllPress , 2)-1] , size(ANA1.IPI , 1) , 1);
-                ipiNum(ismember(ipiNum , [4:10])) = 7 ; % steady state
-                H = repmat(ANA1.Horizon , 1 , size(ANA1.AllPress , 2)-1);
-                index = fliplr([reshape(ipiNum , numel(ipiNum) , 1) reshape(H, numel(H) , 1)]);
-                data  = reshape(ANA1.IPI , numel(ANA1.IPI) , 1);
-                lineplot(index , data , 'style_shade');
-                hold on
-                midPlaces = [3.1 : 5.2:3.1+8*5.2];
-                for m = 1:length(midPlaces)
-                    line([midPlaces(m) midPlaces(m)],[min(min(ANA1.IPI)) max(max(ANA1.IPI))] , 'color' , 'k')
-                end
                 
-                ipiss = ANA.IPI(:,4:10);
-                ipibeg = ANA.IPI(:,ipiOfInterest);
-                
-                label = [ones(numel(ipibeg) , 1) ;zeros(numel(ipiss) ,1)];
-                A.IPI = [reshape(ipibeg , numel(ipibeg) , 1);reshape(ipiss , numel(ipiss) , 1)];
-                A.Horizon = repmat(ANA.Horizon , size(ipibeg , 2)+size(ipiss , 2) , 1);
-                A.Day = repmat(ANA.Day , size(ipibeg , 2)+size(ipiss , 2) , 1);
-                A.seqNumb = repmat(ANA.seqNumb , size(ipibeg , 2)+size(ipiss , 2) , 1);
-                A.SN = repmat(ANA.SN , size(ipibeg , 2)+size(ipiss , 2) , 1);
-                var = [];
-                for f = 1:length(FCTR)
-                    eval(['var = [var A.',FCTR{f},'];']);
-                end
-                var = [var label];
-                FCTR = [FCTR , 'beg/end vs SS'];
-                tAdd = FCTR{1};
-                for f =2:length(FCTR)
-                    tAdd = [tAdd , ' and ' , FCTR{f}];
-                end
                 stats = anovaMixed(A.IPI  , A.SN ,'within',var ,FCTR,'intercept',1) ;
-                subplot(212)
                 lineplot(var, A.IPI, 'style_thickline');
-                title(['Effect of ' , tAdd , ' on ' , what ,' , 0 is steady state']);
+            
             case 'AllToSS'
                 calc = 0;
                 if calc
-                    if poolDays
-                        Day = {[1] , [2 3] , [4 5]};
-                    else
-                        Day = {[1] [2] [3] [4] , [5]};
-                    end
-                    H =[1:8 , 13];
                     ipi = [1 2 3 11 12 13];
                     for sn = 0:2
-                        for h = 1:length(H)
-                            for d = 1:length(Day)
-                                for p = 1:length(ipi)
-                                    stats = se2_SigTest(Dall , 'IPI' , 'seqNumb' , [sn] , 'Day' , Day{d} , 'Horizon' , [H(h)],'PoolSequences' , 1,...
-                                        'PoolDays' , 1,'whatIPI','ipiOfInterestToSS','PoolHorizons',0,'ipiOfInterest' , ipi(p));
-                                    pval{sn+1 , d}(h,p) = stats.eff(2).p;
-                                    close all
-                                    
-                                end
+                        for d = 1:length(Day)
+                            for p = 1:length(ipi)
+                                stats = se2_SigTest(Dall , 'IPI' , 'seqNumb' , [sn] , 'Day' , Day{d} ,'PoolSequences' , 1,...
+                                    'whatIPI','ipiOfInterestToSS','ipiOfInterest' , ipi(p));
+                                pval{sn+1 , d}(p) = stats.eff(2).p;
+                                close all
+                                
                             end
                         end
+                        
                     end
                     save('/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze/se2_IPIsigTest.mat' , 'pval')
                 else
@@ -251,7 +242,6 @@ switch what
                         A.IPIArr(A.IPIArr==2) = 1;
                 end
                 A.IPI = reshape(ipiss , numel(ipiss) , 1);
-                A.Horizon = repmat(ANA.Horizon , size(ipiss , 2) , 1);
                 A.Day = repmat(ANA.Day , size(ipiss , 2) , 1);
                 A.seqNumb = repmat(ANA.seqNumb , size(ipiss , 2) , 1);
                 A.SN = repmat(ANA.SN , size(ipiss , 2) , 1);
