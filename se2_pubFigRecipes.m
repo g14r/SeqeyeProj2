@@ -13,13 +13,11 @@ out  = se2_pubFigs(Dall , 'IPI','IPIFullDispsplitHorizon', 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'IPI','compareLearning', 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'IPI','compareLearning_histogram', 'poolDays' , 0);
 
-out  = se2_pubFigs(Dall , 'RT','RandvsStructCommpare','poolDays' , 1);
+out  = se2_pubFigs(Dall , 'RT','RandvsStructCommpare');
 out  = se2_pubFigs(Dall , 'RT','RandStructAcrossDays' , 'poolDays' , 0);
-out  = se2_pubFigs(Dall , 'RT','BoxAcrossDays' , 'poolDays' , 1);
-out  = se2_pubFigs(Dall , 'RT','BoxAcrosSeqType' , 'poolDays' , 1);
-out  = se2_pubFigs(Dall , 'RT','LearningEffectHeat' , 'poolDays' , 0);
-out  = se2_pubFigs(Dall , 'RT','LearningEffectShade' , 'poolDays' , 1);
-out  = se2_pubFigs(Dall , 'RT','compareLearning' , 'poolDays' , 1);
+out  = se2_pubFigs(Dall , 'RT','compareLearning' , 'poolDays' , 0);
+out  = se2_pubFigs(Dall , 'RT','LearningEffectShade' , 'poolDays' , 0);
+out  = se2_pubFigs(Dall , 'RT','BoxFirstLastDays' , 'poolDays' , 0);
 
 
 out  = se2_pubFigs(Dall , 'MT_asymptote','Actual&fitHorz', 'poolDays' , 0, 'MaxIter' , 150);
@@ -83,9 +81,9 @@ lineplot(B.Day , B.MT , 'split' , B.exp , 'leg' , 'auto')
 
 
 %% significance test on MTs
-stats = se2_SigTest(Dall , 'MT' , 'seqNumb' , [0:2] , 'Day' , [5] , 'Horizon' , [1:13],...
+stats = se2_SigTest(Dall , 'MT' , 'seqNumb' , [0] , 'Day' , [1] , 'Horizon' , [2:13],...
     'PoolDays' , 1,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
-    'PoolHorizons' , [5:13],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , [1:13]);
+    'PoolHorizons' , [],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , [1:13]);
 
 %% significance test on IPIs % {[1] [2] [3] [4] [5] [6] [7] [8] [9] [10] [11] [12] [13]}
 stats = se2_SigTest(Dall , 'IPI' , 'seqNumb' , [0] , 'Day' , [1 5] , 'Horizon' , [2],...

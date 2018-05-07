@@ -208,19 +208,18 @@ switch what
                 end
 
             case 'LearningEffectShade'
-                figure('color' , 'white');
                 H = unique(MT.Horizon);
                 for sn = 0:1
-                    subplot(1,2 , sn+1);
-                    colorz = colz(:,sn+1);
-                    hcolorz = horzcolor;
+                    figure('color' , 'white');
+                    colorz = colz(4,sn+1);
+                    hcolorz = horzcolor(3,1);
                     lineplot([MT.Day] , MT.normMT , 'plotfcn' , 'nanmean',...
                         'split', MT.Horizon , 'linecolor' , colorz,...
                         'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , 2) , 'shadecolor' ,hcolorz,...
-                        'linewidth' , 3 , 'markertype' , repmat({'o'} , 1  , 2) , 'markerfill' , colorz,...
-                        'markersize' , 10, 'markercolor' , colorz , 'leg' , 'auto'  , 'subset' , ismember(MT.seqNumb , sn));
+                        'linewidth' , 3 , 'markertype' , {'o' , 's' , '<' , '*' , 'x' , '+' , 'd' , '>' , 'p'} , 'markerfill' , colorz,...
+                        'markersize' , 15, 'markercolor' , colorz , 'leg' , 'auto'  , 'subset' , ismember(MT.seqNumb , sn));
                     set(gca,'FontSize' , 18 , 'XTick' , [1:length(dayz)] , ...
-                    'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 length(dayz)], 'YLim' , [2500 7000],'YTick' ,...
+                    'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 length(dayz)], 'YLim' , [3500 7000],'YTick' ,...
                     [3000 4000 5000 6000] , 'YTickLabels' , [3 4 5 6] , 'YGrid' , 'on');
                     xlabel('Viewing window size' )
                     ylabel('Execution time [s]')
@@ -235,8 +234,7 @@ switch what
                     'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , 2) , 'shadecolor' ,colorz,...
                     'linewidth' , 3 , 'markertype' , repmat({'o'} , 1  , 2) , 'markerfill' , colorz,...
                     'markersize' , 10, 'markercolor' , colorz , 'leg' , 'auto' );
-                set(gca,'FontSize' , 18 , 'XTick' , [1:length(dayz)] , ...
-                    'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 length(dayz)], 'YLim' , [2500 7000],'YTick' ,...
+                set(gca,'FontSize' , 18  , 'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [2500 7000],'YTick' ,...
                     [3000 4000 5000 6000] , 'YTickLabels' , [3 4 5 6] , 'YGrid' , 'on');
                 xlabel('Viewing window size' )
                 ylabel('Execution time [s]')
@@ -433,318 +431,124 @@ switch what
                 end
         end
     case 'RT'
-        ANA = getrow(Dall , ismember(Dall.SN , subjnum) & Dall.isgood & ismember(Dall.seqNumb , [0 1 2]) & ~Dall.isError);
-        ANA.seqNumb(ANA.seqNumb == 2) = 1;
-        RT = tapply(ANA , {'Horizon' , 'Day' ,'SN' , 'seqNumb'} , {'RT' , 'nanmean(x)'});
-        RT.RT = RT.AllPressTimes(:,1)-1500;        
-        RT = normData(RT , {'RT'});
-        h1 = figure('color' , 'white');
-        for d=  1:length(dayz)
-            hc = 1;
-            [xcoords{d},PLOTs{d},ERRORs{d}] = lineplot(RT.Horizon,RT.normRT , 'plotfcn' , 'nanmean' , 'subset' , RT.seqNumb == 1 & ismember(RT.Day , dayz{d}));
-            hold on
-            [xcoordr{d},PLOTr{d},ERRORr{d}] = lineplot(RT.Horizon,RT.normRT , 'plotfcn' , 'nanmean' , 'subset' , RT.seqNumb == 0 & ismember(RT.Day , dayz{d}));
-            
-        end
-        close(h1);
-        if poolDays
-            sigSeq = [NaN 3 2];
-            sigRT  = [3 4 5;4 5 4];
-        else
-            sigSeq = [NaN 3 3 2 2];
-            sigRT  = [3 4 4 6 3;4 3 4 4 4];
-        end
+        Dall.RT = Dall.AllPressTimes(:,1)-1500;
+        ANA = getrow(Dall , Dall.isgood & ismember(Dall.seqNumb , [0 1:6]) & ~Dall.isError);
+        ANA.seqNumb(ANA.seqNumb >=1) = 1;
         
+        ANA = getrow(ANA , ANA.RT <= 9000 );
+        
+        for d = 1:length(dayz)
+            ANA.Day(ismember(ANA.Day , dayz{d})) = d;
+        end
+        RT = tapply(ANA , {'Horizon' , 'BN' , 'seqNumb' , 'SN' , 'Day'} , {'RT'});
+        RT = normData(RT , {'RT'});
+        % segments
+        ANA = getrow(Dall , Dall.isgood & ~ismember(Dall.seqNumb , [0 1:6]) & ~Dall.isError);
+        ANA.seqNumb(ismember(ANA.seqNumb ,[103 203 303])) = 3;
+        ANA.seqNumb(ismember(ANA.seqNumb ,[104 204 304])) = 4;
+        
+        
+        ANA = getrow(ANA , ANA.RT <= 9000 );
+        
+        for d = 1:length(dayz)
+            ANA.Day(ismember(ANA.Day , dayz{d})) = d;
+        end
+        RTseg = tapply(ANA , {'BN' , 'seqNumb' , 'SN'} , {'RT'});
+        RTseg = normData(RTseg , {'RT'});
+        
+       
         switch nowWhat
             case 'RandvsStructCommpare'
                 figure('color' , 'white');
-                for d=  1:length(dayz)
-                    subplot(1,length(dayz),d)
-                    h1 = plotshade(xcoords{d}',PLOTs{d} , ERRORs{d},'transp' , .5 , 'patchcolor' , colz{d,2} ,...
-                        'linecolor' ,colz{d,2} , 'linewidth' , 3 );
-                    hold on
-                    h2 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .5 , 'patchcolor' , colz{d,1} , 'linecolor' , colz{d,1} , 'linewidth' , 3 );
-                    set(gca,'FontSize' , 40 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
-                        'GridAlpha' , .2 , 'Box' , 'off' , 'YGrid' , 'on','XLim' , [1 13],'YLim' , [500 850],'YTick' , [ 600 700 800]);
-                    %             title(['Execution time - Training Session(s) ' , num2str(dayz{d})])
-                    ylabel('Sec' )
-                    xlabel('Viewing Horizon Size' )
-                    hold on
-                    plot(xcoords{d},PLOTs{d} , 'o' , 'MarkerSize' , 10 , 'color' , colz{d,2},'MarkerFaceColor',colz{d,2})
-                    plot(xcoords{d},PLOTr{d} , 'o' , 'MarkerSize' , 10 , 'color' , colz{d,1},'MarkerFaceColor',colz{d,1})
-%                     patch([sigSeq(d) 13 13 sigSeq(d)],[2400 2400 2600 2600] ,[NaN NaN NaN NaN],'FaceColor', avgCol{d},'EdgeColor' , 'none','FaceAlpha',1)
-%                     line([sigSeq(d) sigSeq(d)] , [2400 6800] , 'color' , avgCol{d}, 'LineWidth' , 3 , 'LineStyle' , ':')
-                    %             legend([h1 h2] ,{'Structured Sequences' , 'Random Sequences'})
+                H = unique(RT.Horizon);
+                for d = 1:length(dayz)
+                    subplot(1,length(dayz) , d);
+                    colorz = colz(d,1:2);
+                    lineplot([RT.Horizon] , RT.normRT , 'plotfcn' , 'nanmean',...
+                        'split', RT.seqNumb , 'linecolor' , colorz,...
+                        'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , 2) , 'shadecolor' ,colorz,...
+                        'linewidth' , 3 , 'markertype' , repmat({'o'} , 1  , 2) , 'markerfill' , colorz,...
+                        'markersize' , 10, 'markercolor' , colorz , 'leg' , {'Random'  , 'Structured'}  , 'subset' , ismember(RT.Day , dayz{d}));
+                    set(gca,'FontSize' , 18 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
+                        'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [600 900],'YTick' , [700 800] ,...
+                        'YTickLabels' , [0.7 0.8] , 'YGrid' , 'on','XLim' , [1 13]);
+                    xlabel('Viewing window size' )
+                    ylabel('Execution time [s]')
+                    if d>1
+                        set(gca,'YColor' , 'none');
+                    end
                 end
             case 'RandStructAcrossDays'
                 figure('color' , 'white');
-                subplot(1,2,1);hold on
-                for d=1:length(dayz)
-                    h1 = plotshade(xcoords{d}',PLOTs{d} , ERRORs{d},'transp' , .5 , 'patchcolor' , colz{d,2} , 'linecolor' , colz{d,2} , 'linewidth' , 3);
-                    plot(xcoords{d},PLOTs{d} , 'o' , 'MarkerSize' , 10 , 'color' , colz{d,2},'MarkerFaceColor',colz{d,2});
-%                     patch([1 sigRT(2,d) sigRT(2,d) 1],[6800+(d-1)*200 6800+d*200 6800+d*200 7000+(d-1)*200] , colz{d,2},'EdgeColor' , 'none','FaceAlpha',.6)
-%                     line([sigRT(2,d) sigRT(2,d)] , [PLOTs{d}(sigRT(2,d)) 7000+(d-1)*200] , 'color' , colz{d,2} , 'LineWidth' , 3 , 'LineStyle' , ':')
+                H = unique(RT.Horizon);
+                for sn = 0:1
+                    subplot(1,2 , sn+1);
+                    colorz = colz(:,sn+1);
+                    lineplot([RT.Horizon] , RT.normRT , 'plotfcn' , 'nanmean',...
+                        'split', RT.Day , 'linecolor' , colorz,...
+                        'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , 2) , 'shadecolor' ,colorz,...
+                        'linewidth' , 3 , 'markertype' , repmat({'o'} , 1  , 2) , 'markerfill' , colorz,...
+                        'markersize' , 10, 'markercolor' , colorz , 'leg' , daylab  , 'subset' , ismember(RT.seqNumb , sn));
+                    set(gca,'FontSize' , 18 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
+                        'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [600 900],'YTick' ,  [700 800] ,...
+                        'YTickLabels' , [0.7 0.8] , 'YGrid' , 'on','XLim' , [1 13]);
+                    xlabel('Viewing window size' )
+                    ylabel('Execution time [s]')
                 end
-                set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
-                    'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 13], 'YLim' , [500 850],'YTick' , [ 600 700 800] , 'YGrid' , 'on');
-                title(['Execution time for Structured Sequences'])
-                ylabel('Sec' )
-                xlabel('Viewing Horizon' )
-                %                 legend([h1 h2 h3] ,{'Training Session 1' , 'Training Sessions 2,3' , 'Training Sessions 4,5'})
-                
-                subplot(1,2,2);hold on
-                for d=1:length(dayz)
-                    h1 = plotshade(xcoordr{d}',PLOTr{d} , ERRORr{d},'transp' , .5 , 'patchcolor' , colz{d,1} , 'linecolor' , colz{d,1} , 'linewidth' , 3);
-                    plot(xcoordr{d},PLOTr{d} , 'o' , 'MarkerSize' , 10 , 'color' , colz{d,1},'MarkerFaceColor',colz{d,1});
-%                     patch([1 sigRT(1,d) sigRT(1,d) 1],[6800+(d-1)*200 6800+d*200 6800+d*200 7000+(d-1)*200] , colz{d,1},'EdgeColor' , 'none','FaceAlpha',.6)
-%                     line([sigRT(1,d) sigRT(1,d)] , [PLOTr{d}(sigRT(1,d)) 7000+(d-1)*200] , 'color' , colz{d,1} , 'LineWidth' , 3 , 'LineStyle' , ':')
-                end
-                set(gca,'FontSize' , 20 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
-                    'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 13], 'YLim' , [500 850],'YTick' , [ 600 700 800], 'YGrid' , 'on');
-                ylabel('Sec' )
-                xlabel('Viewing Horizon' )
-                %                 legend([h1 h2 h3] ,{'Session 1' , 'Sessions 2,3' , 'Sessions 4,5'})
-                title(['Execution time for Random Sequences'])
-            case 'BoxAcrossDays'
+            case 'BoxFirstLastDays'
                 %% THE BOX PLOTS
-                
-                xs = zeros(3,9);
-                % text x locations
-                xs(1,:) = 1:2.4:2.4*9;
-                for xx = 1:9
-                    for d = 2:length(dayz)
-                        xs(d,xx) = xs(d-1,xx)+.7;
-                    end
-                end
-                xs = xs(:);
-                % text colors
-                d_cols = repmat([1:3]' , 1 , 9);
-                d_cols = d_cols(:);
-                % star or no star
-                sigstars_r = cell(3,9);
-                sigstars_r(1,:) = {'*' , '*' , '*' ,'','','','','',''};
-                sigstars_r(2,:) = {'*' , '*' , '*' ,'','','','','',''};
-                sigstars_r(3,:) = {'*' , '*' , '*' ,'*','','','','',''};
-                sigstars_r = sigstars_r(:);
-                sigstars_s = cell(3,9);
-                sigstars_s(1,:) = {'*' , '*' , '*' ,'','','','','',''};
-                sigstars_s(2,:) = {'*' , '*' , '*' ,'','','','','',''};
-                sigstars_s(3,:) = {'*' , '*' , '*' ,'','','','','',''};
-                sigstars_s = sigstars_s(:);
-                ystar_r = zeros(3,9);
-                ystar_s = zeros(3,9);
-                c = 1;
-                for h = [1:8,13]
-                    for d = 1:3
-                        M = getrow(RT , RT.seqNumb==0 & ismember(RT.Day , dayz{d}) & RT.Horizon==h);
-                        ystar_r(d,c) = (std(M.RT)/sqrt(length(M.RT)))+max(M.RT);
-                        M = getrow(RT , RT.seqNumb~=0 & ismember(RT.Day , dayz{d}) & RT.Horizon==h);
-                        ystar_s(d,c) = (std(M.RT)/sqrt(length(M.RT)))+max(M.RT);
-                    end
-                    c = c+1;
-                end
-                ystar_r = ystar_r(:);
-                ystar_s = ystar_s(:);
-                
+                dayz = {[1] [5]};
+                horz = {[1] [2] [3] [4] [5] [6;13]};
+                RT.Horizon(RT.Horizon>6) = 6;
                 
                 figure('color' , 'white');
-                xs_labs = repmat({'S1' , 'S2,3' , 'S4,5'} , 1, 9);
-                
-                subplot(211);hold on
-                M = getrow(RT , RT.seqNumb~=0);
-                M.Day(ismember(M.Day , [2 3])) = 2;
-                M.Day(ismember(M.Day , [4 5])) = 3;
-                myboxplot(M.Horizon ,M.RT, 'notch',1 ,'plotall',0, 'fillcolor',colz{1,2},'linecolor',colz{1,2},...
-                    'whiskerwidth',3,'split' , M.Day,'xtickoff' );
-                hold on
-                for xl = 1:length(xs)
-                    text(xs(xl) , ystar_s(xl) , sigstars_s{xl} ,'FontSize' , 40,'color',colz{d_cols(xl),2})
+                M = getrow(RT , ismember(RT.Day , [1 5]));
+                M.Day(ismember(M.Day , [5])) = 2;
+                for d = 1:2
+                    subplot(2,1,d)
+                    myboxplot(M.Horizon ,M.RT, 'notch',1 ,'plotall',0, 'fillcolor',{colz{dayz{d},1} colz{dayz{d},2}},...
+                        'linecolor',{colz{dayz{d},1} colz{dayz{d},2}},...
+                        'whiskerwidth',3,'split' , [M.seqNumb] , 'subset' , M.Day == d);
+                    
+                    set(gca,'FontSize' , 18 ,  ...
+                        'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [1500 9000],...
+                        'YTick' , [3000 4000 5000 6000 7000 8000] , 'YTickLabels' , [3 4 5 6 7 8]);%,'XTick' , xs , 'XTickLabel' , xs_labs ,);
+                    ylabel('Sec','FontSize' , 21)
                 end
-                
-                % title('Structured')
-                set(gca,'FontSize' , 40 ,  ...
-                    'GridAlpha' , .2 , 'Box' , 'off' ,...
-                    'XTickLabelRotation' , 30, 'YGrid' , 'on');%,'XTick' , xs , 'XTickLabel' , xs_labs ,);
-                ylabel('Sec')
-                subplot(212);hold on
-                M = getrow(RT , RT.seqNumb==0);
-                M.Day(ismember(M.Day , [2 3])) = 2;
-                M.Day(ismember(M.Day , [4 5])) = 3;
-                myboxplot(M.Horizon ,M.RT, 'notch',1 ,'plotall',0, 'fillcolor',colz{1,1},'linecolor',colz{1,1},...
-                    'whiskerwidth',3,'split' , M.Day,'xtickoff');
-                ylabel('Sec')
-                % title('Random')
-                
-                set(gca,'FontSize' , 40 ,  ...
-                    'GridAlpha' , .2 , 'Box' , 'off' ,...
-                    'XTickLabelRotation' , 30, 'YGrid' , 'on');%,'XTick' , xs , 'XTickLabel' , xs_labs ,);
-                
-                hold on
-                for xl = 1:length(xs)
-                    text(xs(xl) , ystar_r(xl) , sigstars_r{xl} ,'FontSize' , 40,'color',colz{d_cols(xl),1})
-                end
-            case 'BoxAcrosSeqType'
-                %% BOX PLOT 2
-                xs = zeros(2,9);
-                % text x locations
-                xs(1,:) = 1:1.7:1.7*9;
-                for xx = 1:9
-                    xs(2,xx) = xs(1,xx)+.7;
-                end
-                xs = xs(:);
-                % text colors
-                d_cols = repmat([1 2]' , 1 , 9);
-                d_cols = d_cols(:);
-                % star or no star
-                sigstars(1,:) = {'' , '' , '' ,'','','','','','','' , '' , '' ,'','','','','',''};
-                sigstars(2,:) = {'' , '' , '' ,'','*','*','*','*','*','*' , '*' , '*' ,'*','*','*','*','*','*'};
-                sigstars(3,:) = {'' , '' , '*' ,'*','*','*','*','*','*','*' , '*' , '*' ,'*','*','*','*','*','*'};
-                
-                figure('color' , 'white');
-                
-                for d = 1:length(dayz)
-                    cols = {colz{d,1} colz{d,2}};
-                    subplot(3,1,d);hold on
-                    M = getrow(RT , ismember(RT.Day , dayz{d}));
-                    myboxplot(M.Horizon ,M.RT, 'notch',1 ,'plotall',0, 'fillcolor',cols,'linecolor',cols,...
-                        'whiskerwidth',3,'split' , M.seqNumb,'xtickoff');
-                    hold on
-                    ystar = zeros(2,9);
-                    c = 1;
-                    for h = [1:8,13]
-                        for sn = 0:1
-                            M = getrow(RT , RT.seqNumb==0 & ismember(RT.Day , dayz{d}) & RT.Horizon==h);
-                            ystar(sn+1,c) = (std(M.RT)/sqrt(length(M.RT)))+max(M.RT);
-                            M = getrow(RT , RT.seqNumb~=0 & ismember(RT.Day , dayz{d}) & RT.Horizon==h);
-                            ystar(sn+1,c) = (std(M.RT)/sqrt(length(M.RT)))+max(M.RT);
-                        end
-                        c = c+1;
-                    end
-                    ystar = ystar(:);
-                    for xl = 1:length(xs)
-                        text(xs(xl) , ystar(xl) , sigstars{d,xl} ,'FontSize' , 40,'color',cols{d_cols(xl)})
-                    end
-                    xs_labs = repmat({'Random' , 'Structured'} , 1, 9);
-                    % title('Structured')
-                    set(gca,'FontSize' , 30 ,  ...
-                        'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [0 9000],...
-                        'YTick' , [1000 2000 3000 4000 5000 6000 7000 8000] , 'YTickLabels' , [1 2 3 4 5 6 7 8],...
-                        'XTickLabelRotation' , 30,'YGrid' , 'on');%'XTick' , xs , 'XTickLabel' , xs_labs )
-                    ylabel('Sec')
-                end
-            case 'LearningEffectHeat'
-                %%
-                
-                h1 = figure('color' , 'white');
-                hold on
-                M.Day = RT.Day;
-                %         M.Day(ismember(M.Day ,[2,3])) = 2;
-                %         M.Day(ismember(M.Day,[4,5])) = 3;
-                h = 1;
-                for hc  = [1:8 13]
-                    [xcoords_med{h},PLOTs_med{h},ERRORs_med{h}] = lineplot([RT.seqNumb M.Day],RT.normRT , 'plotfcn' , 'nanmean' , 'subset' ,  ismember(RT.Horizon , [hc]) & ismember(RT.seqNumb , 1));
-                    [xcoordr_med{h},PLOTr_med{h},ERRORr_med{h}] = lineplot([RT.seqNumb M.Day],RT.normRT , 'plotfcn' , 'nanmean' , 'subset' ,  ismember(RT.Horizon , [hc]) & ismember(RT.seqNumb , 0));
-                    h  = h + 1;
-                end
-                close(h1)
-                
-                
-                subplot(121)
-                imagesc(cell2mat(PLOTs_med') , [500 800])
-                set(gca , 'XTick' , [1:length(unique(M.Day))] , 'YTick', [1:9] , 'YTickLabels' , [1 :8 , 13],'FontSize' , 20)
-                title('Reaction Time in  Structured Sequences')
-                ylabel('Viewing Horizon Size')
-                xlabel('Training Session')
-                axis square
-                
-                subplot(122)
-                imagesc(cell2mat(PLOTr_med'), [500 800])
-                colorbar
-                set(gca , 'XTick' , [1:length(unique(M.Day))] , 'YTick', [1:9] , 'YTickLabels' , [1 :8 , 13],'FontSize' , 20)
-                title('Reaction Time in  Random Sequences')
-                ylabel('Viewing Horizon Size')
-                xlabel('Training Session')
-                axis square
+
             case 'LearningEffectShade'
-                % lump h = 6 and  up together
-                RT.Horizon(RT.Horizon>5) = 5;
-                h1 = figure('color' , 'white');
-                for d=  1:length(dayz)
-                    hc = 1;
-                    [xcoords{d},PLOTs{d},ERRORs{d}] = lineplot(RT.Horizon,RT.normRT , 'plotfcn' , 'nanmean' , 'subset' , RT.seqNumb == 1 & ismember(RT.Day , dayz{d}));
-                    hold on
-                    [xcoordr{d},PLOTr{d},ERRORr{d}] = lineplot(RT.Horizon,RT.normRT , 'plotfcn' , 'nanmean' , 'subset' , RT.seqNumb == 0 & ismember(RT.Day , dayz{d}));
+                H = unique(RT.Horizon);
+                for sn = 0:1
+                    figure('color' , 'white');
+                    colorz = colz(4,sn+1);
+                    hcolorz = horzcolor(3,1);
+                    lineplot([RT.Day] , RT.normRT , 'plotfcn' , 'nanmean',...
+                        'split', RT.Horizon , 'linecolor' , colorz,...
+                        'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , 2) , 'shadecolor' ,hcolorz,...
+                        'linewidth' , 3 , 'markertype' , {'o' , 's' , '<' , '*' , 'x' , '+' , 'd' , '>' , 'p'} , 'markerfill' , colorz,...
+                        'markersize' , 15, 'markercolor' , colorz , 'leg' , 'auto'  , 'subset' , ismember(RT.seqNumb , sn));
+                    set(gca,'FontSize' , 18 , 'XTick' , [1:length(dayz)] , ...
+                    'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 length(dayz)], 'YLim' , [3500 7000],'YTick' ,...
+                    [3000 4000 5000 6000] , 'YTickLabels' , [3 4 5 6] , 'YGrid' , 'on');
+                    xlabel('Viewing window size' )
+                    ylabel('Execution time [s]')
                 end
-                close(h1);
-                figure('color' , 'white');
-                subplot(121)
-                hold on
-                P = cell2mat(PLOTs')';
-                E = cell2mat(ERRORs')';
-                X = cell2mat(xcoords')';
-                % the patch color represents the horizon size
-                horzcolor = linspace(0.2,.8 , length(unique(RT.Horizon)));
-                for i = 1:length(unique(RT.Horizon))
-                    h1 = plotshade([1:length(dayz)],P(i,:) , E(i,:),'transp' , .5 , 'patchcolor' , repmat(horzcolor(i) , 1,3) , 'linecolor' , colz{3,2} , 'linewidth' , 3);
-                    plot([1:length(dayz)],P(i,:) , '-o' , 'MarkerSize' , 10 , 'color' , colz{3,2},'MarkerFaceColor',repmat(horzcolor(i) , 1,3) , 'LineWidth' , 4);
-                end
-                set(gca,'FontSize' , 20 , 'XTick' , [1:length(dayz)] , ...
-                    'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 length(dayz)], 'YLim' , [500 850],'YTick' ,...
-                    [600 700 800] , 'YGrid' , 'on');
-                ylabel('msec' )
-                xlabel('Training Session')
-                
-                subplot(122)
-                hold on
-                P = cell2mat(PLOTr')';
-                E = cell2mat(ERRORr')';
-                X = cell2mat(xcoordr')';
-                % the patch color represents the horizon size
-                horzcolor = linspace(0.2,.8 , length(unique(RT.Horizon)));
-                for i = 1:length(unique(RT.Horizon))
-                    h1 = plotshade([1:length(dayz)],P(i,:) , E(i,:),'transp' , .5 , 'patchcolor' , repmat(horzcolor(i) , 1,3) , 'linecolor' , colz{3,1} , 'linewidth' , 3);
-                    plot([1:length(dayz)],P(i,:) , '-o' , 'MarkerSize' , 10 , 'color' , colz{3,1},'MarkerFaceColor',repmat(horzcolor(i) , 1,3), 'LineWidth' , 4);
-                end
-                set(gca,'FontSize' , 20 , 'XTick' , [1:length(dayz)] , ...
-                    'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 length(dayz)], 'YLim' , [500 850],'YTick' ,...
-                    [600 700 800] , 'YGrid' , 'on');
-                ylabel('msec' )
-                xlabel('Training Session')
             case 'compareLearning'
-                RT.Horizon(RT.Horizon>5) = 5;
-                h1 = figure('color' , 'white');
-                for d=  1:length(dayz)
-                    hc = 1;
-                    [xcoords{d},PLOTs{d},ERRORs{d}] = lineplot(RT.Horizon,RT.normRT , 'plotfcn' , 'nanmean' , 'subset' , RT.seqNumb == 1 & ismember(RT.Day , dayz{d}));
-                    hold on
-                    [xcoordr{d},PLOTr{d},ERRORr{d}] = lineplot(RT.Horizon,RT.normRT , 'plotfcn' , 'nanmean' , 'subset' , RT.seqNumb == 0 & ismember(RT.Day , dayz{d}));
-                end
-                close(h1);
-                horzcolor = linspace(0.2,.8 , length(unique(RT.Horizon)));
-                As = cell2mat(PLOTs');
-                Bs = cell2mat(ERRORs');
-                Ar = cell2mat(PLOTr');
-                Br = cell2mat(ERRORr');
-                horz = {[1] [2] [3] [4] [5:9]};
-                hlab = repmat({'1' , '2' , '3' , '4'  , '5 - 13'} , 1 , length(dayz));
-                figure('color' , 'white')
-                hold on
-                allX = [];
-                for i = [1: length(dayz)]
-                    X = ((i-1)*(length(horz)))+[1:length(horz)];
-                    plotshade(X , As(i,:) , Bs(i,:),'transp' , .5 , 'patchcolor' , colz{i,2}  , 'linecolor' , colz{i,2} , 'linewidth' , 3);
-                    plot(X , As(i,:) , '-o' , 'MarkerSize' , 10 , 'color' , colz{i,2} ,'MarkerFaceColor',colz{i,2}  , 'LineWidth' , 3);
-                    plotshade(X , Ar(i,:) , Br(i,:),'transp' , .5 , 'patchcolor' , colz{i,1}  , 'linecolor' , colz{i,1} , 'linewidth' , 3);
-                    plot(X , Ar(i,:) , '-o' , 'MarkerSize' , 10 , 'color' , colz{i,1} ,'MarkerFaceColor',colz{i,1}  , 'LineWidth' , 3);
-                    allX = [allX X];
-                end
-                set(gca,'FontSize' , 20 , 'XTick' , allX , ...
-                    'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 max(X)], 'YLim' , [500 850],'YTick' ,...
-                    [600 700 800] , 'YGrid' , 'on','XTickLabels',hlab);
-                xlabel('Viewing Window Size')
-                ylabel('msec')
+                figure('color' , 'white');
+                H = unique(RT.Horizon);
+                RT.Horizon(RT.Horizon>6) = 6;
+                colorz = colz(3,:);
+                lineplot([ RT.Horizon RT.Day] , RT.normRT , 'plotfcn' , 'nanmean',...
+                    'split', RT.seqNumb, 'linecolor' , colorz,...
+                    'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , 2) , 'shadecolor' ,colorz,...
+                    'linewidth' , 3 , 'markertype' , repmat({'o'} , 1  , 2) , 'markerfill' , colorz,...
+                    'markersize' , 10, 'markercolor' , colorz , 'leg' , 'auto' );
+                set(gca,'FontSize' , 18  , 'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [2500 7000],'YTick' ,...
+                    [3000 4000 5000 6000] , 'YTickLabels' , [3 4 5 6] , 'YGrid' , 'on');
+                xlabel('Viewing window size' )
+                ylabel('Execution time [s]')
         end
-        out = [];   
+        out = [];
     case 'MT_asymptote'
         Hex = 0;
         out = [];
@@ -964,7 +768,7 @@ switch what
             case 'Actual&fit%ChangeDayzTotalLearning'
                 Hz = {[1] [2] [3] , [4] [5] [6:9]};
                 ANA = MTs;
-                ANA.Horizon(ANA.Horizon>6) = 6;
+%                 ANA.Horizon(ANA.Horizon>6) = 6;
                 ANA  = tapply(ANA , {'Horizon' , 'Day' ,'SN' , 'seqNumb'} , {'MT' , 'nanmean(x)'},{'MT_pred' , 'nanmean(x)'});
                 ANA.percChangeMT = zeros(size(ANA.MT));
                 ANA.percChangeMT_pred = zeros(size(ANA.MT_pred));
@@ -977,41 +781,37 @@ switch what
                     Db1.percChangeMT_pred = 100*abs((Db1.MT_pred - Db5.MT_pred)./Db1.MT_pred);
                     Daybenefit = addstruct(Daybenefit , Db1);
                 end
-                h1 = figure;
-                hold on
-                for sn = 0:1
-                    [coo_red{sn+1},plot_red{sn+1},err_red{sn+1}] = lineplot([Daybenefit.Horizon] , Daybenefit.percChangeMT, 'subset', ismember(Daybenefit.seqNumb , sn));
-                    [coo_pred_red{sn+1},plot_pred_red{sn+1},err_pred_red{sn+1}] = lineplot([Daybenefit.Horizon] , Daybenefit.percChangeMT_pred, 'subset', ismember(Daybenefit.seqNumb , sn));
-                end
-                close(h1)
+                Daybenefit = normData(Daybenefit , {'percChangeMT' , 'percChangeMT_pred'});
                 
                 figure('color' , 'white')
-                subplot(211)
-                hold on
-                for sn = 0:1
-                    plotshade([1:length(unique(Daybenefit.Horizon))],plot_red{sn+1},err_red{sn+1},'transp' , .6 , 'patchcolor' , colz{3,sn+1} , 'linecolor' , colz{3,sn+1} , 'linewidth' , 3);
-                    plot([1:length(unique(Daybenefit.Horizon))],plot_red{sn+1}, '-o' , 'MarkerSize' , 10 , 'color' , colz{3,sn+1},'MarkerFaceColor',colz{3,sn+1} , 'LineWidth' , 3);
-                end
-                set(gca,'FontSize' , 18 , 'XTick' , [1:i*length(dayz)] , ...
-                    'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 length(unique(Daybenefit.Horizon))], 'YLim' , [0 35],'YTick' ,...
-                    [10 20 30] , 'YGrid' , 'on',...
-                    'XTick' , [1:length(unique(Daybenefit.Horizon))] , 'XTickLabels' , {'1' , '2' , '3' , '4',  '5' , '6-13'});
+                colorz = colz(4,1:2);
+                    lineplot([Daybenefit.Horizon] , Daybenefit.normpercChangeMT , 'plotfcn' , 'nanmean',...
+                        'split', Daybenefit.seqNumb , 'linecolor' , colorz,...
+                        'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , 2) , 'shadecolor' ,colorz,...
+                        'linewidth' , 3 , 'markertype' , repmat({'o'} , 1  , 2) , 'markerfill' , colorz,...
+                        'markersize' , 10, 'markercolor' , colorz , 'leg' , {'Random'  , 'Structured'} );
+              
+                set(gca,'FontSize' , 18 , ...
+                    'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [0 35],'YTick' ,...
+                    [10 20 30] , 'YGrid' , 'on');
                 ylabel('%' ,'FontSize' , 20)
                 xlabel('Viewing Window size','FontSize' , 20)
                 title('Reduction in Sequence Execution Time From First to Last Day (Actual)' ,'FontSize' , 24)
                 
-                subplot(212)
-                hold on
-                for sn = 0:1
-                    plotshade([1:length(unique(Daybenefit.Horizon))],plot_pred_red{sn+1},err_pred_red{sn+1},'transp' , .6 , 'patchcolor' , colz{3,sn+1} , 'linecolor' , colz{3,sn+1} , 'linewidth' , 3);
-                    plot([1:length(unique(Daybenefit.Horizon))],plot_pred_red{sn+1}, '-o' , 'MarkerSize' , 10 , 'color' , colz{3,sn+1},'MarkerFaceColor',colz{3,sn+1} , 'LineWidth' , 3);
-                end
-                set(gca,'FontSize' , 18 , 'XTick' , [1:i*length(dayz)] , ...
-                    'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [1 length(unique(Daybenefit.Horizon))], 'YLim' , [0 35],'YTick' ,...
-                    [10 20 30] , 'YGrid' , 'on',...
-                    'XTick' , [1:length(unique(Daybenefit.Horizon))] , 'XTickLabels' , {'1' , '2' , '3' , '4',  '5' , '6-13'});
-                ylabel('%' )
-                xlabel('Viewing Window Size')
+                
+                figure('color' , 'white')
+                colorz = colz(4,1:2);
+                    lineplot([Daybenefit.Horizon] , Daybenefit.normpercChangeMT_pred , 'plotfcn' , 'nanmean',...
+                        'split', Daybenefit.seqNumb , 'linecolor' , colorz,...
+                        'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , 2) , 'shadecolor' ,colorz,...
+                        'linewidth' , 3 , 'markertype' , repmat({'o'} , 1  , 2) , 'markerfill' , colorz,...
+                        'markersize' , 10, 'markercolor' , colorz , 'leg' , {'Random'  , 'Structured'} );
+              
+                set(gca,'FontSize' , 18 , ...
+                    'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [0 35],'YTick' ,...
+                    [10 20 30] , 'YGrid' , 'on');
+                ylabel('%' ,'FontSize' , 20)
+                xlabel('Viewing Window size','FontSize' , 20)
                 title('Reduction in Sequence Execution Time From First to Last Day (Fitted)' ,'FontSize' , 24)
             case 'Actual&fit%ChangeDay2Day'
                 Hz = {[1] [2] [3] , [4] [5:9]};
