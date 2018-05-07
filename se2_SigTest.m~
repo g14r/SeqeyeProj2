@@ -520,7 +520,7 @@ switch what
         title(['Effect of ' , FCTR , ' on ' , what]);
     case 'PerSubjMTHorz'
         clear pval EH
-        D = {[1] , [2] , [3] , [4] , [5]};
+        D = {[1] , [2 3] , [4 5]};
         seqN = {[0] , [1 2]};
         allcount = 1;
         for sn = 1:13
@@ -530,15 +530,19 @@ switch what
                     EH.Day(allcount,1) = d;
                     EH.SN(allcount,1) = sn;
                     EH.sq(allcount,1) = sq;
-                    for h = [1:8]
+                    for h = [1:6]
                         stats = se2_SigTest(Dall , 'MT' , 'seqNumb' , seqN{sq} , 'Day' , D{d} , 'Horizon' , [h:13],...
-                            'PoolDays' , 0,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
-                            'PoolHorizons' , [],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , sn);
+                            'PoolDays' , 1,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
+                            'PoolHorizons' , [7:13],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , sn);
                         pval{sq}(sn,h,dcount) = stats(1);
                         close all
                     end
                     temp = squeeze(pval{sq}(sn,:,dcount));
-                    EH.effH(allcount,1) = find(temp>0.05 ,1 , 'first');
+                    if ~isempty(find(temp>0.05 ,1 , 'first'))
+                        EH.effH(allcount,1) = find(temp>0.05 ,1 , 'first');
+                    else
+                        EH.effH(allcount,1) = 7;
+                    end
                     allcount = allcount+1;
                 end
                 dcount = dcount+1;
@@ -546,7 +550,7 @@ switch what
             sn
         end
         
-        linplot()
+        lineplot(EH.Day , EH.effH ,'style_thickline', 'split' , EH.sq , 'leg' , {'Random' , 'structured'})
         disp('Full test day 1 , [4 5]        seqtype [0 1]')
         anovan(EH.effH , [EH.Day EH.sq] , 'model','interaction','varnames' , {'day' , 'sequenceType'})
         
@@ -555,7 +559,7 @@ switch what
         anovan(E.effH , [E.sq] ,'varnames' , {'sequenceType'})
         
         disp('Full test day last      seqtype [0 1]')
-        E = getrow(EH , EH.Day == 2);
+        E = getrow(EH , EH.Day == 3);
         anovan(E.effH , [E.sq] ,'varnames' , {'sequenceType'})
         
         disp('Full test day [first last]      seqtype [0]')
@@ -570,7 +574,7 @@ switch what
         
         
         figure('color' , 'white')
-        barplot([EH.Day] ,EH.effH , 'split' ,  EH.sq);
+        barplot([EH.sq] ,EH.effH , 'split' ,  EH.Day);
         set(gca , 'FontSize' , 18 , 'YLim' , [1 4] , 'YTick' , [1 2 3 4])
         title('The Effective Window Size Grows Significantly from First to Last Day in Random Sequences' , 'FontSize' , 24)
         ylabel('Viewing Window Size', 'FontSize' , 21)

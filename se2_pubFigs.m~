@@ -238,6 +238,41 @@ switch what
                     [3000 4000 5000 6000] , 'YTickLabels' , [3 4 5 6] , 'YGrid' , 'on');
                 xlabel('Viewing window size' )
                 ylabel('Execution time [s]')
+            case ''
+                seqN = {[0] , [1 2]};
+                allcount = 1;
+                for sn = 1:length(subj_name)-1
+                    dcount = 1;
+                    for d  = 1:length(dayz)
+                        for sq = 1:length(seqN)
+                            EH.Day(allcount,1) = d;
+                            EH.SN(allcount,1) = sn;
+                            EH.sq(allcount,1) = sq;
+                            for h = [1:6]
+                                stats = se2_SigTest(Dall , 'MT' , 'seqNumb' , seqN{sq} , 'Day' , D{d} , 'Horizon' , [h:13],...
+                                    'PoolDays' , 1,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
+                                    'PoolHorizons' , [7:13],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , sn);
+                                pval{sq}(sn,h,dcount) = stats(1);
+                                close all
+                            end
+                            temp = squeeze(pval{sq}(sn,:,dcount));
+                            if ~isempty(find(temp>0.05 ,1 , 'first'))
+                                EH.effH(allcount,1) = find(temp>0.05 ,1 , 'first');
+                            else
+                                EH.effH(allcount,1) = 7;
+                            end
+                            allcount = allcount+1;
+                        end
+                        dcount = dcount+1;
+                    end
+                    sn
+                end
+
+                figure('color' , 'white')
+                barplot([EH.sq] ,EH.effH , 'split' ,  EH.Day);
+                set(gca , 'FontSize' , 18 , 'YLim' , [1 4] , 'YTick' , [1 2 3 4])
+                title('The Effective Window Size Grows Significantly from First to Last Day in Random Sequences' , 'FontSize' , 24)
+                ylabel('Viewing Window Size', 'FontSize' , 21)
         end
         out = [];
     case 'IPI'
