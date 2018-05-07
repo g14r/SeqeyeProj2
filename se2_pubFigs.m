@@ -774,30 +774,40 @@ switch what
                 ANA.percChangeMT_pred = zeros(size(ANA.MT_pred));
                 
                 Daybenefit = [];
-                for sn = 0:1
-                    Db1= getrow(ANA , ANA.Day == 1 & ANA.seqNumb==sn);
-                    Db5 = getrow(ANA , ANA.Day == length(dayz) & ANA.seqNumb==sn);
-                    Db1.percChangeMT = 100*abs((Db1.MT - Db5.MT)./Db1.MT);
-                    Db1.percChangeMT_pred = 100*abs((Db1.MT_pred - Db5.MT_pred)./Db1.MT_pred);
-                    Daybenefit = addstruct(Daybenefit , Db1);
+                for d = 2:length(dayz)
+                    for sn = 0:1
+                        Db1= getrow(ANA , ANA.Day == 1 & ANA.seqNumb==sn);
+                        Db_d = getrow(ANA , ANA.Day == d & ANA.seqNumb==sn);
+                        Db_d.percChangeMT = 100*abs((Db1.MT - Db_d.MT)./Db1.MT);
+                        Db_d.percChangeMT_pred = 100*abs((Db1.MT_pred - Db_d.MT_pred)./Db1.MT_pred);
+                        Daybenefit = addstruct(Daybenefit , Db_d);
+                    end
                 end
                 Daybenefit = normData(Daybenefit , {'percChangeMT' , 'percChangeMT_pred'});
                 
                 figure('color' , 'white')
-                colorz = colz(4,1:2);
-                    lineplot([Daybenefit.Horizon] , Daybenefit.normpercChangeMT , 'plotfcn' , 'nanmean',...
-                        'split', Daybenefit.seqNumb , 'linecolor' , colorz,...
-                        'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , 2) , 'shadecolor' ,colorz,...
-                        'linewidth' , 3 , 'markertype' , repmat({'o'} , 1  , 2) , 'markerfill' , colorz,...
-                        'markersize' , 10, 'markercolor' , colorz , 'leg' , {'Random'  , 'Structured'} );
-              
-                set(gca,'FontSize' , 18 , ...
-                    'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [0 35],'YTick' ,...
-                    [10 20 30] , 'YGrid' , 'on');
-                ylabel('%' ,'FontSize' , 20)
-                xlabel('Viewing Window size','FontSize' , 20)
-                title('Reduction in Sequence Execution Time From First to Last Day (Actual)' ,'FontSize' , 24)
-                
+                for sn = 0:1
+                    subplot(1,2,sn+1)
+                    colorz = colz(1:length(dayz),sn+1);
+                    barplot([Daybenefit.Horizon] , Daybenefit.normpercChangeMT , 'plotfcn' , 'nanmean',...
+                        'split', Daybenefit.Day , 'facecolor' , colorz,...
+                        'edgecolor' , 'none',...
+                        'errorwidth' , 1 ,'leg' , {'Day 1 to 2'  , 'Day 1 to 3' , 'Day 1 to 4' , 'Day 1 to 5'} , 'subset' ,Daybenefit.seqNumb == sn);% & ismember(Daybenefit.Day , [2 5]));
+                    
+%                     lineplot([Daybenefit.Horizon] , Daybenefit.normpercChangeMT , 'plotfcn' , 'nanmean',...
+%                         'split', Daybenefit.Day , 'linecolor' , colorz,...
+%                         'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , 2) , 'shadecolor' ,colorz,...
+%                         'linewidth' , 3 , 'markertype' , {'o' , 's' , '<' , '*'}  , 'markerfill' , colorz,...
+%                         'markersize' , 15, 'markercolor' , colorz , 'leg' , {'Day 2'  , 'Day 3' , 'Day 4' , 'Day 5'} , 'subset' ,Daybenefit.seqNumb == sn);% & ismember(Daybenefit.Day , [2 5]));
+                    
+                    
+                    set(gca,'FontSize' , 18 , ...
+                        'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [0 35],'YTick' ,...
+                        [10 20 30] , 'YGrid' , 'on');
+                    ylabel('%' ,'FontSize' , 20)
+                    xlabel('Viewing Window size','FontSize' , 20)
+                    title('Reduction in Sequence Execution Time From First to Last Day (Actual)' ,'FontSize' , 24)
+                end
                 
                 figure('color' , 'white')
                 colorz = colz(4,1:2);
@@ -1399,9 +1409,9 @@ switch what
                 Daybenefit = [];
                 for chp = 0:2
                     Db1= getrow(ANA , ANA.Day == 1 & ANA.ChunkBndry==chp);
-                    Db5 = getrow(ANA , ANA.Day == length(dayz) & ANA.ChunkBndry==chp);
-                    Db1.percChangeIPI = 100*abs((Db1.IPI - Db5.IPI)./Db1.IPI);
-                    Db1.percChangeIPI_pred = 100*abs((Db1.IPI_pred - Db5.IPI_pred)./Db1.IPI_pred);
+                    Db_d = getrow(ANA , ANA.Day == length(dayz) & ANA.ChunkBndry==chp);
+                    Db1.percChangeIPI = 100*abs((Db1.IPI - Db_d.IPI)./Db1.IPI);
+                    Db1.percChangeIPI_pred = 100*abs((Db1.IPI_pred - Db_d.IPI_pred)./Db1.IPI_pred);
                     Daybenefit = addstruct(Daybenefit , Db1);
                 end
                 Daybenefit  = tapply(Daybenefit , {'Horizon' , 'Day' ,'SN' , 'ChunkBndry'} , {'percChangeIPI' , 'nanmean(x)'},{'percChangeIPI_pred' ,  'nanmean(x)'});
