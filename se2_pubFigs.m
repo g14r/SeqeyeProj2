@@ -37,8 +37,8 @@ while(c<=length(varargin))
 end
 
 %%
-% baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
-baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
+baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
+% baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
 
 
 
@@ -266,11 +266,19 @@ switch what
                         dcount = dcount+1;
                     end
                 end
-
-                figure('color' , 'white')
+                for sn = 1:2
+                    figure('color' , 'white')
+                    colorz = colz(1:length(dayz) , sn);
+                    barplot([EH.sq] ,EH.effH , 'split' ,  EH.Day , 'plotfcn' , 'nanmean',...
+                        'facecolor' , colorz,...
+                        'edgecolor' , 'none',...
+                        'errorwidth' , 1 ,'leg' , daylab , 'subset' ,EH.sq == sn);% & ismember(Daybenefit.Day , [2 5]));
+                    ylabel('Plannig horizon')
+                    set(gca , 'FontSize' , 18 , 'YLim' , [1 4] , 'YTick' , [1 2 3 4])
+                end
                 
                 barplot([EH.sq] ,EH.effH , 'split' ,  EH.Day);
-                set(gca , 'FontSize' , 18 , 'YLim' , [1 4] , 'YTick' , [1 2 3 4])
+                
                 title('The Effective Window Size Grows Significantly from First to Last Day in Random Sequences' , 'FontSize' , 24)
                 ylabel('Viewing Window Size', 'FontSize' , 21)
         end
@@ -329,27 +337,23 @@ switch what
                 for d = 1:length(dayz)
                     IPIs.Day(ismember(IPIs.Day , dayz{d})) = d;
                 end
+                IPIs.prsnumb(ismember(IPIs.prsnumb , [4:10])) = 4;
                 IPIs  = tapply(IPIs , {'Horizon' , 'Day' ,'SN' , 'prsnumb' , 'seqNumb'} , {'IPI' , 'nanmean(x)'});
                 IPIs = normData(IPIs , {'IPI'});
-                figure('color' , 'white');
+                IPIs = getrow(IPIs , ismember(IPIs.Day , [1,length(dayz)]));
                 for sqn = 0:1
                     colorz = colz(1:length(dayz) , sqn+1);
-                    for h = 1:length(horz)
-                        subplot(2,length(horz),sqn*length(horz) + h)
-                        lineplot([IPIs.prsnumb] , IPIs.normIPI , 'plotfcn' , 'nanmean',...
-                            'split', [ IPIs.Day ] , 'subset',ismember(IPIs.Horizon  , horz{h}) & ismember(IPIs.seqNumb  , sqn), 'linecolor' , colorz,...
+                        figure('color' , 'white');
+                        lineplot([IPIs.prsnumb IPIs.Horizon] , IPIs.normIPI , 'plotfcn' , 'nanmean',...
+                            'split', [ IPIs.Day ] , 'subset', ismember(IPIs.seqNumb  , sqn), 'linecolor' , colorz,...
                             'errorcolor' , colorz , 'errorbars' , {'shade'}  , 'shadecolor' ,colorz,...
-                            'linewidth' , 3 , 'markertype' , repmat({'o'} , 1  , 2) , 'markerfill' , colorz,...
+                            'linewidth' , 3 , 'markertype' , {'o' , '>'}  , 'markerfill' , colorz,...
                             'markersize' , 10, 'markercolor' , colorz , 'leg' , daylab);
-                        set(gca,'FontSize' , 18,'GridAlpha' , .2 , 'Box' , 'off','YGrid' , 'on','XTick'  , [1:13],...
+                        set(gca,'FontSize' , 18,'GridAlpha' , .2 , 'Box' , 'off','YGrid' , 'on',...
                             'YLim' , [150 590] , 'YTick' , [200 :100:500],...
                             'YTickLabel' , [0.2 :0.1: 0.5]);
-                        if h >1
-                            set(gca,'YColor' , 'none');
-                        end
+                        
                         ylabel('Inter-press interval time [s]','FontSize' , 20)
-                        title(['Window size = ' , hlab{h}] ,'FontSize' , 24)
-                    end
                 end
             case 'IPIFullDispsplitseqNumb'
                 
@@ -1664,7 +1668,7 @@ switch what
                 grid on
         end
     case 'Eye'
-        calc = 1;
+        calc = 0;
         if isSymmetric 
             filename = 'se2_eyeInfo.mat';
         else
@@ -1755,6 +1759,10 @@ switch what
             save([baseDir , '/' , filename] , 'eyeinfo','-v7.3')
         else
             load([baseDir , '/', filename])
+        end
+        if poolDays
+            eyeinfo.Day(eyeinfo.Day==3) = 2;
+            eyeinfo.Day(ismember(eyeinfo.Day , [4 5])) = 3;
         end
         out = [];
         switch nowWhat
@@ -2029,6 +2037,76 @@ switch what
                         set(gca,'YColor' , 'none');
                     end
                 end
+                
+            case 'previewSplitDays'
+                Ho  = unique(eyeinfo.Horizon);
+                
+                K = tapply(eyeinfo , {'Day' , 'Horizon' , 'sn','CB'} , {'PB' , 'nanmean'} , ...
+                    'subset' , ismember(eyeinfo.prsnumb , [4:10]));
+                K = normData(K , {'PB'});
+                K = getrow(K , ismember(K.Day , [1 , length(dayz)]));
+                figure('color' , 'white')
+                for cb = {[0] [1 2 3]}
+                    subplot(1,2,cb{1}(1)+1)
+                    colorz  = colz(1:length(dayz) , cb{1}(1)+1);
+                    
+                    lineplot([K.Horizon] , -K.normPB , 'plotfcn' , 'nanmean',...
+                        'split', K.Day , 'subset' ,  ismember(K.CB , cb{1})  , 'linecolor' , colorz,...
+                        'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , length(dayz)) , 'shadecolor' ,colorz,...
+                        'linewidth' , 3 , 'markertype' , {'o' , '>' , '<' , 'x' , 's'}  , 'markerfill' , colorz,...
+                        'markersize' , 15, 'markercolor' , colorz , 'leg' , 'auto');
+                    ylabel('Mean preview [digits]' )
+                    xlabel('Viewing window size (W)' )
+                    title(['Look-ahead  CB = ' , num2str(cb{1})])
+%                     set(gca,'FontSize' , 18 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [.4 1.4],'YTick' , [.5:.1:1.3] ,...
+%                         'YGrid' , 'on');
+                end
+                
+            case 'presspositionlook-ahead'
+                K = eyeinfo;
+                K.prsnumb(ismember(K.prsnumb ,[4:10])) = 4;
+                K = tapply(K , {'Day' , 'Horizon' , 'sn','CB' , 'prsnumb'} , {'PB' , 'nanmean'} );
+                K = normData(K , {'PB'});
+                K = getrow(K , ismember(K.Day , [1 , length(dayz)]));
+                
+                for cb = {[0] [1 2 3]}
+                    figure('color' , 'white')
+                    colorz  = colz(1:length(dayz) , cb{1}(1)+1);
+                    
+                    lineplot([K.prsnumb K.Horizon ] , -K.normPB , 'plotfcn' , 'nanmean',...
+                        'split', K.Day , 'subset' ,  ismember(K.CB , cb{1}) , 'linecolor' , colorz,...
+                        'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , length(dayz)) , 'shadecolor' ,colorz,...
+                        'linewidth' , 3 , 'markertype' , {'o' , '>' , '<' , 'x' , 's'}  , 'markerfill' , colorz,...
+                        'markersize' , 10, 'markercolor' , colorz , 'leg' , 'auto');
+                    ylabel('Mean preview [digits]' )
+                    xlabel('Viewing window size (W)' )
+                    title(['Look-ahead  CB = ' , num2str(cb{1})])
+                    set(gca,'FontSize' , 12 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [-1 2],'YTick' , [-.5:.5:2] ,...
+                        'YGrid' , 'on');
+                end
+                
+                
+            case 'startlookahead'
+                K = tapply(eyeinfo , {'Day' , 'Horizon' , 'sn','CB' , 'prsnumb'} , {'PB' , 'nanmean'} , ...
+                    'subset' , ismember(eyeinfo.prsnumb , [1]));
+                K = normData(K , {'PB'});
+                K = getrow(K , ismember(K.Day , [1 , length(dayz)]));
+                figure('color' , 'white')
+                    for cb = {[0] [1 2 3]}
+                        subplot(1,2,cb{1}(1)+1)
+                        colorz  = colz(1:length(dayz) , cb{1}(1)+1);
+                        
+                        lineplot([K.prsnumb K.Horizon ] , -K.normPB , 'plotfcn' , 'nanmean',...
+                            'split', K.Day , 'subset' ,  ismember(K.CB , cb{1}) , 'linecolor' , colorz,...
+                            'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , length(dayz)) , 'shadecolor' ,colorz,...
+                            'linewidth' , 3 , 'markertype' , {'o' , '>' , '<' , 'x' , 's'}  , 'markerfill' , colorz,...
+                            'markersize' , 15, 'markercolor' , colorz , 'leg' , 'auto');
+                        ylabel('Mean preview [digits]' )
+                        xlabel('Viewing window size (W)' )
+                        title(['Look-ahead  CB = ' , num2str(cb{1})])
+                        set(gca,'FontSize' , 18 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [.6 2],'YTick' , [.6:.2:2] ,...
+                            'YGrid' , 'on');
+                    end
             case 'EyePrsTimePos'
                 Ho  = unique(eyeinfo.Horizon);
                 scol = [200 200 200]/255;

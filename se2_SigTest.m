@@ -57,8 +57,8 @@ while(c<=length(varargin))
     end
 end
 
-% baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
-baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
+baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
+% baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
 
 
 ANA = getrow(Dall , Dall.isgood & ~Dall.isError & ...
@@ -562,13 +562,38 @@ switch what
         E = getrow(EH , EH.Day == 2);
         anovan(E.effH , [E.sq] ,'varnames' , {'sequenceType'})
         
-        disp('Full test day [first last]      seqtype [0]')
-        E = getrow(EH , EH.sq == 1);
-        anovan(E.effH , [E.Day] ,'varnames' , {'dayforRandom'})
         
-        disp('Full test day [first last]      seqtype [1]')
-        E = getrow(EH , EH.sq == 2);
+        disp('Full test day [all dayz]      seqtype random')
+        E = getrow(EH , EH.sq == 1);
+%         anovan(E.effH , [E.Day] ,'varnames' , {'dayforSeq'})
+        anovaMixed(E.effH  , E.SN ,'between',[E.Day] ,{'day'},'intercept',1) ;
+        
+        disp('Full test day [first 23]      seqtype random')
+        E = getrow(EH , EH.sq == 1 & EH.Day ~= 3);
         anovan(E.effH , [E.Day] ,'varnames' , {'dayforSeq'})
+        
+        disp('Full test day [first 45]      seqtype random')
+        E = getrow(EH , EH.sq == 1 & EH.Day ~= 2);
+        anovan(E.effH , [E.Day] ,'varnames' , {'dayforSeq'})
+        
+        disp('Full test day [23 45]      seqtype random')
+        E = getrow(EH , EH.sq == 1 & EH.Day ~= 1);
+        anovan(E.effH , [E.Day] ,'varnames' , {'dayforSeq'})
+        
+        
+        
+        disp('Full test day [first 23]      seqtype struct')
+        E = getrow(EH , EH.sq == 2 & EH.Day ~= 3);
+        anovan(E.effH , [E.Day] ,'varnames' , {'dayforSeq'})
+        
+        disp('Full test day [first 45]      seqtype struct')
+        E = getrow(EH , EH.sq == 2 & EH.Day ~= 2);
+        anovan(E.effH , [E.Day] ,'varnames' , {'dayforSeq'})
+        
+        disp('Full test day [23 45]      seqtype random')
+        E = getrow(EH , EH.sq == 2 & EH.Day ~= 1);
+        anovan(E.effH , [E.Day] ,'varnames' , {'dayforSeq'})
+        
 
 
         
@@ -723,13 +748,9 @@ switch what
         end
 
         %% sig test 
-        
         var = [];
         for f = 1:length(FCTR)
             eval(['var = [var Daybenefit.',FCTR{f},'];']);
         end
         stats = anovaMixed(Daybenefit.percChangeMT  , Daybenefit.SN ,'within',var ,FCTR,'intercept',1) ;
-        
-        
-
 end
