@@ -90,26 +90,11 @@ stats = se2_SigTest(Dall , 'MT' , 'seqNumb' , [0] , 'Day' , [5] , 'Horizon' , [4
     'PoolHorizons' , [],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , [1:13]);
 
 %% significance test on IPIs % {[1] [2] [3] [4] [5] [6] [7] [8] [9] [10] [11] [12] [13]}
-stats = se2_SigTest(Dall , 'IPI' , 'seqNumb' , [0] , 'Day' , [1 5] , 'Horizon' , [2],...
+stats = se2_SigTest(Dall , 'IPI' , 'seqNumb' , [0] , 'Day' , [1 :5] , 'Horizon' , [1:13],...
     'PoolDays' , 0,'whatIPI','ipistoEachother','PoolSequences' , 0 ,...
-    'PoolHorizons' , [6:13],'ipiOfInterest' , {[1] [2] [3] [4] [5] [6] [7] [8] [9] [10] [11] [12] [13]} , 'poolIPIs' , 0 , 'subjnum' , [1:13]);
+    'PoolHorizons' , [],'ipiOfInterest' , {[1] [2] [3] [4] [5] [6] [7] [8] [9] [10] [11] [12] [13]} , 'poolIPIs' , 0 , 'subjnum' , [1:13]);
 
 %%
-dayz = {[1] , [2 3] , [4 5]};
-H = {[1] [2] [3] [4] [5:13]};
-for d = 1:length(dayz)
-    pval{d} = nan(length(H),13);
-    for h = 1:length(H)
-        for pn = [1:4 , 10:13]
-            stats = se2_SigTest(Dall , 'IPI' , 'seqNumb' , [0] , 'Day' , dayz{d} , 'Horizon' , [H{h}],...
-                'PoolDays' , 1,'whatIPI','ipistoEachother','PoolSequences' , 0 ,...
-                'PoolHorizons' , [6:13],'ipiOfInterest' , {[pn] [5] [6] [7] [8] [9]} , 'poolIPIs' , 0 , 'subjnum' , [1:13]);
-            if stats.eff(2).p<=0.05
-                pval{d}(h , pn) = stats.eff(2).p;
-            end
-        end
-    end
-end
 
 %%
 
