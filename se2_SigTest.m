@@ -52,12 +52,16 @@ while(c<=length(varargin))
             % for EYE gaze filed around a digit symmetric or not(0 no/1 yes);
             eval([varargin{c} '= varargin{c+1};']);
             c=c+2;
+        case {'prsnumb'}
+            % prsnumbers to include in the test --> mainly for eye data
+            eval([varargin{c} '= varargin{c+1};']);
+            c=c+2;
         otherwise
             error(sprintf('Unknown option: %s',varargin{c}));
     end
 end
 
-baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
+baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
 % baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
 
 
@@ -222,7 +226,8 @@ switch what
                 
                 stats = pval;
             case 'WithBetRand'
-                ipiss = ANA.IPI(:,4:10);
+                rangeipi = [1:13];
+                ipiss = ANA.IPI(:,rangeipi);
                 FCTR = FCTR(~strcmp(FCTR,'seqNumb'));
                 nn= ipiOfInterest;
                 mm= poolIPIs;
@@ -232,7 +237,7 @@ switch what
                 for l = 2:length(ipiLab)
                     L = [L,'/',ipiLab{l}];
                 end
-                A.IPIArr= reshape(ANA.IPIarrangement(:,4:10) , numel(ipiss) , 1);
+                A.IPIArr= reshape(ANA.IPIarrangement(:,rangeipi) , numel(ipiss) , 1);
                 
                 switch mm
                     case{1}
@@ -244,6 +249,7 @@ switch what
                 A.Day = repmat(ANA.Day , size(ipiss , 2) , 1);
                 A.seqNumb = repmat(ANA.seqNumb , size(ipiss , 2) , 1);
                 A.SN = repmat(ANA.SN , size(ipiss , 2) , 1);
+                A.Horizon = repmat(ANA.Horizon , size(ipiss , 2) , 1);
                 A = getrow(A , ismember(A.IPIArr , nn));
                 %% sig test on the IPIs
                 var = [];
@@ -285,7 +291,7 @@ switch what
                 for f =2:length(FCTR)
                     tAdd = [tAdd , ' and ' , FCTR{f}];
                 end
-                title(['Effect of ' , tAdd ,' on Execution Time']);
+                title(['Effect of ' , tAdd ,' on IPI']);
                 grid on
                 set(gca , 'FontSize' , 20 , 'Box' , 'off')
                 xlabel(FCTR{end})
@@ -467,7 +473,7 @@ switch what
         figure('color' , 'white')
         lineplot(var, eyeinfo.DigFixDur, 'style_thickline');
         title(['Effect of ' , FCTR , ' on ' , what]);
-    case 'Eye_ipi_lookahead'
+    case 'Eye_ipi_lookahead_ipitype'
         if isSymmetric
             filename = 'se2_eyeInfo.mat';
         else
@@ -518,6 +524,49 @@ switch what
         figure('color' , 'white')
         lineplot(var, eyeinfo.PB, 'style_thickline');
         title(['Effect of ' , FCTR , ' on ' , what]);
+    case 'Eye_ipi_lookahead_prsnumb'
+        if isSymmetric
+            filename = 'se2_eyeInfo.mat';
+        else
+            filename = 'se2_eyeInfo_asym.mat';
+        end
+        load([baseDir , '/', filename]);
+        
+        eyeinfo = getrow(eyeinfo , ismember(eyeinfo.Horizon , Horizon) & ...
+            ismember(eyeinfo.Day , Day) & ismember(eyeinfo.seqNumb , seqNumb) &ismember(eyeinfo.sn , subjnum));
+        eyeinfo.seqNumb(eyeinfo.seqNumb>1) = 1;
+        if PoolSequences
+            eyeinfo.seqNumb = zeros(size(eyeinfo.seqNumb));
+        end
+        if PoolDays
+            eyeinfo.Day(eyeinfo.Day == 3) = 2;
+            eyeinfo.Day(ismember(eyeinfo.Day , [4,5])) = 3;
+        end
+        if ~isempty(PoolHorizons)
+            eyeinfo.Horizon(ismember(eyeinfo.Horizon ,PoolHorizons)) = PoolHorizons(1);
+            Horizon = unique(eyeinfo.Horizon);
+        end
+        switch poolIPIs
+            case{1}
+                eyeinfo.CB(ismember(eyeinfo.CB ,[1 2 3])) = 1;
+        end
+
+        eyeinfo = getrow(eyeinfo , ~isnan(eyeinfo.PB) & ismember(eyeinfo.CB , ipiOfInterest) & ismember(eyeinfo.prsnumb , prsnumb));
+        if length(prsnumb)>1
+            FCTR = [FCTR(~strcmp(FCTR,'seqNumb')) , 'prsnumb'];
+        else
+            FCTR = FCTR(~strcmp(FCTR,'seqNumb'));
+        end
+        var = [];
+        for f = 1:length(FCTR)
+            eval(['var = [var eyeinfo.',FCTR{f},'];']);
+        end
+        FCTR(strcmp(FCTR,'Horizon')) = {'Window'};
+
+        stats = anovaMixed(eyeinfo.PB  , eyeinfo.sn ,'within',var ,FCTR,'intercept',1) ;
+        figure('color' , 'white')
+        lineplot(var, eyeinfo.PB, 'style_thickline');
+        title(['Effect of ' , FCTR , ' on ' , what]);
     case 'PerSubjMTHorz'
         clear pval EH
         D = {[1] , [2 3] , [4 5]};
@@ -549,7 +598,14 @@ switch what
             end
             sn
         end
-        
+        figure('color' , 'white')
+        colorz = {[0.84,0.36,0.50],[0.36,0.45,0.76]};
+        lineplot(EH.Day , EH.effH ,'plotfcn' , 'nanmean',...
+                       'split' , EH.sq  , 'linecolor' , colorz,...
+                        'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , 2) , 'shadecolor' ,colorz,...
+                        'linewidth' , 3 , 'markertype' , {'o' , '>' }  , 'markerfill' , colorz,...
+                        'markersize' , 15, 'markercolor' , colorz , 'leg' , 'auto');
+                    
         lineplot(EH.Day , EH.effH ,'style_thickline', 'split' , EH.sq , 'leg' , {'Random' , 'structured'})
         disp('Full test day 1 , [4 5]        seqtype [0 1]')
         anovan(EH.effH , [EH.Day EH.sq] , 'model','interaction','varnames' , {'day' , 'sequenceType'})
@@ -725,8 +781,7 @@ switch what
         for f = 1:length(FCTR)
             eval(['var = [var Daybenefit.',FCTR{f},'];']);
         end
-        stats = anovaMixed(Daybenefit.percChangeIPI  , Daybenefit.SN ,'within',var ,FCTR,'intercept',1) ;
-        
+        stats = anovaMixed(Daybenefit.percChangeIPI  , Daybenefit.SN ,'within',var ,FCTR,'intercept',1) ;   
     case 'PercentMTwithinseqType'
         % day 1 has to be included
         ANA = getrow(Dall , Dall.isgood & ~Dall.isError & ...
@@ -746,8 +801,12 @@ switch what
                 Daybenefit = addstruct(Daybenefit , Db_d);
             end
         end
-
-        %% sig test 
+        if PoolDays
+            Daybenefit.Day(Daybenefit.Day == 3) = 2;
+            Daybenefit.Day(ismember(Daybenefit.Day , [4,5])) = 3;
+        end
+        
+        %% sig test
         var = [];
         for f = 1:length(FCTR)
             eval(['var = [var Daybenefit.',FCTR{f},'];']);
