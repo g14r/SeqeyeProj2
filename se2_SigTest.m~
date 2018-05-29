@@ -226,8 +226,7 @@ switch what
                 
                 stats = pval;
             case 'WithBetRand'
-                rangeipi = [1:13];
-                ipiss = ANA.IPI(:,rangeipi);
+                ipiss = ANA.IPI(:,1:13);
                 FCTR = FCTR(~strcmp(FCTR,'seqNumb'));
                 nn= ipiOfInterest;
                 mm= poolIPIs;
@@ -237,7 +236,7 @@ switch what
                 for l = 2:length(ipiLab)
                     L = [L,'/',ipiLab{l}];
                 end
-                A.IPIArr= reshape(ANA.IPIarrangement(:,rangeipi) , numel(ipiss) , 1);
+                A.IPIArr= reshape(ANA.IPIarrangement(:,4:10) , numel(ipiss) , 1);
                 
                 switch mm
                     case{1}

@@ -548,16 +548,15 @@ switch what
                         'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [600 900],'YTick' , [700 800] ,...
                         'YTickLabels' , [0.7 0.8] , 'YGrid' , 'on','XLim' , [1 13]);
                     xlabel('Viewing window size' )
-                    ylabel('Execution time [s]')
+                    ylabel('Reaction time [s]')
                     if d>1
                         set(gca,'YColor' , 'none');
                     end
                 end
             case 'RandStructAcrossDays'
-                figure('color' , 'white');
                 H = unique(RT.Horizon);
                 for sn = 0:1
-                    subplot(1,2 , sn+1);
+                    figure('color' , 'white');
                     colorz = colz(:,sn+1);
                     lineplot([RT.Horizon] , RT.normRT , 'plotfcn' , 'nanmean',...
                         'split', RT.Day , 'linecolor' , colorz,...
@@ -568,7 +567,7 @@ switch what
                         'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [600 900],'YTick' ,  [700 800] ,...
                         'YTickLabels' , [0.7 0.8] , 'YGrid' , 'on','XLim' , [1 13]);
                     xlabel('Viewing window size' )
-                    ylabel('Execution time [s]')
+                    ylabel('Reaction Time [s]')
                 end
             case 'BoxFirstLastDays'
                 %% THE BOX PLOTS
@@ -588,7 +587,7 @@ switch what
                     set(gca,'FontSize' , 18 ,  ...
                         'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [1500 9000],...
                         'YTick' , [3000 4000 5000 6000 7000 8000] , 'YTickLabels' , [3 4 5 6 7 8]);%,'XTick' , xs , 'XTickLabel' , xs_labs ,);
-                    ylabel('Sec','FontSize' , 21)
+                    ylabel('Reaction Time [s]','FontSize' , 21)
                 end
 
             case 'LearningEffectShade'
