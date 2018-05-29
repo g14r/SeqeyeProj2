@@ -61,8 +61,8 @@ while(c<=length(varargin))
     end
 end
 
-baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
-% baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
+% baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
+baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
 
 
 ANA = getrow(Dall , Dall.isgood & ~Dall.isError & ...
@@ -108,18 +108,18 @@ switch what
         else
             stats = anovaMixed(ANA.MT  , ANA.SN ,'within',var ,FCTR,'intercept',1) ;
         end
-        %         figure('color' , 'white')
-        %         lineplot(var, ANA.MT , 'style_shade' , 'markertype' , 'o'  , ...
-        %             'markersize' , 10 , 'markerfill' , 'w');
-        %         tAdd = FCTR{1};
-        %         for f =2:length(FCTR)
-        %             tAdd = [tAdd , ' and ' , FCTR{f}];
-        %         end
-        %         title(['Effect of ' , tAdd ,' on Execution Time']);
-        %         grid on
-        %         set(gca , 'FontSize' , 20 , 'Box' , 'off')
-        %         xlabel(FCTR{end})
-        %         ylabel('msec')
+        figure('color' , 'white')
+        lineplot(var, ANA.MT , 'style_shade' , 'markertype' , 'o'  , ...
+            'markersize' , 10 , 'markerfill' , 'w');
+        tAdd = FCTR{1};
+        for f =2:length(FCTR)
+            tAdd = [tAdd , ' and ' , FCTR{f}];
+        end
+        title(['Effect of ' , tAdd ,' on Execution Time']);
+        grid on
+        set(gca , 'FontSize' , 20 , 'Box' , 'off')
+        xlabel(FCTR{end})
+        ylabel('msec')
     case 'IPI'
         ANA.seqNumb(ANA.seqNumb>=2) = 1;
         for tn = 1:length(ANA.TN)
@@ -422,7 +422,59 @@ switch what
         figure('color' , 'white')
         lineplot(var, eyeinfo.sacDur, 'style_thickline');
         title(['Effect of ' , FCTR , ' on ' , what]);
-    case 'Eye_ipi_fixDur'
+    case 'Eye_ipi_fixDur_ipitype'
+        if isSymmetric
+            filename = 'se2_eyeInfo.mat';
+        else
+            filename = 'se2_eyeInfo_asym.mat';
+        end
+        load([baseDir , '/', filename]);
+        
+        eyeinfo = getrow(eyeinfo , ismember(eyeinfo.Horizon , Horizon) & ...
+            ismember(eyeinfo.Day , Day) & ismember(eyeinfo.seqNumb , seqNumb) & ...
+            ismember(eyeinfo.sn , subjnum) & ismember(eyeinfo.prsnumb , prsnumb));
+        eyeinfo.seqNumb(eyeinfo.seqNumb>1) = 1;
+        if PoolSequences
+            eyeinfo.seqNumb = zeros(size(eyeinfo.seqNumb));
+        end
+        if PoolDays
+            eyeinfo.Day(eyeinfo.Day == 3) = 2;
+            eyeinfo.Day(ismember(eyeinfo.Day , [4,5])) = 3;
+        end
+        if ~isempty(PoolHorizons)
+            eyeinfo.Horizon(ismember(eyeinfo.Horizon ,PoolHorizons)) = PoolHorizons(1);
+            Horizon = unique(eyeinfo.Horizon);
+        end
+        switch poolIPIs
+            case{1}
+                eyeinfo.CB(ismember(eyeinfo.CB ,[1 2 3])) = 1;
+        end
+
+        eyeinfo = getrow(eyeinfo , ~isnan(eyeinfo.DigFixDur) & ismember(eyeinfo.CB , ipiOfInterest));
+
+        FCTR = FCTR(~strcmp(FCTR,'seqNumb'));
+        nn= ipiOfInterest;
+        ipiLab = {'Random' , 'Between','Within','Last'};
+        ipiLab = ipiLab(nn+1);
+        L = ipiLab{1};
+        for l = 2:length(ipiLab)
+            L = [L,'/',ipiLab{l}];
+        end
+        
+        if length(ipiLab)>1
+            
+            FCTR = [{'CB'} FCTR];
+        end
+        var = [];
+        for f = 1:length(FCTR)
+            eval(['var = [var eyeinfo.',FCTR{f},'];']);
+        end
+
+        stats = anovaMixed(eyeinfo.DigFixDur  , eyeinfo.sn ,'within',var ,FCTR,'intercept',1) ;
+        figure('color' , 'white')
+        lineplot(var, eyeinfo.DigFixDur, 'style_thickline');
+        title(['Effect of ' , FCTR , ' on ' , what]);
+    case 'Eye_ipi_fixDur_prsnumb'
         if isSymmetric
             filename = 'se2_eyeInfo.mat';
         else
@@ -446,22 +498,11 @@ switch what
         end
         
         
-        eyeinfo = getrow(eyeinfo , ~isnan(eyeinfo.DigFixDur) & ismember(eyeinfo.CB , ipiOfInterest));
-        
-        
-        
-        FCTR = FCTR(~strcmp(FCTR,'seqNumb'));
-        nn= ipiOfInterest;
-        ipiLab = {'Random' , 'Between','Within','Last'};
-        ipiLab = ipiLab(nn+1);
-        L = ipiLab{1};
-        for l = 2:length(ipiLab)
-            L = [L,'/',ipiLab{l}];
-        end
-        
-        if length(ipiLab)>1
-            
-            FCTR = [{'CB'} FCTR];
+        eyeinfo = getrow(eyeinfo , ~isnan(eyeinfo.DigFixDur) & ismember(eyeinfo.CB , ipiOfInterest) & ismember(eyeinfo.prsnumb , prsnumb));
+        if length(prsnumb)>1
+            FCTR = [FCTR(~strcmp(FCTR,'seqNumb')) , 'prsnumb'];
+        else
+            FCTR = FCTR(~strcmp(FCTR,'seqNumb'));
         end
         var = [];
         for f = 1:length(FCTR)
@@ -482,7 +523,8 @@ switch what
         load([baseDir , '/', filename]);
         
         eyeinfo = getrow(eyeinfo , ismember(eyeinfo.Horizon , Horizon) & ...
-            ismember(eyeinfo.Day , Day) & ismember(eyeinfo.seqNumb , seqNumb) &ismember(eyeinfo.sn , subjnum));
+            ismember(eyeinfo.Day , Day) & ismember(eyeinfo.seqNumb , seqNumb) & ...
+            ismember(eyeinfo.sn , subjnum) & ismember(eyeinfo.prsnumb , prsnumb));
         eyeinfo.seqNumb(eyeinfo.seqNumb>1) = 1;
         if PoolSequences
             eyeinfo.seqNumb = zeros(size(eyeinfo.seqNumb));

@@ -6,7 +6,7 @@ subj_name = {'AT1' , 'CG1' , 'HB1' , 'JT1' , 'CB1' , 'YM1' , 'NL1' , 'SR1' , 'IB
 subjnum = length(subj_name); % all subjects
 Repetition = [1 2];
 poolDays = 0;
-MaxIter = 100;
+MaxIter = 200;
 %% Deal with inputs
 c = 1;
 while(c<=length(varargin))
@@ -37,8 +37,8 @@ while(c<=length(varargin))
 end
 
 %%
-% baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
-baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
+baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
+% baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
 
 
 
@@ -144,8 +144,7 @@ switch what
         for d = 1:length(dayz)
             ANA.Day(ismember(ANA.Day , dayz{d})) = d;
         end
-        MTseg = tapply(ANA , {'BN' , 'seqNumb' , 'SN'} , {'MT'});
-        MTseg = normData(MTseg , {'MT'});
+
         
        
         switch nowWhat
@@ -646,13 +645,12 @@ switch what
             sigSeq = [NaN 3 3 2 2];
             sigMT  = [3 4 4 6 3;4 3 4 4 4];
         end
-        h0 = figure;
         for subjnum = 1:length(subj_name)-1
             for d = 1:length(dayz)
                 for sn = 0:1
-                    [d subjnum]
                     % Structured
                     id = ismember(MT.SN , subjnum) & ismember(MT.Day , d) & ismember(MT.seqNumb , sn);
+                    MT.RT = MT.AllPressTimes(:,1) - 1500;
                     MTsn = getrow(MT , id);
                     exp_model1 = @(b,x) b(1) + (b(2) - b(1))*exp(-(x-1)/b(3)); % Model Function
                     %                 exp_model1 = @(b,x) b(1)*exp(-(x-1)/b(2)); % Model Function
@@ -660,9 +658,10 @@ switch what
                     yx = MTsn.MT';                                    % this would be a typical MT vs Horizon vector: [5422 3548 2704 2581 2446 2592 2418 2528 2500]
                     OLS = @(b) sum((exp_model1(b,x) - yx).^2);                % Ordinary Least Squares cost function
                     opts = optimset('MaxIter', MaxIter,'TolFun',1e-5);
-                    [B1 Fval] = fminsearch(OLS,[3500 7500  1], opts);        % Use ?fminsearch? to minimise the ?OLS? function
+                    [B1 Fval] = fminsearch(OLS,[3500 7500 1], opts);        % Use ?fminsearch? to minimise the ?OLS? function
                     %                 [B1 Fval] = fminsearch(OLS,[3500  .1], opts);
                     MTsn.MT_pred = exp_model1(B1,x)';
+                    
                     B.b1 = B1(1);
                     B.b2 = B1(2);
                     B.b3 = B1(3);
@@ -670,8 +669,9 @@ switch what
                     B.SN  = subjnum;
                     B.Day = d;
                     B.MT_fitted(1,:) = exp_model1(B1,unique(MT.Horizon))';
-                    temp = tapply(MTsn , {'Horizon' } , {'MT' , 'nanmedian(x)'});
+                    temp = tapply(MTsn , {'Horizon' } , {'MT' , 'nanmedian(x)'}, {'RT' , 'nanmedian(x)'});
                     B.Median_MT(1,:) = temp.MT;
+                    B.Median_RT(1,:) = temp.RT;
                     B.Horizon(1,:) = unique(MT.Horizon);
                     MTs = addstruct(MTs,MTsn);
                     coefs = addstruct(coefs , B);
@@ -2090,24 +2090,28 @@ switch what
                 end
                 
             case 'presspositionlook-ahead'
-                K = eyeinfo;
-                K.prsnumb(ismember(K.prsnumb ,[4:10])) = 4;
-                K = tapply(K , {'Day' , 'Horizon' , 'sn','CB' , 'prsnumb'} , {'PB' , 'nanmean'} );
-                K = normData(K , {'PB'});
-                K = getrow(K , ismember(K.Day , [1 , length(dayz)]));
-                
-                for cb = {[0] [1 2 3]}
-                    figure('color' , 'white')
-                    colorz  = colz(1:length(dayz) , cb{1}(1)+1);
+                    K = eyeinfo;
+                    K.seqNumb(K.seqNumb>1) = 1;
+    %                 K.prsnumb(ismember(K.prsnumb ,[4:10])) = 4;
+                    K = tapply(K , {'Day' , 'Horizon' , 'sn','seqNumb' , 'prsnumb'} , {'PB' , 'nanmean'} );
+                    K = normData(K , {'PB'});
                     
-                    lineplot([K.prsnumb K.Horizon ] , -K.normPB , 'plotfcn' , 'nanmean',...
-                        'split', K.Day , 'subset' ,  ismember(K.CB , cb{1}) , 'linecolor' , colorz,...
+                    K = getrow(K , ismember(K.Day , [1 , length(dayz)]));
+                    H = {[1] [2] [3] [4] [5] [6:13]};
+                    K.Horizon(K.Horizon>6) = 6;
+                    
+                for d = [1 , length(dayz)]
+                    figure('color' , 'white')
+                    colorz  = avgCol([1,4]);
+                    
+                    lineplot([K.Horizon K.prsnumb  ] , -K.normPB , 'plotfcn' , 'nanmean',...
+                        'split', K.seqNumb , 'subset' ,  ismember(K.Day , d) , 'linecolor' , colorz,...
                         'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , length(dayz)) , 'shadecolor' ,colorz,...
                         'linewidth' , 3 , 'markertype' , {'o' , '>' , '<' , 'x' , 's'}  , 'markerfill' , colorz,...
                         'markersize' , 10, 'markercolor' , colorz , 'leg' , 'auto');
                     ylabel('Mean preview [digits]' )
                     xlabel('Viewing window size (W)' )
-                    title(['Look-ahead  CB = ' , num2str(cb{1})])
+                    title(['Look-ahead  Day = ' , num2str(d)])
                     set(gca,'FontSize' , 12 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [-1 2],'YTick' , [-.5:.5:2] ,...
                         'YGrid' , 'on');
                 end
