@@ -1,7 +1,7 @@
 
 function out  = se2_pubFigs(Dall , what, nowWhat , varargin)
 
-subj_name = {'AT1' , 'CG1' , 'HB1' , 'JT1' , 'CB1' , 'YM1' , 'NL1' , 'SR1' , 'IB1' , 'MZ1' , 'DW1', 'RA1' ,'CC1', 'All'};
+subj_name = {'AT1' , 'CG1' , 'HB1' , 'JT1' , 'CB1' , 'YM1' , 'NL1' , 'SR1' , 'IB1' , 'MZ1' , 'DW1','RA1' ,'CC1' 'DK1' , 'JM1' , 'All'};
 %% Define defaults
 subjnum = length(subj_name); % all subjects
 Repetition = [1 2];
@@ -227,7 +227,7 @@ switch what
             case 'compareLearning'
                 figure('color' , 'white');
                 H = unique(MT.Horizon);
-                MT.Horizon(MT.Horizon>6) = 6;
+%                 MT.Horizon(MT.Horizon>6) = 6;
                 colorz = colz(3,:);
                 lineplot([ MT.Horizon MT.Day] , MT.normMT , 'plotfcn' , 'nanmean',...
                     'split', MT.seqNumb, 'linecolor' , colorz,...
@@ -241,6 +241,7 @@ switch what
             case 'subjEffectiveHorizon'
                 seqN = {[0] , [1 2]};
                 allcount = 1;
+                
                 for sn = 1:length(subj_name)-1
                     dcount = 1;
                     for d  = 1:length(dayz)
@@ -248,7 +249,7 @@ switch what
                             EH.Day(allcount,1) = d;
                             EH.SN(allcount,1) = sn;
                             EH.sq(allcount,1) = sq;
-                            for h = [1:6]
+                            for h = 1:6
                                 stats = se2_SigTest(Dall , 'MT' , 'seqNumb' , seqN{sq} , 'Day' , dayz{d} , 'Horizon' , [h:13],...
                                     'PoolDays' , 1,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
                                     'PoolHorizons' , [7:13],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , sn);
@@ -272,16 +273,11 @@ switch what
                     barplot([EH.sq] ,EH.effH , 'split' ,  EH.Day , 'plotfcn' , 'nanmean',...
                         'facecolor' , colorz,...
                         'edgecolor' , 'none',...
-                        'errorwidth' , 1 ,'leg' , daylab , 'subset' ,EH.sq == sn);% & ismember(Daybenefit.Day , [2 5]));
+                        'errorwidth' , 1 ,'leg' , daylab , 'subset' ,EH.sq == sn & ismember(EH.SN , [1:13]));% & ismember(Daybenefit.Day , [2 5]));
                     hold on
                     ylabel('Plannig horizon')
                     set(gca , 'FontSize' , 18 , 'YLim' , [1 4] , 'YTick' , [1 2 3 4])
                 end
-                
-                barplot([EH.sq] ,EH.effH , 'split' ,  EH.Day);
-                
-                title('The Effective Window Size Grows Significantly from First to Last Day in Random Sequences' , 'FontSize' , 24)
-                ylabel('Viewing Window Size', 'FontSize' , 21)
         end
         out = [];
     case 'IPI'
@@ -1695,7 +1691,7 @@ switch what
                 grid on
         end
     case 'Eye'
-        calc = 1;
+        calc = 0;
         if isSymmetric 
             filename = 'se2_eyeInfo.mat';
         else

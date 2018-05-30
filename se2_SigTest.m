@@ -607,58 +607,23 @@ switch what
                         'markersize' , 15, 'markercolor' , colorz , 'leg' , 'auto');
                     
         lineplot(EH.Day , EH.effH ,'style_thickline', 'split' , EH.sq , 'leg' , {'Random' , 'structured'})
-        disp('Full test day 1 , [4 5]        seqtype [0 1]')
-        anovan(EH.effH , [EH.Day EH.sq] , 'model','interaction','varnames' , {'day' , 'sequenceType'})
+        disp('Full test')
+
         
-        disp('Full test day 1      seqtype [0 1]')
-        E = getrow(EH , EH.Day == 1);
-        anovan(E.effH , [E.sq] ,'varnames' , {'sequenceType'})
+        disp('First vs last day, both seqTypes ')
+        E = getrow(EH , EH.Day ~= 2);
+        anovan(E.effH , [E.sq E.Day] ,'varnames' , {'sequenceType' , 'Day'})
+%         anovaMixed(E.effH  , E.SN ,'within',[E.sq E.Day] ,{'sequenceType' , 'Day'},'intercept',1) ;
         
-        disp('Full test day last      seqtype [0 1]')
-        E = getrow(EH , EH.Day == 2);
-        anovan(E.effH , [E.sq] ,'varnames' , {'sequenceType'})
-        
-        
-        disp('Full test day [all dayz]      seqtype random')
-        E = getrow(EH , EH.sq == 1);
-%         anovan(E.effH , [E.Day] ,'varnames' , {'dayforSeq'})
-        anovaMixed(E.effH  , E.SN ,'between',[E.Day] ,{'day'},'intercept',1) ;
-        
-        disp('Full test day [first 23]      seqtype random')
-        E = getrow(EH , EH.sq == 1 & EH.Day ~= 3);
-        anovan(E.effH , [E.Day] ,'varnames' , {'dayforSeq'})
-        
-        disp('Full test day [first 45]      seqtype random')
+        disp('First vs last day, Random')
         E = getrow(EH , EH.sq == 1 & EH.Day ~= 2);
-        anovan(E.effH , [E.Day] ,'varnames' , {'dayforSeq'})
+        anovan(E.effH , [E.Day] ,'varnames' ,  {'Day'})
         
-        disp('Full test day [23 45]      seqtype random')
-        E = getrow(EH , EH.sq == 1 & EH.Day ~= 1);
-        anovan(E.effH , [E.Day] ,'varnames' , {'dayforSeq'})
-        
-        
-        
-        disp('Full test day [first 23]      seqtype struct')
-        E = getrow(EH , EH.sq == 2 & EH.Day ~= 3);
-        anovan(E.effH , [E.Day] ,'varnames' , {'dayforSeq'})
-        
-        disp('Full test day [first 45]      seqtype struct')
+        disp('First vs last day, structured')
         E = getrow(EH , EH.sq == 2 & EH.Day ~= 2);
-        anovan(E.effH , [E.Day] ,'varnames' , {'dayforSeq'})
-        
-        disp('Full test day [23 45]      seqtype random')
-        E = getrow(EH , EH.sq == 2 & EH.Day ~= 1);
-        anovan(E.effH , [E.Day] ,'varnames' , {'dayforSeq'})
-        
+        anovan(E.effH , [E.Day] ,'varnames' ,  {'Day'})
 
-
-        
-        
-        figure('color' , 'white')
-        barplot([EH.sq] ,EH.effH , 'split' ,  EH.Day);
-        set(gca , 'FontSize' , 18 , 'YLim' , [1 4] , 'YTick' , [1 2 3 4])
-        title('The Effective Window Size Grows Significantly from First to Last Day in Random Sequences' , 'FontSize' , 24)
-        ylabel('Viewing Window Size', 'FontSize' , 21)
+      
     case 'PerSubjMTLearning'
         if PoolDays
             dayz = {[2] [5]};

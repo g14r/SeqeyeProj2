@@ -7,7 +7,7 @@ function se2_targetfile_mixed(SubCode, GroupCode,genchunks, CMB)
 % GroupCode= 1;
 % provode CMB from the subject's target file folder only if you already have the chunks and need to  produce more sequences
 % baseDir = '/Users/nkordjazi/Documents/SeqEye/se1/SeqEye1/TargetFiles';
-baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/TargetFiles';
+baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/TargetFiles';
 cd(baseDir)
 Fname  = [SubCode , num2str(GroupCode)  , '_tgtFiles'];
 mkdir(Fname)

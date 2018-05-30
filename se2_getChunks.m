@@ -5,7 +5,7 @@ function CMB = se2_getChunks(MaxChnkLeng,NumDuo,NumTrio,NumQuadro, GenGroupCLADi
 % NumQuadro   = 2;
 % GenGroupCLADist = 0 / 1  only set to 1 if you want to regenrate the group
 % chunk arrangements, but they already are in the CMB strcuture
-baseDir = ('/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze');
+baseDir = ('/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze');
 load([baseDir , '/CMB.mat']);
 %CMB.Chunks = {};
 %% Generate all possible doubles and triples and quadruples form the 1:5 digits
