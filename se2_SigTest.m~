@@ -67,7 +67,7 @@ baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
 
 ANA = getrow(Dall , Dall.isgood & ~Dall.isError & ...
     ismember(Dall.Horizon , Horizon) & ...
-    ismember(Dall.Day , Day) & ismember(Dall.seqNumb , seqNumb) &ismember(Dall.SN , subjnum));
+    ismember(Dall.Day , Day) & ismember(Dall.seqNumb , seqNumb) & ismember(Dall.SN , subjnum));
 
 
 if ismember(what , {'PercentseqType' , 'PercentIPItype'})
@@ -226,7 +226,7 @@ switch what
                 
                 stats = pval;
             case 'WithBetRand'
-                rangeipi = [1:13];
+                rangeipi = [4:10];
                 ipiss = ANA.IPI(:,rangeipi);
                 FCTR = FCTR(~strcmp(FCTR,'seqNumb'));
                 nn= ipiOfInterest;
@@ -569,20 +569,25 @@ switch what
         title(['Effect of ' , FCTR , ' on ' , what]);
     case 'PerSubjMTHorz'
         clear pval EH
-        D = {[1] , [2 3] , [4 5]};
+        if PoolDays
+            D = {[1] [2 3] [5 4]};
+        else
+            D = {[1] , [3] , [5]};
+        end
+        
         seqN = {[0] , [1 2]};
         allcount = 1;
-        for sn = 1:13
+        for sn = 1:length(subjnum)
             dcount = 1;
             for d  = 1:length(D)
                 for sq = 1:length(seqN)
                     EH.Day(allcount,1) = d;
-                    EH.SN(allcount,1) = sn;
+                    EH.SN(allcount,1) = subjnum(sn);
                     EH.sq(allcount,1) = sq;
-                    for h = [1:6]
+                    for h = 1:6
                         stats = se2_SigTest(Dall , 'MT' , 'seqNumb' , seqN{sq} , 'Day' , D{d} , 'Horizon' , [h:13],...
-                            'PoolDays' , 1,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
-                            'PoolHorizons' , [7:13],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , sn);
+                            'PoolDays' , PoolDays,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
+                            'PoolHorizons' , PoolHorizons,'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , subjnum(sn));
                         pval{sq}(sn,h,dcount) = stats(1);
                         close all
                     end
@@ -596,34 +601,24 @@ switch what
                 end
                 dcount = dcount+1;
             end
-            sn
         end
-        figure('color' , 'white')
-        colorz = {[0.84,0.36,0.50],[0.36,0.45,0.76]};
-        lineplot(EH.Day , EH.effH ,'plotfcn' , 'nanmean',...
-                       'split' , EH.sq  , 'linecolor' , colorz,...
-                        'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , 2) , 'shadecolor' ,colorz,...
-                        'linewidth' , 3 , 'markertype' , {'o' , '>' }  , 'markerfill' , colorz,...
-                        'markersize' , 15, 'markercolor' , colorz , 'leg' , 'auto');
-                    
-        lineplot(EH.Day , EH.effH ,'style_thickline', 'split' , EH.sq , 'leg' , {'Random' , 'structured'})
+                figure('color' , 'white')
+                colorz = {[0.84,0.36,0.50],[0.36,0.45,0.76]};
+                barplot([EH.sq] ,EH.effH , 'split' ,  EH.Day , 'plotfcn' , 'nanmean',...
+                        'facecolor' , colorz,...
+                        'edgecolor' , 'none',...
+                        'errorwidth' , 1 ,'leg' , daylab , 'subset' ,EH.sq == sn & ismember(EH.SN , [1:13]));
+        
+                lineplot(EH.Day , EH.effH ,'style_thickline', 'split' , EH.sq , 'leg' , {'Random' , 'structured'})
+        E = getrow(EH ,  ismember(EH.SN , [1:15]));
+        anovaMixed(E.effH  , E.SN ,'between',[E.sq E.Day] ,{'sequenceType' , 'Day'},'intercept',1) ;
         disp('Full test')
 
-        
-        disp('First vs last day, both seqTypes ')
-        E = getrow(EH , EH.Day ~= 2);
-        anovan(E.effH , [E.sq E.Day] ,'varnames' , {'sequenceType' , 'Day'})
-        anovaMixed(Seqbenefit.percChangeMT  , Seqbenefit.SN ,'within',var ,FCTR,'intercept',1) ;
-        
         disp('First vs last day, Random')
-        E = getrow(EH , EH.sq == 1 & EH.Day ~= 2);
-        anovan(E.effH , [E.Day] ,'varnames' ,  {'Day'})
-        
-        disp('First vs last day, structured')
-        E = getrow(EH , EH.sq == 2 & EH.Day ~= 2);
-        anovan(E.effH , [E.Day] ,'varnames' ,  {'Day'})
+        E = getrow(EH , ismember(EH.sq , 2) & ismember(EH.Day, [2 3]) & ismember(EH.SN , [1:15]));
+        anovaMixed(E.effH  , E.SN ,'between',[E.Day] ,{'Day'},'intercept',1) ;
+%         anovan(E.effH , [E.Day] ,'varnames' ,  {'Day'})
 
-      
     case 'PerSubjMTLearning'
         if PoolDays
             dayz = {[2] [5]};
@@ -653,11 +648,9 @@ switch what
             end
         end
         %         Learn = tapply(Learn , {'sq' , 'Horizon' , 'Day'} , {'isSig' , 'sum'});
-        
-        
         for sq = 1:length(seqN)
             figure('color' , 'white')
-            barplot([ Learn.Horizon Learn.Day] ,Learn.isSig , 'subset' , Learn.sq == sq  ,'plotfcn' , 'sum','style_rainbow');% , 'split' , Learn.Day);
+            barplot([Learn.Horizon Learn.Day] ,Learn.isSig , 'subset' , Learn.sq == sq  ,'plotfcn' , 'sum','style_rainbow');% , 'split' , Learn.Day);
             set(gca , 'FontSize' , 18 , 'YLim' , [1 13] , 'YTick' , [1 :13])
             title('Number of Particpnats (N) Showing Significant Learning Effect in Different Viewing Window Sizes and Sessions' , 'FontSize' , 24)
             ylabel('N', 'FontSize' , 21)
@@ -725,7 +718,7 @@ switch what
         
         Daybenefit = [];
         for chp = nn
-            for d = 1:length(dayz)
+            for d = 2:length(dayz)
                 Db1= getrow(ANA , ANA.Day == 1 & ANA.IPIArr==chp);
                 Db5 = getrow(ANA , ANA.Day == dayz(d) & ANA.IPIArr==chp);
                 Db5.percChangeIPI = 100*abs((Db1.IPI - Db5.IPI)./Db1.IPI);
@@ -733,12 +726,17 @@ switch what
             end
         end
         Daybenefit = getrow(Daybenefit , Daybenefit.Day~=1);
-        
+        if PoolDays
+            Daybenefit.Day(Daybenefit.Day == 3) = 2;
+            Daybenefit.Day(ismember(Daybenefit.Day , [4,5])) = 3;
+        end
         
         
         %% sig test on the IPIs
         FCTR = FCTR(~ismember(FCTR  , 'seqNumb'));
-        
+        if length(unique(Daybenefit.Day))==1
+            FCTR = FCTR(~ismember(FCTR  , 'Day'));
+        end
         if length(ipiLab)>1
             FCTR = [FCTR 'IPIArr'];
         end
