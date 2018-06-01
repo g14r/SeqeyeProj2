@@ -159,8 +159,8 @@ switch what
                     lineplot([MT.Horizon] , MT.normMT , 'plotfcn' , 'nanmean',...
                         'split', MT.seqNumb , 'linecolor' , colorz,...
                         'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , 2) , 'shadecolor' ,colorz,...
-                        'linewidth' , 3 , 'markertype' , repmat({'o'} , 1  , 2) , 'markerfill' , colorz,...
-                        'markersize' , 10, 'markercolor' , colorz , 'leg' , {'Random'  , 'Structured'}  , 'subset' , ismember(MT.Day , dayz{d}));
+                        'linewidth' , 2 , 'markertype' , repmat({'o'} , 1  , 2) , 'markerfill' , colorz,...
+                        'markersize' , 6, 'markercolor' , colorz , 'leg' , {'Random'  , 'Structured'}  , 'subset' , ismember(MT.Day , dayz{d}) &  ismember(MT.seqNumb , 0));
                     set(gca,'FontSize' , 18 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
                         'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [3000 7500],'YTick' , [4000 5000 6000 7000] ,...
                         'YTickLabels' , [4 5 6 7] , 'YGrid' , 'on','XLim' , [1 13]);
@@ -173,19 +173,17 @@ switch what
             case 'RandStructAcrossDays'
                 figure('color' , 'white');
                 H = unique(MT.Horizon);
-                MT.isMax = zeros(size(MT.BN));
-                MT.isMax(MT.SN==1) = 1;
                 for sn = 0:1
                     subplot(2,1 , sn+1);
                     colorz = colz(:,sn+1);
-                    lineplot([MT.SN MT.Horizon] , MT.MT , 'plotfcn' , 'nanmean',...
+                    lineplot([MT.Horizon] , MT.normMT , 'plotfcn' , 'nanmean',...
                         'split', MT.Day , 'linecolor' , colorz,...
                         'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , 2) , 'shadecolor' ,colorz,...
-                        'linewidth' , 1.5 , 'markertype' , repmat({'o'} , 1  , 2) , 'markerfill' , colorz,...
-                        'markersize' , 5, 'markercolor' , colorz , 'leg' , daylab  , 'subset' , ismember(MT.seqNumb , sn));
+                        'linewidth' , 2 , 'markertype' , repmat({'o'} , 1  , 2) , 'markerfill' , colorz,...
+                        'markersize' , 6, 'markercolor' , colorz , 'leg' , daylab  , 'subset' , ismember(MT.seqNumb , sn));
                     set(gca,'FontSize' , 18 , ...
-                        'GridAlpha' , .1 , 'Box' , 'off' , 'YLim' , [2000 9000],'YTick' , [2000 :1000:9000 ] ,...
-                        'YTickLabels' , [2 :9] , 'YGrid' , 'on');
+                        'GridAlpha' , .1 , 'Box' , 'off' , 'YLim' , [3500 7500],'YTick' , [4 :1000:7000 ] ,...
+                        'YTickLabels' , [4 :7] , 'YGrid' , 'on');
                     xlabel('Viewing window size' )
                     ylabel('Execution time [s]')
                 end
@@ -278,6 +276,53 @@ switch what
                     barplot([EH.sq] ,EH.effH , 'split' ,  EH.Day , 'plotfcn' , 'mean',...
                         'facecolor' , colorz,'edgecolor' , 'none',...
                         'errorwidth' , 1 ,'leg' , daylab , 'subset' ,EH.sq == sn & ~ismember(EH.SN , [3,9]));
+                    hold on
+                    ylabel('Plannig horizon')
+                    set(gca , 'FontSize' , 18 , 'YLim' , [1 4] , 'YTick' , [1 2 3 ] , 'XtickLabels' , {})
+                end
+            case 'subjEffectiveHorizonThresh'
+                ANA = getrow(Dall , Dall.isgood & ismember(Dall.seqNumb , [0 1:6]) & ~Dall.isError);
+                ANA.seqNumb(ANA.seqNumb >=1) = 1;
+                seqN = {[0] , [1 2]};
+                ANA = getrow(ANA , ANA.MT <= 9000 );
+                for d = 1:length(dayz)
+                    ANA.Day(ismember(ANA.Day , dayz{d})) = d;
+                end
+%                 dayz = {[1] [3] [5]};
+                daylab = {'Early training (day 1)' 'Mid-training (day 3)' 'Trained (day 5)'};
+                subjs  = unique(Dall.SN);
+                
+                Temp = ANA;
+                Temp.Horizon(Temp.Horizon>7) = 7;
+                Temp = tapply(Temp , {'Horizon' , 'SN' , 'seqNumb' , 'Day'} , {'MT' , 'nanmedian(x)'});
+                EH = [];
+                thresh = .03;
+                allcount = 1;
+                for sn = 1:length(subjs)
+                    for d  = 1:length(dayz)
+                        for sq = 1:length(seqN)
+                            EH.Day(allcount,1) = d;
+                            EH.SN(allcount,1) = sn;
+                            EH.sq(allcount,1) = sq;
+                            Th = getrow(Temp , Temp.Horizon~=7 & Temp.SN == sn & ismember(Temp.seqNumb , seqN{sq}) & ismember(Temp.Day ,d));
+                            Tfull = getrow(Temp , Temp.Horizon==7 & Temp.SN == sn & ismember(Temp.seqNumb , seqN{sq}) & ismember(Temp.Day ,d));
+                            h = find(Th.MT<(1+thresh)*Tfull.MT , 1 , 'first');
+                            if isempty(h)
+                                EH.effH(allcount,1) = 6;
+                            else
+                                EH.effH(allcount,1) = h-1;
+                            end
+                            allcount = allcount+1;
+                        end
+                    end
+                end
+                figure('color' , 'white')
+                for sn = 1:2
+                    subplot(1,2,sn)
+                    colorz = colz(1:length(dayz) , sn);
+                    barplot([EH.sq] ,EH.effH , 'split' ,  EH.Day , 'plotfcn' , 'median',...
+                        'facecolor' , colorz,'edgecolor' , 'none',...
+                        'errorwidth' , 1 ,'leg' , daylab , 'subset' ,EH.sq == sn);% & ~ismember(EH.SN , [3,9]));
                     hold on
                     ylabel('Plannig horizon')
                     set(gca , 'FontSize' , 18 , 'YLim' , [1 4] , 'YTick' , [1 2 3 ] , 'XtickLabels' , {})

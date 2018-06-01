@@ -79,7 +79,9 @@ end
 
 
 ANA.RT = ANA.AllPressTimes(:,1);
-ANA.seqNumb(ANA.seqNumb>1) = 1;
+if sum(ismember(seqNumb , [0:2]))
+    ANA.seqNumb(ANA.seqNumb>1) = 1;
+end
 if PoolSequences
     ANA.seqNumb = zeros(size(ANA.seqNumb));
 end
@@ -174,7 +176,7 @@ switch what
                 end
                 
                 stats = anovaMixed(A.IPI  , A.SN ,'within',var ,FCTR,'intercept',1) ;
-                lineplot(var, A.IPI, 'style_thickline');
+                lineplot([A.Horizon A.Day] , A.IPI , 'split' , A.prsnumb)
             
             case 'AllToSS'
                 calc = 0;
@@ -316,9 +318,9 @@ switch what
             eval(['var = [var ANA.',FCTR{f},'];']);
         end
         stats = anovaMixed(ANA.RT  , ANA.SN ,'within',var ,FCTR,'intercept',1) ;
-        figure('color' , 'white')
-        lineplot(var, ANA.RT-1500, 'style_thickline');
-        title(['Effect of ' , FCTR , ' on ' , what]);
+%         figure('color' , 'white')
+%         lineplot([ ANA.Horizon ANA.Day ] , ANA.RT-1500 , 'split' , ANA.seqNumb)
+%         title(['Effect of ' , FCTR , ' on ' , what]);
     case 'Eye_seq_sacPerSec'
         if isSymmetric
             filename = 'se2_eyeInfo.mat';
@@ -565,7 +567,7 @@ switch what
 
         stats = anovaMixed(eyeinfo.PB  , eyeinfo.sn ,'within',var ,FCTR,'intercept',1) ;
         figure('color' , 'white')
-        lineplot(var, eyeinfo.PB, 'style_thickline');
+        lineplot([eyeinfo.Day , eyeinfo.Horizon], -eyeinfo.PB, 'style_thickline' , 'split' , eyeinfo.prsnumb , 'leg' , 'auto');
         title(['Effect of ' , FCTR , ' on ' , what]);
     case 'PerSubjMTHorz'
         clear pval EH
@@ -618,7 +620,6 @@ switch what
         E = getrow(EH , ismember(EH.sq , 2) & ismember(EH.Day, [2 3]) & ~ismember(EH.SN , [3 9]));
         anovaMixed(E.effH  , E.SN ,'between',[E.Day] ,{'Day'},'intercept',1) ;
 %         anovan(E.effH , [E.Day] ,'varnames' ,  {'Day'})
-
     case 'PerSubjMTLearning'
         if PoolDays
             dayz = {[2] [5]};
