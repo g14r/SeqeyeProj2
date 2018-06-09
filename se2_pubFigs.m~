@@ -969,10 +969,16 @@ switch what
                     daylab = {'Session 1 to 2' , 'Session 2 to 3' , 'Session 3 to 4' , 'Session 4 to 5'};
                 end
                 for sn = 0:1
-                    colorz = colz([length(dayz)],sn+1);
+                    colorz = colz([1:length(dayz)],sn+1);
                     figure('color' , 'white')
                     barplot([Daybenefit.Horizon] , Daybenefit.normpercChangeMT , 'plotfcn' , 'nanmean',...
-                        'split', Daybenefit.Day, 'subset' ,Daybenefit.seqNumb == sn)
+                        'split', Daybenefit.Day, 'subset' ,Daybenefit.seqNumb == sn, 'facecolor' , colorz,'edgecolor' , 'none',...
+                        'errorwidth' , 1 ,'leg' , daylab)
+                    
+                     barplot([EH.sq] ,EH.effH , 'split' ,  EH.Day , 'plotfcn' , 'mean',...
+                        , 'subset' ,EH.sq == sn & ~ismember(EH.SN , [3,9]));
+                    
+                    
                     hold on
                     lineplot([Daybenefit.Horizon] , Daybenefit.normpercChangeMT , 'plotfcn' , 'nanmean',...
                         'split', Daybenefit.Day , 'linecolor' , colorz,...

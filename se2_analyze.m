@@ -1,8 +1,8 @@
 function Dout=se2_analyze (what , getdat , SubjCodes , Dall)
 
 
-baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';
-% baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';
+% baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';
+baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';
 subj_name = {'AT1' , 'CG1' , 'HB1' , 'JT1' , 'CB1' , 'YM1' , 'NL1' , 'SR1' , 'IB1' , 'MZ1' , 'DW1','RA1' ,'CC1' 'DK1' , 'JM1'};
 % load([baseDir , '/CMB.mat'])
 %load([baseDir , '/se1_all.mat'])
