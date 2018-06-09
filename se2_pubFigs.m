@@ -955,14 +955,18 @@ switch what
                 for sn = 0:1
                     
                     for d = 1:length(dayz)-1
-                        Db1= getrow(ANA , ismember(ANA.Day , dayz{d}) & ANA.seqNumb==sn);
+                        Dbd= getrow(ANA , ismember(ANA.Day , dayz{d}) & ANA.seqNumb==sn);
+                        Db1= getrow(ANA , ismember(ANA.Day , 1) & ANA.seqNumb==sn);
                         Db = getrow(ANA , ismember(ANA.Day , dayz{d+1}) & ANA.seqNumb==sn);
-                        Db.percChangeMT = 100*abs((Db1.MT - Db.MT)./Db1.MT);
-                        Db.percChangeMT_pred = 100*abs((Db1.MT_pred - Db.MT_pred)./Db1.MT_pred);
+                        Db.percChangeMTd2d = 100*abs((Dbd.MT - Db.MT)./Dbd.MT);
+                        Db.percChangeMT_predd2d = 100*abs((Dbd.MT_pred - Db.MT_pred)./Dbd.MT_pred);
+                        Db.percChangeMToveral = 100*abs((Db1.MT - Db.MT)./Db1.MT);
+                        Db.percChangeMT_predoveral = 100*abs((Db1.MT_pred - Db.MT_pred)./Db1.MT_pred);
                         Daybenefit = addstruct(Daybenefit , Db);
                     end
                 end
-                 Daybenefit = normData(Daybenefit , {'percChangeMT' , 'percChangeMT_pred'});
+                 Daybenefit = normData(Daybenefit , {'percChangeMTd2d' , 'percChangeMT_predd2d'});
+                 Daybenefit = normData(Daybenefit , {'percChangeMToveral' , 'percChangeMT_predoveral'});
                 if poolDays
                     daylab = {'Session 1 to 2,3' , 'Sessions 2,3 to 4,5'};
                 else
@@ -972,7 +976,9 @@ switch what
                     colorz = colz([length(dayz)],sn+1);
                     figure('color' , 'white')
                     barplot([Daybenefit.Horizon] , Daybenefit.normpercChangeMT , 'plotfcn' , 'nanmean',...
-                        'split', Daybenefit.Day, 'subset' ,Daybenefit.seqNumb == sn)
+                        'split', Daybenefit.Day, 'subset' ,Daybenefit.seqNumb == sn, 'facecolor' , colorz,'edgecolor' , 'none',...
+                        'errorwidth' , 1 ,'leg' , daylab)
+         
                     hold on
                     lineplot([Daybenefit.Horizon] , Daybenefit.normpercChangeMT , 'plotfcn' , 'nanmean',...
                         'split', Daybenefit.Day , 'linecolor' , colorz,...
