@@ -660,7 +660,7 @@ switch what
         
         dayz = unique(ANA.Day);
         D = ANA;
-        ANA  = tapply(D , {'Horizon' , 'Day' ,'SN' , 'seqNumb'} , {'MT' , 'nanmedian(x)'});
+        ANA  = tapply(D , {'Horizon' , 'Day' ,'SN' , 'seqNumb'} , {'MT' , 'nanmean(x)'});
         ANA.percChangeMT = zeros(length(ANA.MT),length(dayz)-1);
         Seqbenefit = [];
         for d = 1:length(dayz)
@@ -772,7 +772,7 @@ switch what
         
         
         ANA = A;
-        ANA  = tapply(ANA , {'Horizon' , 'Day' ,'SN' , 'IPIPlace' , 'seqNumb'} , {'IPI' , 'nanmedian(x)'});
+        ANA  = tapply(ANA , {'Horizon' , 'Day' ,'SN' , 'IPIPlace' , 'seqNumb'} , {'IPI' , 'nanmean(x)'});
         ANA.percChangeIPI = zeros(size(ANA.IPI));
         
         Daybenefit = [];
@@ -780,7 +780,7 @@ switch what
             for sn = 1:length(SN)
                 for ip = 1:length(ipiOfInterest)
                     Db1= getrow(ANA , ANA.Day == 1 & ANA.IPIPlace==ip & ANA.seqNumb == SN(sn));
-                    Db_d = getrow(ANA , ANA.Day == dayz(d) & ANA.IPIPlace==ip & ANA.seqNumb == SN(sn));
+                    Db_d = getrow(ANA , ANA.Day == d & ANA.IPIPlace==ip & ANA.seqNumb == SN(sn));
                     Db_d.percChangeIPI = 100*abs((Db_d.IPI - Db1.IPI)./Db1.IPI);
                     Daybenefit = addstruct(Daybenefit , Db_d);
                 end
@@ -792,7 +792,7 @@ switch what
         if length(unique(Daybenefit.Day))==1
             FCTR = FCTR(~ismember(FCTR  , 'Day'));
         end
-        if length(ipiOfInterest)>1
+        if length(ipiLab)>1
             FCTR = [FCTR 'IPIPlace'];
         end
         var = [];
