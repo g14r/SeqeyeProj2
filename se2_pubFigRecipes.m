@@ -15,13 +15,13 @@ out  = se2_pubFigs(Dall , 'IPI','IPIFullDispsplitseqNumb', 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'IPI','IPIFullDispsplitHorizon', 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'IPI','compareLearning', 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'IPI','compareLearning_histogram', 'poolDays' , 0);
-out  = se2_pubFigs(Dall , 'IPI','IPILearningPlacement', 'poolDays' , 0);
+out  = se2_pubFigs(Dall , 'IPI','IPILearningPlacement', 'poolDays' , 0, 'dayz' , {[1] [5]});
 out  = se2_pubFigs(Dall , 'IPI','percentTotalLearning_IPIplacement', 'poolDays' , 0);
 
 
 
 out  = se2_pubFigs(Dall , 'RT','RandvsStructCommpare');
-out  = se2_pubFigs(Dall , 'RT','RandStructAcrossDays' , 'poolDays' , 1);
+out  = se2_pubFigs(Dall , 'RT','RandStructAcrossDays' , 'poolDays' , 1 , 'dayz' , {[1] [5]});
 out  = se2_pubFigs(Dall , 'RT','compareLearning' , 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'RT','LearningEffectShade' , 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'RT','BoxFirstLastDays' , 'poolDays' , 0);
@@ -46,16 +46,15 @@ out  = se2_pubFigs(Dall , 'Eye', 'sacDurSplitDay' , 'isSymmetric' , 1 , 'poolDay
 out  = se2_pubFigs(Dall , 'Eye', 'sacDurSplitseqType' , 'isSymmetric' , 1 , 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'Eye', 'sacAmpSplitDay' , 'isSymmetric' , 1 , 'poolDays' , 1);
 out  = se2_pubFigs(Dall , 'Eye', 'sacAmpSplitseqType' , 'isSymmetric' , 1 , 'poolDays' , 0);
-out  = se2_pubFigs(Dall , 'Eye', 'sacFreqSplitDay' , 'isSymmetric' , 1 , 'poolDays' , 0);
+out  = se2_pubFigs(Dall , 'Eye', 'sacFreqSplitDay' , 'isSymmetric' , 1 , 'poolDays' , 1);
 out  = se2_pubFigs(Dall , 'Eye', 'sacFreqSplitseqType' , 'isSymmetric' , 1 , 'poolDays' , 0);
-
-out  = se2_pubFigs(Dall , 'Eye', 'FixDurSplitipitype' , 'isSymmetric' , 1 , 'poolDays' , 0);
+out  = se2_pubFigs(Dall , 'Eye', 'FixDurSplitipitype' , 'isSymmetric' , 1 , 'poolDays' , 1);
 out  = se2_pubFigs(Dall , 'Eye', 'FixDurSplitwindow' , 'isSymmetric' , 1 , 'poolDays' , 0);
-
 out  = se2_pubFigs(Dall , 'Eye', 'EyePrsTimePos' , 'isSymmetric' , 1 , 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'Eye', 'previewSplitipitype' , 'isSymmetric' , 1 , 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'Eye', 'previewSplitwindow' , 'isSymmetric' , 1 , 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'Eye', 'previewSplitDays' , 'isSymmetric' , 1 , 'poolDays' , 1);
+out  = se2_pubFigs(Dall , 'Eye', 'startlookahead' , 'isSymmetric' , 1 , 'poolDays' , 1,'subjnum' , [1:15]);
 
 
 se2_compareExp(Dall1 , Dall2 , 'MT')
@@ -94,9 +93,9 @@ stats = se2_SigTest(Dall , 'MT' , 'seqNumb' , [0] , 'Day' , [1:5] , 'Horizon' , 
     'PoolHorizons' , [],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , [1:15]);
 
 %% significance test on RTs
-stats = se2_SigTest(Dall , 'RT' , 'seqNumb' , [1:2] , 'Day' , [4 5] , 'Horizon' , [2:13],...
-    'PoolDays' , 1,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
-    'PoolHorizons' , [13],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , [1:15]);
+stats = se2_SigTest(Dall , 'RT' , 'seqNumb' , [0] , 'Day' , [5] , 'Horizon' , [1:13],...
+    'PoolDays' , 0,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
+    'PoolHorizons' , [],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , [1:15]);
 
 %% significance test on RTs
 stats = se2_SigTest(Dall , 'RT' , 'seqNumb' , [103 203 303] , 'Day' , [1:5] , 'Horizon' , [1:13],...
@@ -104,9 +103,9 @@ stats = se2_SigTest(Dall , 'RT' , 'seqNumb' , [103 203 303] , 'Day' , [1:5] , 'H
     'PoolHorizons' , [],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , [1:15]);
 
 %% significance test on IPIs % {[1] [2] [3] [4] [5] [6] [7] [8] [9] [10] [11] [12] [13]}
-stats = se2_SigTest(Dall , 'IPI' , 'seqNumb' , [0] , 'Day' , [1:5] , 'Horizon' , [1:13],...
+stats = se2_SigTest(Dall , 'IPI' , 'seqNumb' , [0] , 'Day' , [1 :5] , 'Horizon' , [1:13],...
     'PoolDays' , 0,'whatIPI','ipistoEachother','PoolSequences' , 0 ,...
-    'PoolHorizons' , [],'ipiOfInterest' , {[1:4] [5:9]} , 'poolIPIs' , 0 , 'subjnum' , [1:15]);
+    'PoolHorizons' , [],'ipiOfInterest' , { [1:3] [5:9] } , 'poolIPIs' , 0 , 'subjnum' , [1:15]);
 %%
 stats = se2_SigTest(Dall , 'PercentIPIplace' , 'seqNumb' , [0] , 'Day' , [1 5] , 'Horizon' , [1:13],...
     'PoolDays' , 1,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
@@ -122,9 +121,9 @@ stats = se2_SigTest(Dall , 'IPI' , 'seqNumb' , [0] , 'Day' , [1] , 'Horizon' , [
     'PoolDays' , 0,'whatIPI','ipiOfInterestToSS','PoolSequences' , 0 ,...
     'PoolHorizons' , [],'ipiOfInterest' , [0] , 'poolIPIs' , 0 , 'subjnum' , [1:15]);
 %% single subject horizon significance test
-stats = se2_SigTest(Dall , 'PerSubjMTHorz' , 'seqNumb' , [0:2] , 'Day' , [1:5] , 'Horizon' , [1:13],...
-    'PoolDays' , 1,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
-    'PoolHorizons' , [7:13],'ipiOfInterest' , [0 2] , 'poolIPIs' , 0 , 'subjnum' , [1:15]);
+stats = se2_SigTest(Dall , 'PerSubjMTHorz' , 'seqNumb' , [0] , 'Day' , [1 3 5] , 'Horizon' , [1:13],...
+    'PoolDays' , 0,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
+    'PoolHorizons' , [7:13],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , [1:15]);
 
 %% significance test for percent change in MTs (Random Structured)
 stats = se2_SigTest(Dall , 'PercentLearning_CompareSeqType' , 'seqNumb' , [0:1] , 'Day' , [1:5] , 'Horizon' , [1:13],...
@@ -163,8 +162,13 @@ stats = se2_SigTest(Dall , 'Eye_ipi_lookahead' , 'seqNumb' , [0] , 'Day' , [1 4 
     'PoolHorizons' , [],'ipiOfInterest' , [0] , 'poolIPIs' , 0 , 'subjnum' , [1:15],'isSymmetric' , 1);
 
 %%
-stats = se2_SigTest(Dall , 'Eye_ipi_lookahead_prsnumb' , 'seqNumb' , [0] , 'Day' , [1  4 5] , 'Horizon' , [2:13],...
+stats = se2_SigTest(Dall , 'Eye_ipi_lookahead_prsnumb' , 'seqNumb' , [0] , 'Day' , [1 3 5] , 'Horizon' , [1:13],...
+    'PoolDays' , 0,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
+    'PoolHorizons' , [],'ipiOfInterest' , [0] , 'poolIPIs' , 0 , 'subjnum' , [1:15],'isSymmetric' , 1 , 'prsnumb' , [1]);
+
+%%
+stats = se2_SigTest(Dall , 'Eye_ipi_lookahead_prsnumb_persubj' , 'seqNumb' , [0] , 'Day' , [1 5] , 'Horizon' , [1:13],...
     'PoolDays' , 1,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
-    'PoolHorizons' , [6:13],'ipiOfInterest' , [0] , 'poolIPIs' , 0 , 'subjnum' , [1:15],'isSymmetric' , 1 , 'prsnumb' , [1]);
+    'PoolHorizons' , [],'ipiOfInterest' , [0] , 'poolIPIs' , 0 , 'subjnum' , [1:15],'isSymmetric' , 1 , 'prsnumb' , [1]);
 
 

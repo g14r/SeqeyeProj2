@@ -61,8 +61,8 @@ while(c<=length(varargin))
     end
 end
 
-baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
-% baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
+% baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
+baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
 
 
 ANA = getrow(Dall , Dall.isgood & ~Dall.isError & ...
@@ -176,7 +176,7 @@ switch what
                     eval(['var = [var A.',FCTR{f},'];']);
                 end
                 stats = anovaMixed(A.IPI  , A.SN ,'within',var ,FCTR,'intercept',1) ;
-                lineplot([A.Horizon A.Day] , A.IPI , 'split' , A.IPIPlace);
+                lineplot([A.Horizon A.Day] , A.IPI , 'split' , A.IPIPlace , 'leg' , 'auto');
             
             case 'AllToSS'
                 calc = 0;
@@ -565,7 +565,58 @@ switch what
         end
         FCTR(strcmp(FCTR,'Horizon')) = {'Window'};
 
-        stats = anovaMixed(eyeinfo.PB  , eyeinfo.sn ,'within',var ,FCTR,'intercept',1) ;
+        stats = anovaMixed(eyeinfo.PB  , eyeinfo.sn ,'between',var ,FCTR,'intercept',1) ;
+%         stats = anovan(eyeinfo.PB  ,var ,'varnames' , FCTR, 'model' , 'interaction');
+        figure('color' , 'white')
+        lineplot([eyeinfo.Day , eyeinfo.Horizon], -eyeinfo.PB, 'style_thickline' , 'split' , eyeinfo.prsnumb , 'leg' , 'auto');
+        title(['Effect of ' , FCTR , ' on ' , what]);
+    case 'Eye_ipi_lookahead_prsnumb_persubj'
+        if isSymmetric
+            filename = 'se2_eyeInfo.mat';
+        else
+            filename = 'se2_eyeInfo_asym.mat';
+        end
+        load([baseDir , '/', filename]);
+        E = eyeinfo;
+        for sbn = 1:length(subjnum)
+            eyeinfo = E;
+            eyeinfo = getrow(eyeinfo , ismember(eyeinfo.Horizon , Horizon) & ...
+                ismember(eyeinfo.Day , Day) & ismember(eyeinfo.seqNumb , seqNumb) &ismember(eyeinfo.sn , subjnum(sbn)));
+            eyeinfo.seqNumb(eyeinfo.seqNumb>1) = 1;
+            if PoolSequences
+                eyeinfo.seqNumb = zeros(size(eyeinfo.seqNumb));
+            end
+            if PoolDays
+                eyeinfo.Day(eyeinfo.Day == 3) = 2;
+                eyeinfo.Day(ismember(eyeinfo.Day , [4,5])) = 3;
+            end
+            if ~isempty(PoolHorizons)
+                eyeinfo.Horizon(ismember(eyeinfo.Horizon ,PoolHorizons)) = PoolHorizons(1);
+                Horizon = unique(eyeinfo.Horizon);
+            end
+            switch poolIPIs
+                case{1}
+                    eyeinfo.CB(ismember(eyeinfo.CB ,[1 2 3])) = 1;
+            end
+            
+            eyeinfo = getrow(eyeinfo , ~isnan(eyeinfo.PB) & ismember(eyeinfo.CB , ipiOfInterest) & ismember(eyeinfo.prsnumb , prsnumb));
+            if length(prsnumb)>1
+                FCTR = [FCTR(~strcmp(FCTR,'seqNumb')) , 'prsnumb'];
+            else
+                FCTR = FCTR(~strcmp(FCTR,'seqNumb'));
+            end
+            var = [];
+            for f = 1:length(FCTR)
+                eval(['var = [var eyeinfo.',FCTR{f},'];']);
+            end
+%             FCTR(strcmp(FCTR,'Horizon')) = {'Window'};
+            
+            %         stats = anovaMixed(eyeinfo.PB  , eyeinfo.sn ,'between',var ,FCTR,'intercept',1) ;
+            stats = anovan(eyeinfo.PB  ,var ,'varnames' , FCTR, 'model' , 'interaction' , 'display' , 'off');
+            winstat(sbn) = stats(1);
+            daystat(sbn) = stats(2);
+            intracstat(sbn) = stats(3);
+        end
         figure('color' , 'white')
         lineplot([eyeinfo.Day , eyeinfo.Horizon], -eyeinfo.PB, 'style_thickline' , 'split' , eyeinfo.prsnumb , 'leg' , 'auto');
         title(['Effect of ' , FCTR , ' on ' , what]);
@@ -604,22 +655,18 @@ switch what
                 dcount = dcount+1;
             end
         end
-                figure('color' , 'white')
-                colorz = {[0.84,0.36,0.50],[0.36,0.45,0.76]};
-                barplot([EH.sq] ,EH.effH , 'split' ,  EH.Day , 'plotfcn' , 'nanmean',...
-                        'facecolor' , colorz,...
-                        'edgecolor' , 'none',...
-                        'errorwidth' , 1 ,'leg' , daylab , 'subset' ,EH.sq == sn & ismember(EH.SN , [1:13]));
         
-                lineplot(EH.Day , EH.effH ,'style_thickline', 'split' , EH.sq , 'leg' , {'Random' , 'structured'})
-        E = getrow(EH ,  ~ismember(EH.SN , [3 9]));
+        lineplot(EH.Day , EH.effH ,'style_thickline', 'split' , EH.sq , 'leg' , {'Random' , 'structured'})
+        E = EH;
         anovaMixed(E.effH  , E.SN ,'between',[E.sq E.Day] ,{'sequenceType' , 'Day'},'intercept',1) ;
+        E = getrow(EH , EH.sq==2);
+        stats = anovaMixed(E.effH  , E.SN ,'between',[E.Day] ,{ 'Day'},'intercept',1) ;
         disp('Full test')
-
+        
         disp('First vs last day, Random')
         E = getrow(EH , ismember(EH.sq , 2) & ismember(EH.Day, [2 3]) & ~ismember(EH.SN , [3 9]));
         anovaMixed(E.effH  , E.SN ,'between',[E.Day] ,{'Day'},'intercept',1) ;
-%         anovan(E.effH , [E.Day] ,'varnames' ,  {'Day'})
+        %         anovan(E.effH , [E.Day] ,'varnames' ,  {'Day'})
     case 'PerSubjMTLearning'
         if PoolDays
             dayz = {[2] [5]};

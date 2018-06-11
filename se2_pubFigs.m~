@@ -31,14 +31,18 @@ while(c<=length(varargin))
             % gaze filed around a digit symmetric or not(0 no/1 yes);
             eval([varargin{c} '= varargin{c+1};']);
             c=c+2;
+        case {'dayz'}
+            % days to consider -> cell;
+            eval([varargin{c} '= varargin{c+1};']);
+            c=c+2;
         otherwise
             error('Unknown option: %s',varargin{c});
     end
 end
 
 %%
-% baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
-baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
+baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
+% baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
 
 
 
@@ -50,12 +54,19 @@ end
 
 
 days  = {1 ,2 ,3 ,4 ,5,[1:5] ,[2:5] [2:3] [4:5],[3:5]};
-if poolDays
-    dayz = {1 [2 3] [4 5]};
-    daylab = {'Day 1' , 'Days 2,3' , 'Days 4,5'}
+if ~exist('dayz')
+    if poolDays
+        dayz = {1 [3] [5]};
+        daylab = {'Day 1' , 'Days 2,3' , 'Days 4,5'}
+    else
+        dayz = {[1] [2] [3] [4] [5]};
+        daylab = {'Day 1' , 'Day 2' , 'Day 3' , 'Day 4' , 'Day 5'};
+    end
 else
-    dayz = {[1] [2] [3] [4] [5]};
-    daylab = {'Day 1' , 'Day 2' , 'Day 3' , 'Day 4' , 'Day 5'};
+    daylab = {};
+    for dd = 1:length(dayz)
+       daylab = [daylab ['Day(s) ' , num2str(dayz{dd})]]; 
+    end
 end
 
 clear tempcol
@@ -375,10 +386,16 @@ switch what
         IPItable.seqNumb = reshape(ANA.IPI_seqNumb , numel(ANA.IPI) , 1);
         IPItable.BN = reshape(ANA.IPI_BN , numel(ANA.IPI) , 1);
         
+        A = [];
+        for d = 1:length(dayz)
+            T = getrow(IPItable , ismember(IPItable.Day , dayz{d}));
+            T.Day = ones(size(T.Day))*d;
+            A = addstruct(A , T);
+        end
+        IPItable = A;
         
         switch nowWhat
             case 'sigIPIvssteadystate'
-                dayz = {[1] , [2 3] , [4 5]};
                 H = {[1] [2] [3] [4] [5] [6] [7] [8] [13]};
                 for d = 1:length(dayz)
                     pval{d} = nan(length(H),13);
@@ -450,7 +467,7 @@ switch what
                 for d = 1:length(dayz)
                     IPIs.Day(ismember(IPIs.Day , dayz{d})) = d;
                 end
-                ipiOfInterest = {[1:3] , [5:9] , [11:13]};
+                ipiOfInterest = {[1:3] , [5:9]};
                 A = [];
                 for n = 1:length(ipiOfInterest)
                     temp = getrow(IPIs , ismember(IPIs.prsnumb , ipiOfInterest{n}));
@@ -461,18 +478,20 @@ switch what
                 IPIs = normData(IPIs , {'IPI'});
                 IPIs = getrow(IPIs , ismember(IPIs.Day , [1,length(dayz)]));
                 for sqn = 0:1
-                    colorz = colz(1:2:end , sqn+1);
+                    colorz = colz([1] , sqn+1);
                     figure('color' , 'white');
-                    lineplot([IPIs.IPIPlace IPIs.Day  ] , IPIs.normIPI , 'plotfcn' , 'nanmean',...
-                        'split', [ IPIs.Horizon ] , 'subset', ismember(IPIs.seqNumb  , sqn) & ismember(IPIs.Day  , [1 3 5]), 'linecolor' , colorz,...
+                    lineplot([IPIs.Day IPIs.Horizon   ] , IPIs.normIPI , 'plotfcn' , 'nanmean',...
+                        'split', [ IPIs.IPIPlace ] , 'subset', ismember(IPIs.seqNumb  , sqn), 'linecolor' , colorz,...
                         'errorcolor' , colorz , 'errorbars' , {'shade'}  , 'shadecolor' ,colorz,...
                         'linewidth' , 1 , 'markertype' , {'o' , '>'}  , 'markerfill' , colorz,...
                         'markersize' , 5, 'markercolor' , colorz , 'leg' , daylab([1,end]));
-                    set(gca,'FontSize' , 18,'GridAlpha' , .2 , 'Box' , 'off','YGrid' , 'on',...
-                        'YLim' , [150 900] , 'YTick' , [200 :100:800],...
-                        'YTickLabel' , [0.2 :0.1: 0.8]);
+                    set(gca,'FontSize' , 7,'GridAlpha' , .2 , 'Box' , 'off',...
+                        'YLim' , [200 600] , 'YTick' , [300 :100:500],...
+                        'YTickLabel' , [0.3 :0.1: 0.5] ,...
+                        'XTickLabel' , repmat({'W=1','W=2','W=3','W=4','W=5','W=6','W=7','W=8','W=13'} ,1 , length(dayz)),...
+                        'XTickLabelRotation' , 30);
                     
-                    ylabel('Inter-press interval time [s]','FontSize' , 20)
+                    ylabel('Inter-press interval time [s]','FontSize' , 9)
                 end
             case 'IPIFullDispsplitseqNumb'
                 
@@ -629,10 +648,15 @@ switch what
         ANA.seqNumb(ANA.seqNumb >=1) = 1;
         
         ANA = getrow(ANA , ANA.RT <= 9000 );
-        
+
+        A = [];
         for d = 1:length(dayz)
-            ANA.Day(ismember(ANA.Day , dayz{d})) = d;
+            T = getrow(ANA , ismember(ANA.Day , dayz{d}));
+            T.Day = ones(size(T.Day))*d;
+            A = addstruct(A , T);
         end
+        ANA = A;
+        
         RT = tapply(ANA , {'Horizon' , 'BN' , 'seqNumb' , 'SN' , 'Day'} , {'RT'});
         RT = normData(RT , {'RT'});
         % segments
@@ -643,9 +667,6 @@ switch what
         
         ANA = getrow(ANA , ANA.RT <= 9000 );
         
-        for d = 1:length(dayz)
-            ANA.Day(ismember(ANA.Day , dayz{d})) = d;
-        end
         RTseg = tapply(ANA , {'BN' , 'seqNumb' , 'SN'} , {'RT'});
         RTseg = normData(RTseg , {'RT'});
         
@@ -674,17 +695,19 @@ switch what
             case 'RandStructAcrossDays'
                 figure('color' , 'white');
                 H = unique(RT.Horizon);
+                RT.Horizon(RT.Horizon>7) = 7;
                 for sn = 0:1
                     subplot(1,2 , sn+1);
-                    colorz = colz(:,sn+1);
-                    lineplot([RT.Horizon] , RT.normRT , 'plotfcn' , 'nanmean',...
-                        'split', RT.Day , 'linecolor' , colorz,...
+                    colorz = colz([1, 6],sn+1);
+                    RT.DUMMY = RT.Day;
+                    lineplot([RT.Day RT.Horizon ] , RT.normRT , 'plotfcn' , 'nanmean',...
+                        'split' , RT.DUMMY , 'linecolor' , colorz,...
                         'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , 2) , 'shadecolor' ,colorz,...
-                        'linewidth' , 3 , 'markertype' , repmat({'o'} , 1  , 2) , 'markerfill' , colorz,...
-                        'markersize' , 10, 'markercolor' , colorz , 'leg' , daylab  , 'subset' , ismember(RT.seqNumb , sn));
-                    set(gca,'FontSize' , 18 , 'XTick' , [1:8,13] , 'XTickLabel' , {'1' '2' '3' '4' '5' '6' '7' '8' '13'} , ...
-                        'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [600 900],'YTick' ,  [700 800] ,...
-                        'YTickLabels' , [0.7 0.8] , 'YGrid' , 'on','XLim' , [1 13]);
+                        'linewidth' , 1 , 'markertype' , repmat({'o'} , 1  , 2) , 'markerfill' , colorz,...
+                        'markersize' , 5, 'markercolor' , colorz , 'leg' , daylab  , 'subset' , ismember(RT.seqNumb , sn));
+                    set(gca,'FontSize' , 7 , 'XTick' , [1:8,13] , 'XTickLabel' , repmat({'1' '2' '3' '4' '5' '6' '7' '8' '13'} ,1,length(dayz)), ...
+                        'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [600 850],'YTick' ,  [700 800] ,...
+                        'YTickLabels' , [0.7 0.8] , 'YGrid' , 'on');
                     xlabel('Viewing window size' )
                     ylabel('Execution time [s]')
                 end
@@ -1816,7 +1839,7 @@ switch what
                     ANA.ChunkBndry(tn , :) = zeros(size(ANA.ChnkArrang(tn , :)));
                 end
                 ANA.DigFixWeighted(tn , :) = zeros(1 ,14);
-                window = 50;
+                window = 75;
                 if isSymmetric
                     for p = 1:14
                         id = ANA.xEyePosDigit{tn , 1}<=p+.5 & ANA.xEyePosDigit{tn , 1}>p-.5;
@@ -1839,7 +1862,7 @@ switch what
                 end
                 
                 for p = 1:14
-                    id = [ANA.AllPressIdx(tn , p) - window/2 :ANA.AllPressIdx(tn , p) + window/2];
+                    id = [ANA.AllPressIdx(tn , p) - window :ANA.AllPressIdx(tn , p) + 1];
                     if id(1) > length(ANA.xEyePosDigit{tn}) | sum(id<0)>0
                         ANA.EyePressTimePos(tn , p) = NaN;
                     elseif id(end)>length(ANA.xEyePosDigit{tn})
@@ -1874,9 +1897,11 @@ switch what
             load([baseDir , '/', filename])
         end
         if poolDays
+            eyeinfo = getrow(eyeinfo , ismember(eyeinfo.Day , [1 3 4 5]));
             eyeinfo.Day(eyeinfo.Day==3) = 2;
             eyeinfo.Day(ismember(eyeinfo.Day , [4 5])) = 3;
         end
+        eyeinfo = getrow(eyeinfo , ismember(eyeinfo.sn , subjnum));
         out = [];
         switch nowWhat
             case 'sacDurSplitDay'
