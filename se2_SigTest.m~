@@ -101,7 +101,6 @@ FCTR =  factors(facInclude);
 
 switch what
     case 'MT'
-%         ANA.MT = ANA.AllPressTimes(:,14) - ANA.AllPressTimes(:,11);
         var = [];
         for f = 1:length(FCTR)
             eval(['var = [var ANA.',FCTR{f},'];']);
@@ -111,18 +110,18 @@ switch what
         else
             stats = anovaMixed(ANA.MT  , ANA.SN ,'within',var ,FCTR,'intercept',1) ;
         end
-%         figure('color' , 'white')
-%         lineplot(var, ANA.MT , 'style_shade' , 'markertype' , 'o'  , ...
-%             'markersize' , 10 , 'markerfill' , 'w');
-%         tAdd = FCTR{1};
-%         for f =2:length(FCTR)
-%             tAdd = [tAdd , ' and ' , FCTR{f}];
-%         end
-%         title(['Effect of ' , tAdd ,' on Execution Time']);
-%         grid on
-%         set(gca , 'FontSize' , 20 , 'Box' , 'off')
-%         xlabel(FCTR{end})
-%         ylabel('msec')
+        %         figure('color' , 'white')
+        %         lineplot(var, ANA.MT , 'style_shade' , 'markertype' , 'o'  , ...
+        %             'markersize' , 10 , 'markerfill' , 'w');
+        %         tAdd = FCTR{1};
+        %         for f =2:length(FCTR)
+        %             tAdd = [tAdd , ' and ' , FCTR{f}];
+        %         end
+        %         title(['Effect of ' , tAdd ,' on Execution Time']);
+        %         grid on
+        %         set(gca , 'FontSize' , 20 , 'Box' , 'off')
+        %         xlabel(FCTR{end})
+        %         ylabel('msec')
     case 'IPI'
         ANA.seqNumb(ANA.seqNumb>=2) = 1;
         for tn = 1:length(ANA.TN)
@@ -178,6 +177,7 @@ switch what
                 end
                 stats = anovaMixed(A.IPI  , A.SN ,'within',var ,FCTR,'intercept',1) ;
                 lineplot([A.Horizon A.Day] , A.IPI , 'split' , A.IPIPlace , 'leg' , 'auto');
+            
             case 'AllToSS'
                 calc = 0;
                 if calc
@@ -317,23 +317,7 @@ switch what
         for f = 1:length(FCTR)
             eval(['var = [var ANA.',FCTR{f},'];']);
         end
-        if length(subjnum) == 1
-            stats = anovan(ANA.RT,var,'model','interaction','varnames',FCTR , 'display' , 'off') ; % between subject;
-        else
-            stats = anovaMixed(ANA.RT  , ANA.SN ,'within',var ,FCTR,'intercept',1) ;
-        end
-%         figure('color' , 'white')
-%         lineplot(var, ANA.MT , 'style_shade' , 'markertype' , 'o'  , ...
-%             'markersize' , 10 , 'markerfill' , 'w');
-%         tAdd = FCTR{1};
-%         for f =2:length(FCTR)
-%             tAdd = [tAdd , ' and ' , FCTR{f}];
-%         end
-%         title(['Effect of ' , tAdd ,' on Execution Time']);
-%         grid on
-%         set(gca , 'FontSize' , 20 , 'Box' , 'off')
-%         xlabel(FCTR{end})
-%         ylabel('msec')
+        stats = anovaMixed(ANA.RT  , ANA.SN ,'within',var ,FCTR,'intercept',1) ;
 %         figure('color' , 'white')
 %         lineplot([ ANA.Horizon ANA.Day ] , ANA.RT-1500 , 'split' , ANA.seqNumb)
 %         title(['Effect of ' , FCTR , ' on ' , what]);
@@ -568,17 +552,14 @@ switch what
             case{1}
                 eyeinfo.CB(ismember(eyeinfo.CB ,[1 2 3])) = 1;
         end
-        
         poolPresses =1;
         if poolPresses
-            eyeinfo = getrow(eyeinfo , ~isnan(eyeinfo.PB) & ismember(eyeinfo.CB , ipiOfInterest));
             disp('poolPresses is set to 1 --> presses are 1 [5:9]pooled and 14')
+            eyeinfo = eyeinfo
             eyeinfo = getrow(eyeinfo , ismember(eyeinfo.prsnumb , [1 5:9 14]));
             eyeinfo.prsnumb(ismember(eyeinfo.prsnumb , [5:9])) = 2;
-        else
-            eyeinfo = getrow(eyeinfo , ~isnan(eyeinfo.PB) & ismember(eyeinfo.CB , ipiOfInterest) & ismember(eyeinfo.prsnumb , prsnumb));
-        end
 
+        eyeinfo = getrow(eyeinfo , ~isnan(eyeinfo.PB) & ismember(eyeinfo.CB , ipiOfInterest) & ismember(eyeinfo.prsnumb , prsnumb));
         if length(prsnumb)>1
             FCTR = [FCTR(~strcmp(FCTR,'seqNumb')) , 'prsnumb'];
         else
