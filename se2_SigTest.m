@@ -61,8 +61,8 @@ while(c<=length(varargin))
     end
 end
 
-baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
-% baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
+% baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
+baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
 
 
 ANA = getrow(Dall , Dall.isgood & ~Dall.isError & ...
@@ -176,8 +176,14 @@ switch what
                 for f = 1:length(FCTR)
                     eval(['var = [var A.',FCTR{f},'];']);
                 end
-                stats = anovaMixed(A.IPI  , A.SN ,'within',var ,FCTR,'intercept',1) ;
-                lineplot([A.Horizon A.Day] , A.IPI , 'split' , A.IPIPlace , 'leg' , 'auto');
+                
+                if length(subjnum) == 1
+                    stats = anovan(A.IPI,var,'model','interaction','varnames',FCTR , 'display' , 'off') ; % between subject;
+                else
+                    stats = anovaMixed(A.IPI  , A.SN ,'within',var ,FCTR,'intercept',1) ;
+                end
+
+%                 lineplot([A.Horizon A.Day] , A.IPI , 'split' , A.IPIPlace , 'leg' , 'auto');
             case 'AllToSS'
                 calc = 0;
                 if calc
@@ -569,7 +575,7 @@ switch what
                 eyeinfo.CB(ismember(eyeinfo.CB ,[1 2 3])) = 1;
         end
         
-        poolPresses =1;
+        poolPresses =0;
         if poolPresses
             eyeinfo = getrow(eyeinfo , ~isnan(eyeinfo.PB) & ismember(eyeinfo.CB , ipiOfInterest));
             disp('poolPresses is set to 1 --> presses are 1 [5:9]pooled and 14')

@@ -41,8 +41,8 @@ while(c<=length(varargin))
 end
 
 %%
-% baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
-baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
+baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
+% baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
 
 
 
@@ -253,7 +253,7 @@ switch what
             case 'subjEffectiveHorizon'
                 seqN = {[0] , [1 2]};
                 allcount = 1;
-                dayz = {[1] [3] [4 5]};
+                dayz = {[1] [2 3] [4 5]};
                 daylab = {'Early training (day 1)' 'Mid-training (day 3)' 'Trained (days 4, 5)'};
                 subjs  = unique(Dall.SN);
                 poolpress = {[1:3] , [5:10] , [12:14] [1:14]};
@@ -285,13 +285,23 @@ switch what
                         end
                     end
                 end
-                figure('color' , 'white')
+                
                 for sn = 1:2
-                    subplot(1,2,sn)
+                    figure('color' , 'white')
                     colorz = colz(1:length(dayz) , sn);
+                    barplot([EH.sq] ,EH.effH , 'split' ,  EH.Day , 'plotfcn' , 'mean',...
+                        'facecolor' , colorz,'edgecolor' , 'none',...
+                        'errorwidth' , 1 ,'leg' , daylab , 'subset' ,EH.sq == sn  & EH.poolpress==4);
+                    ylabel('Plannig horizon')
+                    set(gca , 'FontSize' , 18 , 'YLim' , [1 4] , 'YTick' , [1 2 3 ] , 'XtickLabels' , {})
+                end
+                
+                for sn = 1:2
+                    figure('color' , 'white')
+                    colorz = colz(1:length(poolpress) , sn);
                     barplot([EH.Day] ,EH.effH , 'split' ,  EH.poolpress , 'plotfcn' , 'mean',...
                         'facecolor' , colorz,'edgecolor' , 'none',...
-                        'errorwidth' , 1 ,'leg' , daylab , 'subset' ,EH.sq == sn & ~ismember(EH.Day , 3));
+                        'errorwidth' , 1 ,'leg' , daylab , 'subset' ,EH.sq == sn);
                     hold on
                     ylabel('Plannig horizon')
                     set(gca , 'FontSize' , 18 , 'YLim' , [1 4] , 'YTick' , [1 2 3 ] , 'XtickLabels' , {})
@@ -449,18 +459,17 @@ switch what
                 IPIs = normData(IPIs , {'IPI'});
                 IPIs = getrow(IPIs , ismember(IPIs.Day , [1,length(dayz)]));
                 for sqn = 0:1
-                    colorz = colz(1:2:end , sqn+1);
+                    colorz = colz([1,end] , sqn+1);
                     figure('color' , 'white');
                     lineplot([ IPIs.Horizon IPIs.prsnumb] , IPIs.normIPI , 'plotfcn' , 'nanmean',...
-                        'split', [ IPIs.Day ] , 'subset', ismember(IPIs.seqNumb  , sqn) & ismember(IPIs.prsnumb ,  [1:13]) & ismember(IPIs.Day  , [1 3 5]), 'linecolor' , colorz,...
+                        'split', [ IPIs.Day ] , 'subset', ismember(IPIs.seqNumb  , sqn) & ismember(IPIs.prsnumb ,  [1:13]), 'linecolor' , colorz,...
                         'errorcolor' , colorz , 'errorbars' , {'shade'}  , 'shadecolor' ,colorz,...
-                        'linewidth' , 1 , 'markertype' , {'o' , '>'}  , 'markerfill' , colorz,...
-                        'markersize' , 5, 'markercolor' , colorz , 'leg' , daylab([1,end]));
-                    set(gca,'FontSize' , 18,'GridAlpha' , .2 , 'Box' , 'off','YGrid' , 'on',...
-                        'YLim' , [150 900] , 'YTick' , [200 :100:800],...
-                        'YTickLabel' , [0.2 :0.1: 0.8]);
-                    
-                    ylabel('Inter-press interval time [s]','FontSize' , 20)
+                        'linewidth' , .5 , 'markertype' , {'.' , '.'}  , 'markerfill' , colorz,...
+                        'markersize' , 10, 'markercolor' , colorz , 'leg' , daylab([1,end]));
+                    set(gca,'FontSize' , 7,'GridAlpha' , .2 , 'Box' , 'off',...
+                        'YLim' , [150 650] , 'YTick' , [200 :100:600],...
+                        'YTickLabel' , [0.2 :0.1: 0.6] ,'XTickLabel' , []);
+                    ylabel('Inter-press interval time [s]','FontSize' , 7)
                 end
             case 'IPILearningPlacement'
                 horz = {[1] [2] [3] [4] [5] [6:13]};
@@ -473,7 +482,7 @@ switch what
                 for d = 1:length(dayz)
                     IPIs.Day(ismember(IPIs.Day , dayz{d})) = d;
                 end
-                ipiOfInterest = {[1:3] , [5:9] [11:13]};
+                ipiOfInterest = {[1:2] , [5:9] [12:13]};
                 A = [];
                 for n = 1:length(ipiOfInterest)
                     temp = getrow(IPIs , ismember(IPIs.prsnumb , ipiOfInterest{n}));
@@ -484,7 +493,7 @@ switch what
                 IPIs = normData(IPIs , {'IPI'});
 %                 IPIs = getrow(IPIs , ismember(IPIs.Day , [1,length(dayz)]));
                 for sqn = 0
-                    colo = colIPI([1:length(dayz)] , 3:-1:1);
+                    colo = colIPI([1 5] , 3:-1:1);
                     figure('color' , 'white');
                     hold on
                     for d = 1:length(dayz)
@@ -492,8 +501,8 @@ switch what
                             IPIs.Horizon = IPIs.Horizon + 9.5;
                         end
                         colorz = colo(d,:);
-                        lineplot([ IPIs.IPIPlace  ] , IPIs.normIPI , 'plotfcn' , 'nanmean',...
-                            'split', [  IPIs.Horizon] , 'subset', ismember(IPIs.seqNumb  , sqn) & ismember(IPIs.Day  , d), 'linecolor' , colorz,...
+                        lineplot([ IPIs.Horizon ] , IPIs.normIPI , 'plotfcn' , 'nanmean',...
+                            'split', [  IPIs.IPIPlace] , 'subset', ismember(IPIs.seqNumb  , sqn) & ismember(IPIs.Day  , d), 'linecolor' , colorz,...
                             'errorcolor' , colorz , 'errorbars' , {'shade'}  , 'shadecolor' ,colorz,...
                             'linewidth' , 1 , 'markertype' , {'o' , '>' , 'd'}  , 'markerfill' , colorz,...
                             'markersize' , 4, 'markercolor' , colorz , 'leg' , 'auto');
@@ -653,6 +662,56 @@ switch what
                     ylabel('% improvement')
                     title('Reduction in Inter-Press Intervals compared to Day 1' ,'FontSize' , 24)
                 end
+            case 'subjEffectiveHorizon'
+                seqN = {[0] , [1 2]};
+                allcount = 1;
+                dayz = {[1] [2 3] [4 5]};
+                daylab = {'Early training (day 1)' 'Mid-training (day 3)' 'Trained (days 4, 5)'};
+                subjs  = unique(Dall.SN);
+                poolpress = {[1:2] , [5:9] , [12:13]};
+                for pp = 1:length(poolpress)
+                    for sn = 1:length(subjs)
+                        dcount = 1;
+                        for d  = 1:length(dayz)
+                            for sq = 1:length(seqN)
+                                EH.Day(allcount,1) = d;
+                                EH.SN(allcount,1) = sn;
+                                EH.sq(allcount,1) = sq;
+                                EH.poolpress(allcount,1) = pp;
+                                for h = 1:6
+                                    stats = se2_SigTest(Dall , 'IPI' , 'seqNumb' , seqN{sq} , 'Day' , dayz{d} , 'Horizon' , [h:13],...
+                                        'PoolDays' , 1,'whatIPI','ipistoEachother','PoolSequences' , 0 ,...
+                                        'PoolHorizons' , [],'ipiOfInterest' , poolpress(pp) , 'poolIPIs' , 0 , 'subjnum' , subjs(sn));
+                                    pval{sq}(sn,h,dcount) = stats(1);
+                                end
+                                temp = squeeze(pval{sq}(sn,:,dcount));
+                                if ~isempty(find(temp>0.05 ,1 , 'first'))
+                                    EH.effH(allcount,1) = find(temp>0.05 ,1 , 'first');
+                                else
+                                    EH.effH(allcount,1) = 7;
+                                end
+                                allcount = allcount+1;
+                            end
+                            dcount = dcount+1;
+                        end
+                    end
+                end
+                E = getrow(EH , EH.sq == 1 & EH.poolpress~=4);
+                anovaMixed(E.effH  , E.SN ,'within',[E.Day E.poolpress] ,{ 'Day' , 'pp'},'intercept',1) ;
+                
+                for sn = 1:2
+                    figure('color' , 'white')
+                    colorz = colz([1,end] , sn);
+                    barplot([EH.poolpress] ,EH.effH , 'split' , EH.Day  , 'plotfcn' , 'mean',...
+                        'facecolor' , colorz,'edgecolor' , 'none',...
+                        'errorwidth' , 1 ,'leg' , daylab , 'subset' ,EH.sq == sn & EH.poolpress~=4 & ~ismember(EH.Day , 2));
+                    hold on
+                    ylabel('Plannig horizon')
+                    set(gca , 'FontSize' , 7 , 'YLim' , [1 3.5] , 'YTick' , [1 2 3 4] , 'XtickLabels' , {})
+                end
+                lineplot([EH.Day] ,EH.effH , 'split' , EH.poolpress  , 'plotfcn' , 'mean',...
+                        'subset' ,EH.sq == sn & EH.poolpress~=4 ,'style_thickline' , 'leg' , 'auto');
+                    
         end
     case 'RT'
         Dall.RT = Dall.AllPressTimes(:,1)-1500;
@@ -2262,8 +2321,9 @@ switch what
 %                 K.Horizon(K.Horizon>7) = 7;
                 K = tapply(K , {'Day' , 'Horizon' , 'sn','CB' , 'prsnumb'} , {'PB' , 'nanmean'} );
                 K = normData(K , {'PB'});
-                K = getrow(K , ismember(K.Day , [1 , length(dayz)]));
-                
+                dayz = {[1] , [4 5]};
+                K = getrow(K , ismember(K.Day , [1 , dayz{end}]));
+                K.Day(ismember(K.Day , dayz{end}))  = length(dayz);
                 for cb = {[0] [1 2 3]}
                     figure('color' , 'white')
                     colorz  = colz([1,end] , cb{1}(1)+1);
