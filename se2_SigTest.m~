@@ -61,8 +61,8 @@ while(c<=length(varargin))
     end
 end
 
-baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
-% baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
+% baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
+baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
 
 
 ANA = getrow(Dall , Dall.isgood & ~Dall.isError & ...
@@ -101,6 +101,7 @@ FCTR =  factors(facInclude);
 
 switch what
     case 'MT'
+%         ANA.MT = ANA.AllPressTimes(:,14) - ANA.AllPressTimes(:,11);
         var = [];
         for f = 1:length(FCTR)
             eval(['var = [var ANA.',FCTR{f},'];']);
@@ -110,18 +111,18 @@ switch what
         else
             stats = anovaMixed(ANA.MT  , ANA.SN ,'within',var ,FCTR,'intercept',1) ;
         end
-        %         figure('color' , 'white')
-        %         lineplot(var, ANA.MT , 'style_shade' , 'markertype' , 'o'  , ...
-        %             'markersize' , 10 , 'markerfill' , 'w');
-        %         tAdd = FCTR{1};
-        %         for f =2:length(FCTR)
-        %             tAdd = [tAdd , ' and ' , FCTR{f}];
-        %         end
-        %         title(['Effect of ' , tAdd ,' on Execution Time']);
-        %         grid on
-        %         set(gca , 'FontSize' , 20 , 'Box' , 'off')
-        %         xlabel(FCTR{end})
-        %         ylabel('msec')
+%         figure('color' , 'white')
+%         lineplot(var, ANA.MT , 'style_shade' , 'markertype' , 'o'  , ...
+%             'markersize' , 10 , 'markerfill' , 'w');
+%         tAdd = FCTR{1};
+%         for f =2:length(FCTR)
+%             tAdd = [tAdd , ' and ' , FCTR{f}];
+%         end
+%         title(['Effect of ' , tAdd ,' on Execution Time']);
+%         grid on
+%         set(gca , 'FontSize' , 20 , 'Box' , 'off')
+%         xlabel(FCTR{end})
+%         ylabel('msec')
     case 'IPI'
         ANA.seqNumb(ANA.seqNumb>=2) = 1;
         for tn = 1:length(ANA.TN)
@@ -175,9 +176,14 @@ switch what
                 for f = 1:length(FCTR)
                     eval(['var = [var A.',FCTR{f},'];']);
                 end
-                stats = anovaMixed(A.IPI  , A.SN ,'within',var ,FCTR,'intercept',1) ;
-                lineplot([A.Horizon A.Day] , A.IPI , 'split' , A.IPIPlace , 'leg' , 'auto');
-            
+                
+                if length(subjnum) == 1
+                    stats = anovan(A.IPI,var,'model','interaction','varnames',FCTR , 'display' , 'off') ; % between subject;
+                else
+                    stats = anovaMixed(A.IPI  , A.SN ,'within',var ,FCTR,'intercept',1) ;
+                end
+
+%                 lineplot([A.Horizon A.Day] , A.IPI , 'split' , A.IPIPlace , 'leg' , 'auto');
             case 'AllToSS'
                 calc = 0;
                 if calc
@@ -317,7 +323,23 @@ switch what
         for f = 1:length(FCTR)
             eval(['var = [var ANA.',FCTR{f},'];']);
         end
-        stats = anovaMixed(ANA.RT  , ANA.SN ,'within',var ,FCTR,'intercept',1) ;
+        if length(subjnum) == 1
+            stats = anovan(ANA.RT,var,'model','interaction','varnames',FCTR , 'display' , 'off') ; % between subject;
+        else
+            stats = anovaMixed(ANA.RT  , ANA.SN ,'within',var ,FCTR,'intercept',1) ;
+        end
+%         figure('color' , 'white')
+%         lineplot(var, ANA.MT , 'style_shade' , 'markertype' , 'o'  , ...
+%             'markersize' , 10 , 'markerfill' , 'w');
+%         tAdd = FCTR{1};
+%         for f =2:length(FCTR)
+%             tAdd = [tAdd , ' and ' , FCTR{f}];
+%         end
+%         title(['Effect of ' , tAdd ,' on Execution Time']);
+%         grid on
+%         set(gca , 'FontSize' , 20 , 'Box' , 'off')
+%         xlabel(FCTR{end})
+%         ylabel('msec')
 %         figure('color' , 'white')
 %         lineplot([ ANA.Horizon ANA.Day ] , ANA.RT-1500 , 'split' , ANA.seqNumb)
 %         title(['Effect of ' , FCTR , ' on ' , what]);
@@ -552,26 +574,38 @@ switch what
             case{1}
                 eyeinfo.CB(ismember(eyeinfo.CB ,[1 2 3])) = 1;
         end
-        poolPresses =1;
-        if poolPresses
+        
+        pp =1;
+        poolp = {[1] [5:9] [14]};
+        if pp
+            eyeinfo = getrow(eyeinfo , ~isnan(eyeinfo.PB) & ismember(eyeinfo.CB , ipiOfInterest));
             disp('poolPresses is set to 1 --> presses are 1 [5:9]pooled and 14')
-            eyeinfo = eyeinfo
             eyeinfo = getrow(eyeinfo , ismember(eyeinfo.prsnumb , [1 5:9 14]));
-            eyeinfo.prsnumb(ismember(eyeinfo.prsnumb , [5:9])) = 2;
-
-        eyeinfo = getrow(eyeinfo , ~isnan(eyeinfo.PB) & ismember(eyeinfo.CB , ipiOfInterest) & ismember(eyeinfo.prsnumb , prsnumb));
-        if length(prsnumb)>1
-            FCTR = [FCTR(~strcmp(FCTR,'seqNumb')) , 'prsnumb'];
+            for m = 1:length(pp)
+            eyeinfo.prsnumb(ismember(eyeinfo.prsnumb , pp{m})) = m;
+            end
+            if length(pp)>1
+                FCTR = [FCTR(~strcmp(FCTR,'seqNumb')) , 'prsnumb'];
+            else
+                FCTR = FCTR(~strcmp(FCTR,'seqNumb'));
+            end
         else
-            FCTR = FCTR(~strcmp(FCTR,'seqNumb'));
+            eyeinfo = getrow(eyeinfo , ~isnan(eyeinfo.PB) & ismember(eyeinfo.CB , ipiOfInterest) & ismember(eyeinfo.prsnumb , prsnumb));
+            if length(prsnumb)>1
+                FCTR = [FCTR(~strcmp(FCTR,'seqNumb')) , 'prsnumb'];
+            else
+                FCTR = FCTR(~strcmp(FCTR,'seqNumb'));
+            end
         end
+
+        
         var = [];
         for f = 1:length(FCTR)
             eval(['var = [var eyeinfo.',FCTR{f},'];']);
         end
         FCTR(strcmp(FCTR,'Horizon')) = {'Window'};
 
-        stats = anovaMixed(eyeinfo.PB  , eyeinfo.sn ,'between',var ,FCTR,'intercept',1) ;
+        stats = anovaMixed(eyeinfo.PB  , eyeinfo.sn ,'within',var ,FCTR,'intercept',1) ;
 %         stats = anovan(eyeinfo.PB  ,var ,'varnames' , FCTR, 'model' , 'interaction');
         figure('color' , 'white')
         lineplot([eyeinfo.Day , eyeinfo.Horizon], -eyeinfo.PB, 'style_thickline' , 'split' , eyeinfo.prsnumb , 'leg' , 'auto');

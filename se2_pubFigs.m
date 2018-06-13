@@ -41,8 +41,8 @@ while(c<=length(varargin))
 end
 
 %%
-% baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
-baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
+baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
+% baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
 
 
 
@@ -2316,32 +2316,31 @@ switch what
                 end
                 
             case 'presspositionlook_ahead'
-                K = eyeinfo;
-                dayz = {[1] , [4 5]};
-                K = getrow(K , ismember(K.seqNumb , [0]) & ~isnan(K.PB) );
-                %  K.prsnumb(ismember(K.prsnumb ,[5:9])) = 5;
-                 K.Horizon(K.Horizon>8) = 9;
-                A = [];
-                for dd = 1:length(dayz)
-                    temp  = getrow(K , ismember(K.Day , dayz{dd}));
-                    temp.Day(1:end)  = dd;
-                    A = addstruct(A , temp);
+                dayz = {[1] [4 5]};
+                K = getrow(eyeinfo , ismember(eyeinfo.Day , cell2mat(dayz)) & ismember(eyeinfo.seqNumb , [0]) &ismember(eyeinfo.sn , [1:9 , 11,12,14]));
+                for dd  = 1:length(dayz)
+                    K.Day(ismember(K.Day , dayz{dd})) = dd;
                 end
-                K = A;
-                K = tapply(K , {'Day' , 'Horizon' , 'sn', 'prsnumb' , 'seqNumb'} , {'PB' , 'nanmedian'} );
+                
+%                 K.Horizon(ismember(K.Horizon ,[6:13])) = 6;
+                K = getrow(K , ~isnan(K.PB));
+                
+                
+                K = tapply(K , {'Day' , 'Horizon' , 'sn', 'prsnumb' , 'seqNumb'} , {'PB' , 'nanmean'} );
                 K = normData(K , {'PB'});
 
                 figure('color' , 'white')
                 colorz  = colz([1,end] , unique(K.seqNumb)+1);
-                lineplot([K.Horizon ] , -K.normPB , 'plotfcn' , 'nanmean',...
+                lineplot([  K.Horizon K.prsnumb ] , -K.normPB , 'plotfcn' , 'nanmean',...
                     'split', K.Day , 'linecolor' , colorz,...
                     'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , length(dayz)) , 'shadecolor' ,colorz,...
                     'linewidth' , 1 , 'markertype' , {'^', '*'}  , 'markerfill' , colorz,...
-                    'markersize' , 5, 'markercolor' , colorz , 'leg' , 'auto', 'subset' , K.prsnumb==1);
+                    'markersize' , 3, 'markercolor' , colorz , 'leg' , 'auto');%, ...
+                    %'subset' , ismember(K.prsnumb , [1:2]));% & ismember(K.Day , [1 length(dayz)]));
                 ylabel('Mean preview [digits]' )
                 xlabel('Viewing window size (W)' )
-                title(['Look-ahead  CB = ' , num2str(cb{1})])
-                set(gca,'FontSize' , 7 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [-1 2],'XLim' , [.5 66.5],'YTick' , [-.5:.5:2] ,...
+%                 title(['Look-ahead  CB = ' , num2str(cb{1})])
+                set(gca,'FontSize' , 7 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [-1 2],'XLim' , [.5 94],'YTick' , [-.5:.5:2] ,...
                     'XTickLabel' , repmat({'1','','','','','','','','13'} , 1 , length(unique(K.prsnumb))),'XTickLabelRotation' , 0)
             case 'startlookahead'
                 K = tapply(eyeinfo , {'Day' , 'Horizon' , 'sn','CB' , 'prsnumb'} , {'PB' , 'nanmean'} , ...

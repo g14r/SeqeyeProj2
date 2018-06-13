@@ -56,13 +56,17 @@ while(c<=length(varargin))
             % prsnumbers to include in the test --> mainly for eye data
             eval([varargin{c} '= varargin{c+1};']);
             c=c+2;
+        case {'poolpress'}
+            % prsnumbers to include in the test --> mainly for eye data
+            eval([varargin{c} '= varargin{c+1};']);
+            c=c+2;
         otherwise
             error(sprintf('Unknown option: %s',varargin{c}));
     end
 end
 
-baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
-% baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
+% baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
+baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
 
 
 ANA = getrow(Dall , Dall.isgood & ~Dall.isError & ...
@@ -90,10 +94,6 @@ if PoolDays
     ANA.Day(ismember(ANA.Day , [4,5])) = 3;
 end
 
-if ~isempty(PoolHorizons)
-    ANA.Horizon(ismember(ANA.Horizon ,PoolHorizons)) = PoolHorizons(1);
-    Horizon = unique(ANA.Horizon);
-end
 
 factors = {'Horizon' , 'Day' , 'seqNumb'};
 facInclude = [length(Horizon)>1 , length(unique(ANA.Day))>1  , length(unique(ANA.seqNumb))>1];
@@ -101,7 +101,12 @@ FCTR =  factors(facInclude);
 
 switch what
     case 'MT'
-%         ANA.MT = ANA.AllPressTimes(:,14) - ANA.AllPressTimes(:,11);
+        if ~isempty(PoolHorizons)
+            ANA.Horizon(ismember(ANA.Horizon ,PoolHorizons)) = PoolHorizons(1);
+            Horizon = unique(ANA.Horizon);
+        end
+        
+        %         ANA.MT = ANA.AllPressTimes(:,14) - ANA.AllPressTimes(:,11);
         var = [];
         for f = 1:length(FCTR)
             eval(['var = [var ANA.',FCTR{f},'];']);
@@ -124,6 +129,11 @@ switch what
 %         xlabel(FCTR{end})
 %         ylabel('msec')
     case 'IPI'
+        if ~isempty(PoolHorizons)
+            ANA.Horizon(ismember(ANA.Horizon ,PoolHorizons)) = PoolHorizons(1);
+            Horizon = unique(ANA.Horizon);
+        end
+        
         ANA.seqNumb(ANA.seqNumb>=2) = 1;
         for tn = 1:length(ANA.TN)
             n = (ANA.AllPressIdx(tn , sum(~isnan(ANA.AllPressIdx(tn , :))))  - ANA.AllPressIdx(tn , 1)) / 1000;
@@ -160,7 +170,7 @@ switch what
         IPIs.ChunkBndry(IPIs.ChunkBndry == 3) = 2;
         
         switch whatIPI
-
+            
             case 'ipistoEachother'
                 A = [];
                 for n = 1:length(ipiOfInterest)
@@ -182,8 +192,8 @@ switch what
                 else
                     stats = anovaMixed(A.IPI  , A.SN ,'within',var ,FCTR,'intercept',1) ;
                 end
-
-%                 lineplot([A.Horizon A.Day] , A.IPI , 'split' , A.IPIPlace , 'leg' , 'auto');
+                
+                %                 lineplot([A.Horizon A.Day] , A.IPI , 'split' , A.IPIPlace , 'leg' , 'auto');
             case 'AllToSS'
                 calc = 0;
                 if calc
@@ -282,14 +292,14 @@ switch what
                 %                 stats = anovaMixed(B.IPI  , B.SN ,'within',var ,FCTR,'intercept',1) ;
                 %%
                 
-%                 var = [];
-%                 for f = 1:length(FCTR)
-%                     eval(['var = [var A.',FCTR{f},'];']);
-%                 end
-%                 if length(ipiLab)>1
-%                     var = [A.IPIArr var];
-%                     FCTR = [L FCTR];
-%                 end
+                %                 var = [];
+                %                 for f = 1:length(FCTR)
+                %                     eval(['var = [var A.',FCTR{f},'];']);
+                %                 end
+                %                 if length(ipiLab)>1
+                %                     var = [A.IPIArr var];
+                %                     FCTR = [L FCTR];
+                %                 end
                 A = normData(A, {'IPI'});
                 figure('color' , 'white')
                 subplot(211)
@@ -319,6 +329,11 @@ switch what
                 ylabel('msec')
         end
     case 'RT'
+        if ~isempty(PoolHorizons)
+            ANA.Horizon(ismember(ANA.Horizon ,PoolHorizons)) = PoolHorizons(1);
+            Horizon = unique(ANA.Horizon);
+        end
+        
         var = [];
         for f = 1:length(FCTR)
             eval(['var = [var ANA.',FCTR{f},'];']);
@@ -575,21 +590,32 @@ switch what
                 eyeinfo.CB(ismember(eyeinfo.CB ,[1 2 3])) = 1;
         end
         
-        poolPresses =1;
-        if poolPresses
+        pp =0;
+        if ~exist('poolpress')
+            poolpress = {[1] [5:9] [14]};
+        end
+        if pp
             eyeinfo = getrow(eyeinfo , ~isnan(eyeinfo.PB) & ismember(eyeinfo.CB , ipiOfInterest));
             disp('poolPresses is set to 1 --> presses are 1 [5:9]pooled and 14')
-            eyeinfo = getrow(eyeinfo , ismember(eyeinfo.prsnumb , [1 5:9 14]));
-            eyeinfo.prsnumb(ismember(eyeinfo.prsnumb , [5:9])) = 2;
+            eyeinfo = getrow(eyeinfo , ismember(eyeinfo.prsnumb , cell2mat(poolpress)));
+            for m = 1:length(poolpress)
+                eyeinfo.prsnumb(ismember(eyeinfo.prsnumb , poolpress{m})) = m;
+            end
+            if length(poolpress)>1
+                FCTR = [FCTR(~strcmp(FCTR,'seqNumb')) , 'prsnumb'];
+            else
+                FCTR = FCTR(~strcmp(FCTR,'seqNumb'));
+            end
         else
             eyeinfo = getrow(eyeinfo , ~isnan(eyeinfo.PB) & ismember(eyeinfo.CB , ipiOfInterest) & ismember(eyeinfo.prsnumb , prsnumb));
+            if length(prsnumb)>1
+                FCTR = [FCTR(~strcmp(FCTR,'seqNumb')) , 'prsnumb'];
+            else
+                FCTR = FCTR(~strcmp(FCTR,'seqNumb'));
+            end
         end
 
-        if length(prsnumb)>1
-            FCTR = [FCTR(~strcmp(FCTR,'seqNumb')) , 'prsnumb'];
-        else
-            FCTR = FCTR(~strcmp(FCTR,'seqNumb'));
-        end
+        
         var = [];
         for f = 1:length(FCTR)
             eval(['var = [var eyeinfo.',FCTR{f},'];']);
@@ -599,7 +625,7 @@ switch what
         stats = anovaMixed(eyeinfo.PB  , eyeinfo.sn ,'within',var ,FCTR,'intercept',1) ;
 %         stats = anovan(eyeinfo.PB  ,var ,'varnames' , FCTR, 'model' , 'interaction');
         figure('color' , 'white')
-        lineplot([eyeinfo.Day , eyeinfo.Horizon], -eyeinfo.PB, 'style_thickline' , 'split' , eyeinfo.prsnumb , 'leg' , 'auto');
+        lineplot([eyeinfo.prsnumb , eyeinfo.Horizon], -eyeinfo.PB, 'style_thickline' , 'split' , eyeinfo.Day  , 'leg' , 'auto');
         title(['Effect of ' , FCTR , ' on ' , what]);
     case 'Eye_ipi_lookahead_prsnumb_persubj'
         if isSymmetric
