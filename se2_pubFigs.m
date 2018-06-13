@@ -41,8 +41,8 @@ while(c<=length(varargin))
 end
 
 %%
-baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
-% baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
+% baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
+baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
 
 
 
@@ -256,7 +256,7 @@ switch what
                 dayz = {[1] [2 3] [4 5]};
                 daylab = {'Early training (day 1)' 'Mid-training (day 3)' 'Trained (days 4, 5)'};
                 subjs  = unique(Dall.SN);
-                poolpress = {[1:3] , [5:10] , [12:14] [1:14]};
+                poolpress = {[1:14]};
                 for pp = 1:length(poolpress)
                     Dall.MT = Dall.AllPressTimes(:,poolpress{pp}(end)) -Dall.AllPressTimes(:,poolpress{pp}(1));
                     for sn = 1:length(subjs)
@@ -291,9 +291,9 @@ switch what
                     colorz = colz(1:length(dayz) , sn);
                     barplot([EH.sq] ,EH.effH , 'split' ,  EH.Day , 'plotfcn' , 'mean',...
                         'facecolor' , colorz,'edgecolor' , 'none',...
-                        'errorwidth' , 1 ,'leg' , daylab , 'subset' ,EH.sq == sn  & EH.poolpress==4);
+                        'errorwidth' , 1 ,'leg' , daylab , 'subset' ,EH.sq == sn);
                     ylabel('Plannig horizon')
-                    set(gca , 'FontSize' , 18 , 'YLim' , [1 4] , 'YTick' , [1 2 3 ] , 'XtickLabels' , {})
+                    set(gca , 'FontSize' , 7 , 'YLim' , [1 4] , 'YTick' , [1 2 3 ] , 'XtickLabels' , {})
                 end
                 
                 for sn = 1:2
@@ -696,8 +696,8 @@ switch what
                         end
                     end
                 end
-                E = getrow(EH , EH.sq == 1 & EH.poolpress~=4);
-                anovaMixed(E.effH  , E.SN ,'within',[E.Day E.poolpress] ,{ 'Day' , 'pp'},'intercept',1) ;
+                E = getrow(EH , EH.sq == 1 );
+                stats = anovaMixed(E.effH  , E.SN ,'within',[E.Day E.poolpress] ,{ 'Day' , 'pp'},'intercept',1) ;
                 
                 for sn = 1:2
                     figure('color' , 'white')
@@ -2317,28 +2317,32 @@ switch what
                 
             case 'presspositionlook_ahead'
                 K = eyeinfo;
-                K.prsnumb(ismember(K.prsnumb ,[5:9])) = 5;
-%                 K.Horizon(K.Horizon>7) = 7;
-                K = tapply(K , {'Day' , 'Horizon' , 'sn','CB' , 'prsnumb'} , {'PB' , 'nanmean'} );
-                K = normData(K , {'PB'});
                 dayz = {[1] , [4 5]};
-                K = getrow(K , ismember(K.Day , [1 , dayz{end}]));
-                K.Day(ismember(K.Day , dayz{end}))  = length(dayz);
-                for cb = {[0] [1 2 3]}
-                    figure('color' , 'white')
-                    colorz  = colz([1,end] , cb{1}(1)+1);
-                    
-                    lineplot([K.prsnumb K.Horizon ] , -K.normPB , 'plotfcn' , 'nanmean',...
-                        'split', K.Day , 'subset' ,  ismember(K.CB , cb{1}) , 'linecolor' , colorz,...
-                        'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , length(dayz)) , 'shadecolor' ,colorz,...
-                        'linewidth' , 1 , 'markertype' , {'^', '*'}  , 'markerfill' , colorz,...
-                        'markersize' , 5, 'markercolor' , colorz , 'leg' , 'auto');
-                    ylabel('Mean preview [digits]' )
-                    xlabel('Viewing window size (W)' )
-                    title(['Look-ahead  CB = ' , num2str(cb{1})])
-                    set(gca,'FontSize' , 7 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [-1 2],'XLim' , [.5 66.5],'YTick' , [-.5:.5:2] ,...
-                        'XTickLabel' , repmat({'1','','','','','','','','13'} , 1 , length(unique(K.prsnumb))),'XTickLabelRotation' , 0)
+                K = getrow(K , ismember(K.seqNumb , [0]) & ~isnan(K.PB) );
+                %  K.prsnumb(ismember(K.prsnumb ,[5:9])) = 5;
+                 K.Horizon(K.Horizon>8) = 9;
+                A = [];
+                for dd = 1:length(dayz)
+                    temp  = getrow(K , ismember(K.Day , dayz{dd}));
+                    temp.Day(1:end)  = dd;
+                    A = addstruct(A , temp);
                 end
+                K = A;
+                K = tapply(K , {'Day' , 'Horizon' , 'sn', 'prsnumb' , 'seqNumb'} , {'PB' , 'nanmedian'} );
+                K = normData(K , {'PB'});
+
+                figure('color' , 'white')
+                colorz  = colz([1,end] , unique(K.seqNumb)+1);
+                lineplot([K.Horizon ] , -K.normPB , 'plotfcn' , 'nanmean',...
+                    'split', K.Day , 'linecolor' , colorz,...
+                    'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , length(dayz)) , 'shadecolor' ,colorz,...
+                    'linewidth' , 1 , 'markertype' , {'^', '*'}  , 'markerfill' , colorz,...
+                    'markersize' , 5, 'markercolor' , colorz , 'leg' , 'auto', 'subset' , K.prsnumb==1);
+                ylabel('Mean preview [digits]' )
+                xlabel('Viewing window size (W)' )
+                title(['Look-ahead  CB = ' , num2str(cb{1})])
+                set(gca,'FontSize' , 7 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [-1 2],'XLim' , [.5 66.5],'YTick' , [-.5:.5:2] ,...
+                    'XTickLabel' , repmat({'1','','','','','','','','13'} , 1 , length(unique(K.prsnumb))),'XTickLabelRotation' , 0)
             case 'startlookahead'
                 K = tapply(eyeinfo , {'Day' , 'Horizon' , 'sn','CB' , 'prsnumb'} , {'PB' , 'nanmean'} , ...
                     'subset' , ismember(eyeinfo.prsnumb , [1]));

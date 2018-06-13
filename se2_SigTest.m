@@ -61,8 +61,8 @@ while(c<=length(varargin))
     end
 end
 
-% baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
-baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
+baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
+% baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
 
 
 ANA = getrow(Dall , Dall.isgood & ~Dall.isError & ...
@@ -575,7 +575,7 @@ switch what
                 eyeinfo.CB(ismember(eyeinfo.CB ,[1 2 3])) = 1;
         end
         
-        poolPresses =0;
+        poolPresses =1;
         if poolPresses
             eyeinfo = getrow(eyeinfo , ~isnan(eyeinfo.PB) & ismember(eyeinfo.CB , ipiOfInterest));
             disp('poolPresses is set to 1 --> presses are 1 [5:9]pooled and 14')
@@ -596,7 +596,7 @@ switch what
         end
         FCTR(strcmp(FCTR,'Horizon')) = {'Window'};
 
-        stats = anovaMixed(eyeinfo.PB  , eyeinfo.sn ,'between',var ,FCTR,'intercept',1) ;
+        stats = anovaMixed(eyeinfo.PB  , eyeinfo.sn ,'within',var ,FCTR,'intercept',1) ;
 %         stats = anovan(eyeinfo.PB  ,var ,'varnames' , FCTR, 'model' , 'interaction');
         figure('color' , 'white')
         lineplot([eyeinfo.Day , eyeinfo.Horizon], -eyeinfo.PB, 'style_thickline' , 'split' , eyeinfo.prsnumb , 'leg' , 'auto');
