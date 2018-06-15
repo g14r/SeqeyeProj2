@@ -1,7 +1,7 @@
 function se2_TranProb(Dall)
 
 % baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
-baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
+baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
 load([baseDir , '/CMB_34_1.mat'])
 CMB = CMB_34_1;
 snum = length(unique(Dall.SN));
@@ -315,7 +315,7 @@ for subjnum = 1:snum
         t3_Nums(subjnum,h).Chunked = zeros(length(CMB.comb3) , 1);
         t3_Nums(subjnum,h).Rand    = zeros(length(CMB.comb3) , 1);
         t3_Nums(subjnum,h).All     = zeros(length(CMB.comb3) , 1);
-        
+        LastIPI = 1;
         ANA1.t3_Nums = zeros(length(ANA1.AllPress) , size(ANA1.AllPress , 2) -2);
         ANA0.t3_Nums = zeros(length(ANA0.AllPress) , size(ANA0.AllPress , 2) -2);
         ANA.t3_Nums = zeros(length(ANA.AllPress) , size(ANA.AllPress , 2) -2);

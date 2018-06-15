@@ -365,8 +365,9 @@ switch what
         %         plotfcn = input('nanmean or nanmean?' , 's');
         %% IPIs vs horizon
         % this is the output of the case: 'transitions_All' that is saved to disc
-        
-        ANA = getrow(Dall , ismember(Dall.SN , subjnum) & Dall.isgood & ismember(Dall.seqNumb , [0 , structNumb])  & ~Dall.isError);
+        load([baseDir , '/CMB_34_1.mat'])
+        CMB = CMB_34_1;
+        ANA = getrow(Dall , ismember(Dall.SN , subjnum) & Dall.isgood & ismember(Dall.seqNumb , [0 , structNumb]));
         ANA.IPI = [ANA.AllPressTimes(:,1) - 1500 , ANA.IPI];
         ANA.seqNumb(ANA.seqNumb>=2) = 1;
         for tn = 1:length(ANA.TN)
@@ -392,6 +393,18 @@ switch what
             ANA.IPI_seqNumb(tn , :) = ANA.seqNumb(tn)*ones(1,14);
             ANA.IPI_BN(tn , :) = ANA.BN(tn)*ones(1,14);
         end
+        for tn  = 1:length(ANA.TN)
+            % [press 1 press 2 transition number]
+            ANA.IPI_trans_made{tn,1} = [0 0 0];
+            ANA.IPI_trans_stim{tn,1} = [0 0 0];
+            ANA.badpress{tn,1} = [0];
+            for prs=1:13
+                ANA.IPI_trans_made{tn,prs+1} = [ANA.AllResponse(tn,prs:prs+1) , find(ismember(CMB.comb2 , ANA.AllResponse(tn,prs:prs+1), 'rows'))];
+                ANA.IPI_trans_stim{tn,prs+1} = [ANA.AllPress(tn,prs:prs+1) , find(ismember(CMB.comb2 , ANA.AllPress(tn,prs:prs+1), 'rows'))];
+                ANA.badpress{tn,prs+1} = double(sum(ANA.badPress(tn,prs:prs+1))>0);
+            end
+        end
+        
         IPItable.IPI = reshape(ANA.IPI , numel(ANA.IPI) , 1);
         IPItable.ChunkBndry = reshape(ANA.ChunkBndry , numel(ANA.IPI) , 1);
         IPItable.Horizon = reshape(ANA.IPI_Horizon , numel(ANA.IPI) , 1);
@@ -400,7 +413,13 @@ switch what
         IPItable.prsnumb = reshape(ANA.IPI_prsnumb , numel(ANA.IPI) , 1);
         IPItable.seqNumb = reshape(ANA.IPI_seqNumb , numel(ANA.IPI) , 1);
         IPItable.BN = reshape(ANA.IPI_BN , numel(ANA.IPI) , 1);
-        
+        IPItable.IPI_trans_made = cell2mat(reshape(ANA.IPI_trans_made , numel(ANA.IPI) , 1));
+        IPItable.IPI_trans_stim = cell2mat(reshape(ANA.IPI_trans_stim , numel(ANA.IPI) , 1));
+        IPItable.badpress = cell2mat(reshape(ANA.badpress , numel(ANA.IPI) , 1));
+        IPItable.sim_tran_num = IPItable.IPI_trans_stim(:,3);
+        IPItable.resp_tran_num = IPItable.IPI_trans_made(:,3);
+                
+        IPIOrig = IPItable;
         A = [];
         for d = 1:length(dayz)
             T = getrow(IPItable , ismember(IPItable.Day , dayz{d}));
@@ -410,6 +429,43 @@ switch what
         IPItable = A;
         
         switch nowWhat
+            case 'IPIbyTransition'
+                IPItable = getrow(IPItable , IPItable.seqNumb==0 & IPItable.sim_tran_num>0);
+                T2corr = tapply(IPItable , {'sim_tran_num' , 'Horizon'} , {'IPI' , 'nanmedian'},{'IPI_trans_made' , 'nanmedian'} , 'subset' , ~IPItable.badpress );
+%                 T2wrng = tapply(IPItable , {'resp_tran_num' , 'Horizon'} , {'IPI' , 'nanmedian'},{'IPI_trans_made' , 'nanmedian'} , 'subset' , IPItable.badpress>0 );
+                H = unique(T2corr.Horizon);
+                figure('color' , 'white')
+                fcount = 1;
+                for hh = 1:length(H)
+                    temp = getrow(T2corr , T2corr.Horizon == H(hh));
+                    ipimat{hh} = zeros(5,5);
+                    for mm = 1:length(temp.IPI)
+                        ipimat{hh}(temp.IPI_trans_made(mm,1),temp.IPI_trans_made(mm,2)) = temp.IPI(mm);
+                    end
+                    subplot(3,3,fcount)
+                    imagesc(ipimat{hh})
+                    title(['W = ' , num2str(H(hh))])
+                    fcount = fcount+1;
+                    axis square
+                end
+                figure('color' , 'white')
+                fcount = 1;
+                for hh = 1:length(H)
+                    ipimat_wrng{hh} = nan(5,5);
+                    for t = 1:25
+                        temp = getrow(IPItable , IPItable.Horizon == H(hh) & IPItable.resp_tran_num==t & IPItable.badpress>0 );
+                        if ~isempty(temp.IPI)
+                            ipimat_wrng{hh}(temp.IPI_trans_made(1,1),temp.IPI_trans_made(1,2)) = nanmedian(temp.IPI);
+                        end
+                    end
+                    subplot(3,3,fcount)
+                    imagesc(ipimat_wrng{hh})
+                    title(['error - W = ' , num2str(H(hh))])
+                    fcount = fcount+1;
+                    axis square
+                end
+                
+                
             case 'sigIPIvssteadystate'
                 H = {[1] [2] [3] [4] [5] [6] [7] [8] [13]};
                 for d = 1:length(dayz)
