@@ -18,6 +18,7 @@ out  = se2_pubFigs(Dall , 'IPI','compareLearning_histogram', 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'IPI','IPILearningPlacement', 'poolDays' , 0, 'dayz' , {[1] [5]});
 out  = se2_pubFigs(Dall , 'IPI','percentTotalLearning_IPIplacement', 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'IPI','subjEffectiveHorizon' , 'poolDays' , 1, 'subjnum' , [1:15]);
+
 out  = se2_pubFigs(Dall , 'IPI','IPIbyTransition' , 'poolDays' , 1, 'subjnum' , [1:15],'dayz' , {[4 5]});
 
 
