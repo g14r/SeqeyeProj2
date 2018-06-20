@@ -41,8 +41,8 @@ while(c<=length(varargin))
 end
 
 %%
-baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
-% baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
+% baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
+baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
 
 
 
@@ -365,8 +365,9 @@ switch what
         %         plotfcn = input('nanmean or nanmean?' , 's');
         %% IPIs vs horizon
         % this is the output of the case: 'transitions_All' that is saved to disc
-        
-        ANA = getrow(Dall , ismember(Dall.SN , subjnum) & Dall.isgood & ismember(Dall.seqNumb , [0 , structNumb])  & ~Dall.isError);
+        load([baseDir , '/CMB_34_1.mat'])
+        CMB = CMB_34_1;
+        ANA = getrow(Dall , ismember(Dall.SN , subjnum) & Dall.isgood & ismember(Dall.seqNumb , [0 , structNumb]));
         ANA.IPI = [ANA.AllPressTimes(:,1) - 1500 , ANA.IPI];
         ANA.seqNumb(ANA.seqNumb>=2) = 1;
         for tn = 1:length(ANA.TN)
@@ -392,6 +393,14 @@ switch what
             ANA.IPI_seqNumb(tn , :) = ANA.seqNumb(tn)*ones(1,14);
             ANA.IPI_BN(tn , :) = ANA.BN(tn)*ones(1,14);
         end
+        for tn  = 1:length(ANA.TN)
+            % [press 1 press 2 transition number]
+            ANA.badpress{tn,1} = [0];
+            for prs=1:13
+                ANA.badpress{tn,prs+1} = double(sum(ANA.badPress(tn,prs:prs+1))>0);
+            end
+        end
+        
         IPItable.IPI = reshape(ANA.IPI , numel(ANA.IPI) , 1);
         IPItable.ChunkBndry = reshape(ANA.ChunkBndry , numel(ANA.IPI) , 1);
         IPItable.Horizon = reshape(ANA.IPI_Horizon , numel(ANA.IPI) , 1);
@@ -400,7 +409,10 @@ switch what
         IPItable.prsnumb = reshape(ANA.IPI_prsnumb , numel(ANA.IPI) , 1);
         IPItable.seqNumb = reshape(ANA.IPI_seqNumb , numel(ANA.IPI) , 1);
         IPItable.BN = reshape(ANA.IPI_BN , numel(ANA.IPI) , 1);
-        
+        IPItable.badpress = cell2mat(reshape(ANA.badpress , numel(ANA.IPI) , 1));
+
+                
+        IPIOrig = IPItable;
         A = [];
         for d = 1:length(dayz)
             T = getrow(IPItable , ismember(IPItable.Day , dayz{d}));
@@ -410,7 +422,118 @@ switch what
         IPItable = A;
         
         switch nowWhat
+            case 'RTvsInitialIPIs'
+                IPItable = getrow(IPItable , ~IPItable.badpress);
+                
+            case 'IPIbyTransition'
+                for tn  = 1:length(ANA.TN)
+                    % [press1 press2 transition number]
+                    ANA.IPI_trans_made{tn,1} = [0 0 0];
+                    ANA.IPI_trans_stim{tn,1} = [0 0 0];
+                    for prs=1:13
+                        ANA.IPI_trans_made{tn,prs+1} = [ANA.AllResponse(tn,prs:prs+1) , find(ismember(CMB.comb2 , ANA.AllResponse(tn,prs:prs+1), 'rows'))];
+                        ANA.IPI_trans_stim{tn,prs+1} = [ANA.AllPress(tn,prs:prs+1) , find(ismember(CMB.comb2 , ANA.AllPress(tn,prs:prs+1), 'rows'))];
+                    end
+                end
+                IPItable = IPIOrig;
+                IPItable.IPI_trans_made = cell2mat(reshape(ANA.IPI_trans_made , numel(ANA.IPI) , 1));
+                IPItable.IPI_trans_stim = cell2mat(reshape(ANA.IPI_trans_stim , numel(ANA.IPI) , 1));
+                IPItable.sim_tran_num = IPItable.IPI_trans_stim(:,3);
+                IPItable.resp_tran_num = IPItable.IPI_trans_made(:,3);
+                
+                
+                IPItable = getrow(IPItable , IPItable.seqNumb==0 & IPItable.sim_tran_num>0);
+                
+                T2corr = tapply(IPItable , {'sim_tran_num' , 'Horizon'} , {'IPI' , 'nanmedian'},{'IPI_trans_made' , 'nanmedian'} , 'subset' , ~IPItable.badpress);
+                %                 T2wrng = tapply(IPItable , {'resp_tran_num' , 'Horizon'} , {'IPI' , 'nanmedian'},{'IPI_trans_made' , 'nanmedian'} , 'subset' , IPItable.badpress>0 );
+                H = unique(T2corr.Horizon);
+                figure('color' , 'white')
+                fcount = 1;
+                for hh = 1:length(H)
+                    temp = getrow(T2corr , T2corr.Horizon == H(hh));
+                    ipimat{hh} = zeros(5,5);
+                    for mm = 1:length(temp.IPI)
+                        ipimat{hh}(temp.IPI_trans_made(mm,1),temp.IPI_trans_made(mm,2)) = temp.IPI(mm);
+                    end
+                    subplot(3,3,fcount)
+                    imagesc(ipimat{hh} , [200 600])
+                    colorbar
+                    title(['W = ' , num2str(H(hh))])
+                    fcount = fcount+1;
+                    axis square
+                end
+                clear ipimat
+                % normalize 
+                M = [];
+                count = 1;
+                SN = unique(IPItable.SN);
+                for sn = 1:length(SN)
+                    for hh = 1:length(H)
+                        ipimat{hh,sn} = nan(5,5);
+                        for t = 1:25
+                            temp = getrow(IPItable , ~IPItable.badpress & IPItable.Horizon == H(hh) & ismember(IPItable.SN , SN(sn))&...
+                                IPItable.seqNumb==0 & IPItable.sim_tran_num>0 & IPItable.resp_tran_num==t);
+                            if ~isempty(temp.IPI)
+                                ipimat{hh,sn}(temp.IPI_trans_made(1,1),temp.IPI_trans_made(1,2)) = nanmedian(temp.IPI);
+                                % diagonal
+                                M.IPI(count , 1) = nanmean(diag(ipimat{hh,sn})); 
+                                M.SN(count , 1)= SN(sn);
+                                M.Horizon(count , 1) = H(hh);
+                                M.isDiag(count , 1) = 1;
+                                count = count +1;
+                                
+                                % off diagonal
+                                M.IPI(count , 1) = nanmean(nanmean(diag(nan(1,5))+ipimat{hh,sn})); 
+                                M.SN(count , 1)= SN(sn);
+                                M.Horizon(count , 1) = H(hh);
+                                M.isDiag(count , 1) = 0;
+                                count = count +1;
+                            end
+                        end
+                    end
+                end
+                A = getrow(IPItable , ~IPItable.badpress  &  IPItable.seqNumb==0 & IPItable.sim_tran_num>0);
+                A.isDiag = zeros(size(A.BN));
+                A.isDiag(ismember(A.resp_tran_num , [21:25])) = 1;
+                
+                colorz = colIPI([2,end] , 4);
+                figure('color' , 'white')
+                M = normData(M  , {'IPI'});
+                lineplot([ M.Horizon] , M.normIPI , 'plotfcn' , 'nanmean',...
+                    'split', [ M.isDiag ], 'linecolor' , colorz,...
+                    'errorcolor' , colorz , 'errorbars' , {'shade'}  , 'shadecolor' ,colorz,...
+                    'linewidth' , 1 , 'markertype' , {'o' , 'o'}  , 'markerfill' , colorz,...
+                    'markersize' , 5, 'markercolor' , colorz , 'leg' , {'offDiagonal' , 'Diagonal'});
+                ylabel('IPI [msec]')
+                xlabel('Window size')
+                set(gca,'FontSize' , 14)
+                
+                A = M;
+                anovaMixed(A.IPI  , A.SN ,'between',[A.Horizon A.isDiag] ,{'win' , 'diagonalOrNot'},'intercept',1,'subset' , ~isnan(A.IPI) & ismember(A.Horizon , [1:13])) ;
+                % error trials
+                Err = 0;
+                if Err
+                    figure('color' , 'white')
+                    fcount = 1;
+                    for hh = 1:length(H)
+                        ipimat_wrng{hh} = nan(5,5);
+                        for t = 1:25
+                            temp = getrow(IPItable , IPItable.Horizon == H(hh) & IPItable.resp_tran_num==t & IPItable.badpress>0 );
+                            if ~isempty(temp.IPI)
+                                ipimat_wrng{hh}(temp.IPI_trans_made(1,1),temp.IPI_trans_made(1,2)) = nanmedian(temp.IPI);
+                            end
+                        end
+                        subplot(3,3,fcount)
+                        imagesc(ipimat_wrng{hh})
+                        title(['error - W = ' , num2str(H(hh))])
+                        fcount = fcount+1;
+                        axis square
+                    end
+                end
+                
+                
             case 'sigIPIvssteadystate'
+                IPItable = getrow(IPItable , ~IPItable.badpress);
                 H = {[1] [2] [3] [4] [5] [6] [7] [8] [13]};
                 for d = 1:length(dayz)
                     pval{d} = nan(length(H),13);
@@ -444,7 +567,7 @@ switch what
                     ylabel('Window size')
                 end
             case 'IPIFullDispsplitDay'
-                
+                IPItable = getrow(IPItable , ~IPItable.badpress);
                 horz = {[1] [2] [3] [4] [5] [6:13]};
                 hlab = repmat({'1' , '2' , '3' , '4'  , '5' , '6 - 13'} , 1 , length(dayz));
                 
@@ -472,6 +595,7 @@ switch what
                     ylabel('Inter-press interval time [s]','FontSize' , 7)
                 end
             case 'IPILearningPlacement'
+                IPItable = getrow(IPItable , ~IPItable.badpress);
                 horz = {[1] [2] [3] [4] [5] [6:13]};
                 hlab = repmat({'1' , '2' , '3' , '4'  , '5' , '6 - 13'} , 1 , length(dayz));
                 
@@ -515,7 +639,7 @@ switch what
                     ylabel('Inter-press interval time [s]','FontSize' , 9)
                 end
             case 'IPIFullDispsplitseqNumb'
-                
+                IPItable = getrow(IPItable , ~IPItable.badpress);
                 horz = {[1] [2] [3] [4] [5] [6:13]};
                 hlab = repmat({'1' , '2' , '3' , '4'  , '5' , '6 - 13'} , 1 , length(dayz));
                 IPIs  = IPItable;
@@ -547,7 +671,7 @@ switch what
                     end
                 end
             case 'IPIFullDispsplitHorizon'
-                
+                IPItable = getrow(IPItable , ~IPItable.badpress);
                 horz = {[1] [2] [3] [4] [5] [6] [7:13]};
                 hlab = repmat({'1' , '2' , '3' , '4'  , '5' , '6 - 13'} , 1 , length(dayz));
                 IPIs  = IPItable;
@@ -580,7 +704,7 @@ switch what
                 end
             case 'compareLearning'
                 horz = {[1] [2] [3] [4] [5] [7:13]};
-                
+                IPItable = getrow(IPItable , ~IPItable.badpress);
                 IPIs=  getrow(IPItable,ismember(IPItable.prsnumb , [4:10]));
                 % pool last and within
                 IPIs.ChunkBndry(IPIs.ChunkBndry == 3) = 2;
@@ -603,6 +727,7 @@ switch what
                 xlabel('Window size' ,'FontSize' , 20)
                 title('Days  1      2       3      4       5')
             case 'compareLearning_histogram'
+                IPItable = getrow(IPItable , ~IPItable.badpress);
                 horz = {[1] [2] [3] [4] [5] [6:13]};
                 hlab = repmat({'1' , '2' , '3' , '4'  , '5' , '6 - 13'} , 1 , length(dayz));
                 IPIs = IPItable;
@@ -626,6 +751,7 @@ switch what
                 end
             case 'percentTotalLearning_IPIplacement'
                 Hz = {[1] [2] [3] , [4] [5] [6] [7:9]};
+                IPItable = getrow(IPItable , ~IPItable.badpress);
                 ANA = IPItable;
 %                 ANA.Horizon(ANA.Horizon>Hz{end}(1)) = Hz{end}(1);
                 ANA.IPIPlace = ones(size(ANA.prsnumb));
@@ -663,6 +789,7 @@ switch what
                     title('Reduction in Inter-Press Intervals compared to Day 1' ,'FontSize' , 24)
                 end
             case 'subjEffectiveHorizon'
+                IPItable = getrow(IPItable , ~IPItable.badpress);
                 seqN = {[0] , [1 2]};
                 allcount = 1;
                 dayz = {[1] [2 3] [4 5]};
