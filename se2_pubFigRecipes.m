@@ -19,8 +19,6 @@ out  = se2_pubFigs(Dall , 'IPI','IPILearningPlacement', 'poolDays' , 0, 'dayz' ,
 out  = se2_pubFigs(Dall , 'IPI','percentTotalLearning_IPIplacement', 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'IPI','subjEffectiveHorizon' , 'poolDays' , 1, 'subjnum' , [1:15]);
 
-out  = se2_pubFigs(Dall , 'IPI','IPIbyTransition' , 'poolDays' , 1, 'subjnum' , [1:15],'dayz' , {[4 5]});
-
 
 out  = se2_pubFigs(Dall , 'RT','RandvsStructCommpare');
 out  = se2_pubFigs(Dall , 'RT','RandStructAcrossDays' , 'poolDays' , 1 , 'dayz' , {[1] [4 5]}, 'subjnum' , [1:14]);
