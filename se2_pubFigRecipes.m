@@ -1,7 +1,8 @@
 %% plotting recipes
-
+ErrorvsWindow
+out  = se2_pubFigs(Dall , 'Error','ErrorvsWindow' , 'subjnum' , [1:15]);
 out  = se2_pubFigs(Dall , 'MT','RandvsStructCommpare' , 'subjnum' , [1:15]);
-out  = se2_pubFigs(Dall , 'MT','RandStructAcrossDays' , 'poolDays' , 0 , 'subjnum' , [1:15]);
+out  = se2_pubFigs(Dall , 'MT','RandStructAcrossDays' , 'poolDays' , 1 , 'subjnum' , [1:15]);
 out  = se2_pubFigs(Dall , 'MT','compareLearning' , 'poolDays' , 0 , 'subjnum' , [1:15]);
 out  = se2_pubFigs(Dall , 'MT','LearningEffectShade' , 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'MT','BoxFirstLastDays' , 'poolDays' , 0);
@@ -10,7 +11,7 @@ out  = se2_pubFigs(Dall , 'MT','subjEffectiveHorizonThresh' , 'poolDays' , 1, 's
 
 
 Dall = Dall2;
-out  = se2_pubFigs(Dall , 'IPI','IPIFullDispsplitDay', 'poolDays' , 1 , 'dayz' , {[1] [5]});
+out  = se2_pubFigs(Dall , 'IPI','IPIFullDispsplitDay', 'poolDays' , 1 );
 out  = se2_pubFigs(Dall , 'IPI','IPIFullDispsplitseqNumb', 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'IPI','IPIFullDispsplitHorizon', 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'IPI','compareLearning', 'poolDays' , 0);
@@ -20,6 +21,7 @@ out  = se2_pubFigs(Dall , 'IPI','percentTotalLearning_IPIplacement', 'poolDays' 
 out  = se2_pubFigs(Dall , 'IPI','subjEffectiveHorizon' , 'poolDays' , 1, 'subjnum' , [1:15]);
 out  = se2_pubFigs(Dall , 'IPI','IPIbyTransition' , 'poolDays' , 1, 'subjnum' , [1:15],'dayz' , {[4 5]});
 out  = se2_pubFigs(Dall , 'IPI','RTvsInitialIPIs' , 'poolDays' , 1, 'subjnum' , [1:15]);
+out  = se2_pubFigs(Dall , 'IPI','initialEyeInitialIPI' , 'poolDays' , 1, 'subjnum' , [1:15]);
 
 
 
@@ -62,7 +64,7 @@ out  = se2_pubFigs(Dall , 'Eye', 'previewSplitwindow' , 'isSymmetric' , 1 , 'poo
 out  = se2_pubFigs(Dall , 'Eye', 'previewSplitDays' , 'isSymmetric' , 1 , 'poolDays' , 1);
 out  = se2_pubFigs(Dall , 'Eye', 'startlookahead' , 'isSymmetric' , 1 , 'poolDays' , 1,'subjnum' , [1:15]);
 out  = se2_pubFigs(Dall , 'Eye', 'presspositionlook_ahead' , 'isSymmetric' , 1 , 'poolDays' , 0,'subjnum' , [1:15]);
-
+out  = se2_pubFigs(Dall , 'Eye','initialEyeInitialIPI' , 'isSymmetric' , 1 ,'poolDays' , 1, 'subjnum' , [1:15]);
 
 
 se2_compareExp(Dall1 , Dall2 , 'MT')
