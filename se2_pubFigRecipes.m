@@ -24,6 +24,7 @@ out  = se2_pubFigs(Dall , 'IPI','subjEffectiveHorizon' , 'poolDays' , 1, 'subjnu
 out  = se2_pubFigs(Dall , 'IPI','IPIbyTransition' , 'poolDays' , 1, 'subjnum' , [1:15],'dayz' , {[4 5]});
 out  = se2_pubFigs(Dall , 'IPI','RTvsInitialIPIs' , 'poolDays' , 1, 'subjnum' , [1:15]);
 out  = se2_pubFigs(Dall , 'IPI','initialEyeInitialIPI' , 'poolDays' , 1, 'subjnum' , [1:15]);
+out  = se2_pubFigs(Dall , 'IPI','subjEffectiveHorizonThresh' , 'poolDays' , 1, 'subjnum' , [1:15]);
 
 
 
@@ -34,6 +35,8 @@ out  = se2_pubFigs(Dall , 'RT','compareLearning' , 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'RT','LearningEffectShade' , 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'RT','BoxFirstLastDays' , 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'RT','subjEffectiveHorizon' , 'poolDays' , 0);
+out  = se2_pubFigs(Dall , 'RT','subjEffectiveHorizonThresh' , 'poolDays' , 1, 'subjnum' , [1:15]);
+
 
 
 

@@ -907,16 +907,17 @@ switch what
                 subjs  = unique(Dall.SN);
                 poolpress = {[1:2] , [5:9] , [12:13]};
                 for pp = 1:length(poolpress)
-                    Temp = getrow(IPItable , IPItable.;
+                    Temp = getrow(IPItable , ismember(IPItable.prsnumb , poolpress{pp}));
                     Temp.Horizon(Temp.Horizon>7) = 7;
-                    % the group level estimatd horizon sizes are 2, 3, 4 for dayz 1, 23 and 45 respectively
-                    D1   = tapply(Temp , {'Horizon'} , {'MT' , 'nanmean'} , 'subset' , Temp.Day==1 & ismember(Temp.Horizon , [2 , 7]));
-                    D23  = tapply(Temp , {'Horizon'} , {'MT' , 'nanmean'} , 'subset' , ismember(Temp.Day , [2]) & ismember(Temp.Horizon , [3 , 7]));
-                    D45  = tapply(Temp , {'Horizon'} , {'MT' , 'nanmean'} , 'subset' , ismember(Temp.Day , [3]) & ismember(Temp.Horizon , [4 , 7]));
-                    thresh(1) = (D1.MT(1)-D1.MT(2))/D1.MT(2); % threshold for day 1
-                    thresh(2) = (D23.MT(1)-D23.MT(2))/D23.MT(2);  % threshold for last day
-                    thresh(3) = (D45.MT(1)-D45.MT(2))/D45.MT(2);  % threshold for last day
-                    Temp = tapply(Temp , {'Horizon' , 'SN' , 'seqNumb' , 'Day'} , {'MT' , 'nanmedian(x)'});
+                    % the group level estimatd horizon sizes are 2, 3, 4
+                    % for dayz 1, 23 and 45 respectively on the MT data
+                    D1   = tapply(Temp , {'Horizon'} , {'IPI' , 'nanmean'} , 'subset' , Temp.Day==1 & ismember(Temp.Horizon , [2 , 7]));
+                    D23  = tapply(Temp , {'Horizon'} , {'IPI' , 'nanmean'} , 'subset' , ismember(Temp.Day , [2]) & ismember(Temp.Horizon , [3 , 7]));
+                    D45  = tapply(Temp , {'Horizon'} , {'IPI' , 'nanmean'} , 'subset' , ismember(Temp.Day , [3]) & ismember(Temp.Horizon , [4 , 7]));
+                    thresh(1) = (D1.IPI(1)-D1.IPI(2))/D1.IPI(2); % threshold for day 1
+                    thresh(2) = (D23.IPI(1)-D23.IPI(2))/D23.IPI(2);  % threshold for last day
+                    thresh(3) = (D45.IPI(1)-D45.IPI(2))/D45.IPI(2);  % threshold for last day
+                    Temp = tapply(Temp , {'Horizon' , 'SN' , 'seqNumb' , 'Day'} , {'IPI' , 'nanmedian(x)'});
                     for sn = 1:length(subjs)
                         dcount = 1;
                         for d  = 1:length(dayz)
@@ -925,17 +926,13 @@ switch what
                                 EH.SN(allcount,1) = sn;
                                 EH.sq(allcount,1) = sq;
                                 EH.poolpress(allcount,1) = pp;
-                                for h = 1:6
-                                    stats = se2_SigTest(Dall , 'IPI' , 'seqNumb' , seqN{sq} , 'Day' , dayz{d} , 'Horizon' , [h:13],...
-                                        'PoolDays' , 1,'whatIPI','ipistoEachother','PoolSequences' , 0 ,...
-                                        'PoolHorizons' , [],'ipiOfInterest' , poolpress(pp) , 'poolIPIs' , 0 , 'subjnum' , subjs(sn));
-                                    pval{sq}(sn,h,dcount) = stats(1);
-                                end
-                                temp = squeeze(pval{sq}(sn,:,dcount));
-                                if ~isempty(find(temp>0.05 ,1 , 'first'))
-                                    EH.effH(allcount,1) = find(temp>0.05 ,1 , 'first');
+                                Th = getrow(Temp , Temp.Horizon~=7 & Temp.SN == sn & ismember(Temp.seqNumb , seqN{sq}) & ismember(Temp.Day ,d));
+                                Tfull = getrow(Temp , Temp.Horizon==7 & Temp.SN == sn & ismember(Temp.seqNumb , seqN{sq}) & ismember(Temp.Day ,d));
+                                h = find(Th.IPI<(1+thresh(d))*Tfull.IPI , 1 , 'first');
+                                if isempty(h)
+                                    EH.effH(allcount,1) = 6;
                                 else
-                                    EH.effH(allcount,1) = 7;
+                                    EH.effH(allcount,1) = h-1;
                                 end
                                 allcount = allcount+1;
                             end
@@ -944,46 +941,21 @@ switch what
                     end
                 end
                     
-                
-                
-                %                 dayz = {[1] [3] [5]};
-                daylab = {'Early training (day 1)' 'Mid-training (day 3)' 'Trained (day 5)'};
-                subjs  = unique(Dall.SN);
-                
-                Temp = ANA;
-                Temp.Horizon(Temp.Horizon>7) = 7;
-                % the group level estimatd horizon sizes are 2, 3, 4 for dayz 1, 23 and 45 respectively
-                D1   = tapply(Temp , {'Horizon'} , {'MT' , 'nanmean'} , 'subset' , Temp.Day==1 & ismember(Temp.Horizon , [2 , 7]));
-                D23  = tapply(Temp , {'Horizon'} , {'MT' , 'nanmean'} , 'subset' , ismember(Temp.Day , [2]) & ismember(Temp.Horizon , [3 , 7]));
-                D45  = tapply(Temp , {'Horizon'} , {'MT' , 'nanmean'} , 'subset' , ismember(Temp.Day , [3]) & ismember(Temp.Horizon , [4 , 7]));
-                thresh(1) = (D1.MT(1)-D1.MT(2))/D1.MT(2); % threshold for day 1
-                thresh(2) = (D23.MT(1)-D23.MT(2))/D23.MT(2);  % threshold for last day 
-                thresh(3) = (D45.MT(1)-D45.MT(2))/D45.MT(2);  % threshold for last day 
-                Temp = tapply(Temp , {'Horizon' , 'SN' , 'seqNumb' , 'Day'} , {'MT' , 'nanmedian(x)'});
-                figure('color' , 'white')
-                fcount = 1;
-                EH = [];
-                allcount = 1;
-                for sn = 1:length(subjs)
-                    for d  = [1:length(dayz)]
-                        for sq = 1:length(seqN)
-                            EH.Day(allcount,1) = d;
-                            EH.SN(allcount,1) = sn;
-                            EH.sq(allcount,1) = sq;
-                            Th = getrow(Temp , Temp.Horizon~=7 & Temp.SN == sn & ismember(Temp.seqNumb , seqN{sq}) & ismember(Temp.Day ,d));
-                            Tfull = getrow(Temp , Temp.Horizon==7 & Temp.SN == sn & ismember(Temp.seqNumb , seqN{sq}) & ismember(Temp.Day ,d));
-                            h = find(Th.MT<(1+thresh(d))*Tfull.MT , 1 , 'first');
-                            if isempty(h)
-                                EH.effH(allcount,1) = 6;
-                            else
-                                EH.effH(allcount,1) = h-1;
-                            end
-                            allcount = allcount+1;
-                        end
-                    end
+                for sn = 1:2
+                    figure('color' , 'white')
+                    colorz = colz([1:2:end] , sn);
+                    barplot([EH.poolpress] ,EH.effH , 'split' , EH.Day  , 'plotfcn' , 'mean',...
+                        'facecolor' , colorz,'edgecolor' , 'none',...
+                        'errorwidth' , 1 ,'leg' , daylab , 'subset' ,EH.sq == sn & EH.poolpress~=4);
+                    hold on
+                    ylabel('Plannig horizon')
+                    set(gca , 'FontSize' , 7 , 'YLim' , [1 5] , 'YTick' , [1 2 3 4] , 'XtickLabels' , {})
                 end
+        
+                
+               
                 E = getrow(EH, EH.sq==1);
-                S =anovaMixed(E.effH  , E.SN ,'within',[E.Day] ,{ 'Day'},'intercept',1) ;
+                S =anovaMixed(E.effH  , E.SN ,'within',[E.Day E.poolpress] ,{ 'Day' , 'presspos'},'intercept',1);% , 'subset' , E.Day~=2) ;
                 
         end
     case 'RT'
@@ -1016,6 +988,66 @@ switch what
         
         
         switch nowWhat
+            case 'subjEffectiveHorizonThresh'
+                ANA = getrow(Dall , Dall.isgood & ismember(Dall.seqNumb , [0 1:6]) & ~Dall.isError);
+                ANA.seqNumb(ANA.seqNumb >=1) = 1;
+                
+                dayz = {[1] [2 3] [4 5]};
+                seqN = {[0] , [1 2]};
+%                 ANA = getrow(ANA , ANA.MT <= 9000 );
+%                 for d = 1:length(dayz)
+%                     ANA.Day(ismember(ANA.Day , dayz{d})) = d;
+%                 end
+                %                 dayz = {[1] [3] [5]};
+                daylab = {'Early training (day 1)' 'Mid-training (day 3)' 'Trained (day 5)'};
+                subjs  = unique(Dall.SN);
+                
+                Temp = ANA;
+                Temp.Horizon(Temp.Horizon>7) = 7;
+                % the group level estimatd horizon sizes are 2, 3, 4 for dayz 1, 23 and 45 respectively
+                D1   = tapply(Temp , {'Horizon'} , {'RT' , 'nanmean'} , 'subset' , Temp.Day==1 & ismember(Temp.Horizon , [2 , 7]));
+                D23  = tapply(Temp , {'Horizon'} , {'RT' , 'nanmean'} , 'subset' , ismember(Temp.Day , [2]) & ismember(Temp.Horizon , [3 , 7]));
+                D45  = tapply(Temp , {'Horizon'} , {'RT' , 'nanmean'} , 'subset' , ismember(Temp.Day , [3]) & ismember(Temp.Horizon , [4 , 7]));
+                thresh(1) = (D1.RT(1)-D1.RT(2))/D1.RT(2); % threshold for day 1
+                thresh(2) = (D23.RT(1)-D23.RT(2))/D23.RT(2);  % threshold for last day
+                thresh(3) = (D45.RT(1)-D45.RT(2))/D45.RT(2);  % threshold for last day
+                Temp = tapply(Temp , {'Horizon' , 'SN' , 'seqNumb' , 'Day'} , {'RT' , 'nanmedian(x)'});
+                figure('color' , 'white')
+                fcount = 1;
+                EH = [];
+                allcount = 1;
+                for sn = 1:length(subjs)
+                    for d  = [1:length(dayz)]
+                        for sq = 1:length(seqN)
+                            EH.Day(allcount,1) = d;
+                            EH.SN(allcount,1) = sn;
+                            EH.sq(allcount,1) = sq;
+                            Th = getrow(Temp , Temp.Horizon~=7 & Temp.SN == sn & ismember(Temp.seqNumb , seqN{sq}) & ismember(Temp.Day ,d));
+                            Tfull = getrow(Temp , Temp.Horizon==7 & Temp.SN == sn & ismember(Temp.seqNumb , seqN{sq}) & ismember(Temp.Day ,d));
+                            h = find(Th.RT>(1+thresh(d))*Tfull.RT , 1 , 'first');
+                            if isempty(h)
+                                EH.effH(allcount,1) = 6;
+                            else
+                                EH.effH(allcount,1) = h-1;
+                            end
+                            allcount = allcount+1;
+                        end
+                    end
+                end
+                E = getrow(EH, EH.sq==1);
+                S =anovaMixed(E.effH  , E.SN ,'within',[E.Day] ,{ 'Day'},'intercept',1) ;
+                
+                for sn = 1%:2
+                    subplot(1,2,sn)
+                    colorz = colz(1:length(dayz) , sn);
+                    barplot([EH.sq] ,EH.effH , 'split' ,  EH.Day , 'plotfcn' , 'mean',...
+                        'facecolor' , colorz,'edgecolor' , 'none',...
+                        'errorwidth' , 1  , 'subset' ,EH.sq == sn);%,'leg' , daylab);% & ~ismember(EH.SN , [3,9]));
+                    hold on
+                    ylabel('Plannig horizon')
+                    set(gca , 'FontSize' , 18 , 'YLim' , [1 4.5] , 'YTick' , [1 2 3 ] , 'XtickLabels' , {})
+                    fcount = fcount+1;
+                end
             case 'RandvsStructCommpare'
                 figure('color' , 'white');
                 H = unique(RT.Horizon);
