@@ -4,8 +4,8 @@ out  = se2_pubFigs(Dall , 'Error','ErrorvsWindow' , 'subjnum' , [1:15]);
 
 
 out  = se2_pubFigs(Dall , 'MT','RandvsStructCommpare' , 'subjnum' , [1:15]);
-out  = se2_pubFigs(Dall , 'MT','RandStructAcrossDays' , 'poolDays' , 1 , 'subjnum' , [1:15]);
-out  = se2_pubFigs(Dall , 'MT','compareLearning' , 'poolDays' , 0 , 'subjnum' , [1:15]);
+out  = se2_pubFigs(Dall , 'MT','RandStructAcrossDays' , 'poolDays' , 0 , 'subjnum' , [1,2,4:15]);
+out  = se2_pubFigs(Dall , 'MT','compareLearning' , 'poolDays' , 0 , 'subjnum' , [1,2,4:15]);
 out  = se2_pubFigs(Dall , 'MT','LearningEffectShade' , 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'MT','BoxFirstLastDays' , 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'MT','subjEffectiveHorizon' , 'poolDays' , 1, 'subjnum' , [1:15]);
@@ -30,7 +30,7 @@ out  = se2_pubFigs(Dall , 'IPI','subjEffectiveHorizonThresh' , 'poolDays' , 1, '
 
 
 out  = se2_pubFigs(Dall , 'RT','RandvsStructCommpare');
-out  = se2_pubFigs(Dall , 'RT','RandStructAcrossDays' , 'poolDays' , 1 , 'dayz' , {[1] [4 5]}, 'subjnum' , [1:14]);
+out  = se2_pubFigs(Dall , 'RT','RandStructAcrossDays' , 'poolDays' , 1 , 'dayz' , {[1] [4 5]}, 'subjnum' , [1:15]);
 out  = se2_pubFigs(Dall , 'RT','compareLearning' , 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'RT','LearningEffectShade' , 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'RT','BoxFirstLastDays' , 'poolDays' , 0);
@@ -75,10 +75,6 @@ out  = se2_pubFigs(Dall , 'Eye', 'initialEyeInitialIPI' , 'isSymmetric' , 1 ,'po
 se2_compareExp(Dall1 , Dall2 , 'MT')
 se2_compareExp(Dall1 , Dall2 , 'RT')
 
-
-
-
-
 for sn = 1:15
     for h  = 1:4
         stats(sn,h) = se2_SigTest(Dall , 'Ttest_MT' , 'seqNumb' , [0] , 'Day' , [4 5] , 'Horizon' , [h,6:13],...
@@ -88,21 +84,17 @@ for sn = 1:15
     end
     Hoz(sn,1) = find(stats(sn,:)>0.05 ,1 , 'first')-1;
 end
+
 %% significance test on MTs
 
-stats = se2_SigTest(Dall , 'Ttest_MT' , 'seqNumb' , [0] , 'Day' , [4:5] , 'Horizon' , [3,7:13],...
+stats = se2_SigTest(Dall , 'MT' , 'seqNumb' , [0] , 'Day' , [1:5] , 'Horizon' , [2],...
     'PoolDays' , 1,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
-    'PoolHorizons' , [7:13],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , [1:15]);
-%% significance test on MTs
-
-stats = se2_SigTest(Dall , 'MT' , 'seqNumb' , [0] , 'Day' , [2 3] , 'Horizon' , [3:13],...
-    'PoolDays' , 1,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
-    'PoolHorizons' , [],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , [1:15]);
+    'PoolHorizons' , [],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , [1,2,4:15]);
 
 %% significance test on RTs
 stats = se2_SigTest(Dall , 'RT' , 'seqNumb' , [0] , 'Day' , [1:5] , 'Horizon' , [1:13],...
     'PoolDays' , 1,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
-    'PoolHorizons' , [],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , [1:14]);
+    'PoolHorizons' , [],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , [1,2,4:15]);
 
 %% significance test on RTs
 stats = se2_SigTest(Dall , 'RT' , 'seqNumb' , [103 203 303] , 'Day' , [1:5] , 'Horizon' , [1:13],...
