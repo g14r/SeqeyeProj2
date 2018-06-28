@@ -116,18 +116,23 @@ switch what
         else
             stats = anovaMixed(ANA.MT  , ANA.SN ,'within',var ,FCTR,'intercept',1) ;
         end
-%         figure('color' , 'white')
-%         lineplot(var, ANA.MT , 'style_shade' , 'markertype' , 'o'  , ...
-%             'markersize' , 10 , 'markerfill' , 'w');
-%         tAdd = FCTR{1};
-%         for f =2:length(FCTR)
-%             tAdd = [tAdd , ' and ' , FCTR{f}];
-%         end
-%         title(['Effect of ' , tAdd ,' on Execution Time']);
-%         grid on
-%         set(gca , 'FontSize' , 20 , 'Box' , 'off')
-%         xlabel(FCTR{end})
-%         ylabel('msec')
+        
+    case 'Ttest_MT'
+        if ~isempty(PoolHorizons)
+            ANA.Horizon(ismember(ANA.Horizon ,PoolHorizons)) = PoolHorizons(1);
+            Horizon = unique(ANA.Horizon);
+        end
+        
+        %         ANA.MT = ANA.AllPressTimes(:,14) - ANA.AllPressTimes(:,11);
+        var = [];
+        for f = 1:length(FCTR)
+            eval(['var = [var ANA.',FCTR{f},'];']);
+        end
+        H = unique(ANA.Horizon); % shuld be of length 2
+        A1 = getrow(ANA , ANA.Horizon == H(1));
+        A2 = getrow(ANA , ANA.Horizon == H(2));
+        [h , stats] = ttest2(A1.MT , A2.MT);
+
     case 'IPI'
         if ~isempty(PoolHorizons)
             ANA.Horizon(ismember(ANA.Horizon ,PoolHorizons)) = PoolHorizons(1);

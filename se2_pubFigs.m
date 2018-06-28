@@ -41,8 +41,8 @@ while(c<=length(varargin))
 end
 
 %%
-baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
-% baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
+% baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
+baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
 
 
 
@@ -288,9 +288,9 @@ switch what
                                 end
                                 temp = squeeze(pval{sq}(sn,:,dcount));
                                 if ~isempty(find(temp>0.05 ,1 , 'first'))
-                                    EH.effH(allcount,1) = find(temp>0.05 ,1 , 'first');
+                                    EH.effH(allcount,1) = find(temp>0.05 ,1 , 'first')-1;
                                 else
-                                    EH.effH(allcount,1) = 7;
+                                    EH.effH(allcount,1) = 6;
                                 end
                                 allcount = allcount+1;
                             end
@@ -299,14 +299,14 @@ switch what
                     end
                 end
                 
-                for sn = 1:2
+                for sn = 1%:2
                     figure('color' , 'white')
                     colorz = colz(1:length(dayz) , sn);
                     barplot([EH.sq] ,EH.effH , 'split' ,  EH.Day , 'plotfcn' , 'mean',...
                         'facecolor' , colorz,'edgecolor' , 'none',...
                         'errorwidth' , 1 ,'leg' , daylab , 'subset' ,EH.sq == sn);
                     ylabel('Plannig horizon')
-                    set(gca , 'FontSize' , 7 , 'YLim' , [1 4] , 'YTick' , [1 2 3 ] , 'XtickLabels' , {})
+                    set(gca , 'FontSize' , 7 , 'YLim' , [0 4] , 'YTick' , [1 2 3 ] , 'XtickLabels' , {})
                 end
                 
                 for sn = 1:2
@@ -322,6 +322,8 @@ switch what
             case 'subjEffectiveHorizonThresh'
                 ANA = getrow(Dall , Dall.isgood & ismember(Dall.seqNumb , [0 1:6]) & ~Dall.isError);
                 ANA.seqNumb(ANA.seqNumb >=1) = 1;
+                
+                dayz = {[1] [2 3] [4 5]};
                 seqN = {[0] , [1 2]};
                 ANA = getrow(ANA , ANA.MT <= 9000 );
                 for d = 1:length(dayz)
@@ -333,42 +335,46 @@ switch what
                 
                 Temp = ANA;
                 Temp.Horizon(Temp.Horizon>7) = 7;
+                % the group level estimatd horizon sizes are 2, 3, 4 for dayz 1, 23 and 45 respectively
+                D1   = tapply(Temp , {'Horizon'} , {'MT' , 'nanmean'} , 'subset' , Temp.Day==1 & ismember(Temp.Horizon , [2 , 7]));
+                D23  = tapply(Temp , {'Horizon'} , {'MT' , 'nanmean'} , 'subset' , ismember(Temp.Day , [2]) & ismember(Temp.Horizon , [3 , 7]));
+                D45  = tapply(Temp , {'Horizon'} , {'MT' , 'nanmean'} , 'subset' , ismember(Temp.Day , [3]) & ismember(Temp.Horizon , [4 , 7]));
+                thresh(1) = (D1.MT(1)-D1.MT(2))/D1.MT(2); % threshold for day 1
+                thresh(2) = (D23.MT(1)-D23.MT(2))/D23.MT(2);  % threshold for last day 
+                thresh(3) = (D45.MT(1)-D45.MT(2))/D45.MT(2);  % threshold for last day 
                 Temp = tapply(Temp , {'Horizon' , 'SN' , 'seqNumb' , 'Day'} , {'MT' , 'nanmedian(x)'});
-                thresh = [.01 .03 .05 .07  .09 .11];
                 figure('color' , 'white')
                 fcount = 1;
-                for t = 1:length(thresh)
-                    EH = [];
-                    allcount = 1;
-                    for sn = 1:length(subjs)
-                        for d  = 1:length(dayz)
-                            for sq = 1:length(seqN)
-                                EH.Day(allcount,1) = d;
-                                EH.SN(allcount,1) = sn;
-                                EH.sq(allcount,1) = sq;
-                                Th = getrow(Temp , Temp.Horizon~=7 & Temp.SN == sn & ismember(Temp.seqNumb , seqN{sq}) & ismember(Temp.Day ,d));
-                                Tfull = getrow(Temp , Temp.Horizon==7 & Temp.SN == sn & ismember(Temp.seqNumb , seqN{sq}) & ismember(Temp.Day ,d));
-                                h = find(Th.MT<(1+thresh(t))*Tfull.MT , 1 , 'first');
-                                if isempty(h)
-                                    EH.effH(allcount,1) = 6;
-                                else
-                                    EH.effH(allcount,1) = h-1;
-                                end
-                                allcount = allcount+1;
+                EH = [];
+                allcount = 1;
+                for sn = 1:length(subjs)
+                    for d  = [1:length(dayz)]
+                        for sq = 1:length(seqN)
+                            EH.Day(allcount,1) = d;
+                            EH.SN(allcount,1) = sn;
+                            EH.sq(allcount,1) = sq;
+                            Th = getrow(Temp , Temp.Horizon~=7 & Temp.SN == sn & ismember(Temp.seqNumb , seqN{sq}) & ismember(Temp.Day ,d));
+                            Tfull = getrow(Temp , Temp.Horizon==7 & Temp.SN == sn & ismember(Temp.seqNumb , seqN{sq}) & ismember(Temp.Day ,d));
+                            h = find(Th.MT<(1+thresh(d))*Tfull.MT , 1 , 'first');
+                            if isempty(h)
+                                EH.effH(allcount,1) = 6;
+                            else
+                                EH.effH(allcount,1) = h-1;
                             end
+                            allcount = allcount+1;
                         end
                     end
-                    for sn = 1:2
-                        subplot(length(thresh),2,fcount)
-                        colorz = colz(1:length(dayz) , sn);
-                        barplot([EH.sq] ,EH.effH , 'split' ,  EH.Day , 'plotfcn' , 'mean',...
-                            'facecolor' , colorz,'edgecolor' , 'none',...
-                            'errorwidth' , 1  , 'subset' ,EH.sq == sn);%,'leg' , daylab);% & ~ismember(EH.SN , [3,9]));
-                        hold on
-                        ylabel('Plannig horizon')
-                        set(gca , 'FontSize' , 18 , 'YLim' , [1 4.5] , 'YTick' , [1 2 3 ] , 'XtickLabels' , {})
-                        fcount = fcount+1;
-                    end
+                end
+                for sn = 1%:2
+                    subplot(length(thresh),2,fcount)
+                    colorz = colz(1:length(dayz) , sn);
+                    barplot([EH.sq] ,EH.effH , 'split' ,  EH.Day , 'plotfcn' , 'mean',...
+                        'facecolor' , colorz,'edgecolor' , 'none',...
+                        'errorwidth' , 1  , 'subset' ,EH.sq == sn);%,'leg' , daylab);% & ~ismember(EH.SN , [3,9]));
+                    hold on
+                    ylabel('Plannig horizon')
+                    set(gca , 'FontSize' , 18 , 'YLim' , [1 4.5] , 'YTick' , [1 2 3 ] , 'XtickLabels' , {})
+                    fcount = fcount+1;
                 end
         end
         out = [];
@@ -1312,7 +1318,7 @@ switch what
                 xlabel('Viewing Window size','FontSize' , 20)
                 title('Reduction in Sequence Execution Time From First to Last Day (Fitted)' ,'FontSize' , 24)
             case 'Actual&fit%ChangeDay2Day'
-                dayz = {[1] [3]  [5]};
+                dayz = {[1,5] [1,3]  [3,5]};
                 %                 dayz = {[1] [2] [3] [4] [5]};
                 Hz = {[1] [2] [3] , [4] [5] [6] [7:13]};
                 ANA = MTs;
@@ -1324,29 +1330,18 @@ switch what
                 Daybenefit = [];
                 
                 % day to day
-                for d = 1:length(dayz)-1
-                    Dbd= getrow(ANA , ismember(ANA.Day , dayz{d}) );
-                    Db = getrow(ANA , ismember(ANA.Day , dayz{d+1}));
+                for d = 1:length(dayz)
+                    Dbd= getrow(ANA , ismember(ANA.Day , dayz{d}(1)) );
+                    Db = getrow(ANA , ismember(ANA.Day , dayz{d}(2)));
+                    Db.Day(1:end) = d;
                     Db.percChangeMT = 100*abs((Dbd.MT - Db.MT)./Dbd.MT);
                     Db.percChangeMT_pred = 100*abs((Dbd.MT_pred - Db.MT_pred)./Dbd.MT_pred);
                     Daybenefit = addstruct(Daybenefit , Db);
                 end
-                % overal 1 -> 5
-                for d = length(dayz)
-                    Db1= getrow(ANA , ismember(ANA.Day , 1) );
-                    Db = getrow(ANA , ismember(ANA.Day , dayz{d}));
-                    Db.percChangeMT = 100*abs((Db1.MT - Db.MT)./Db1.MT);
-                    Db.percChangeMT_pred = 100*abs((Db1.MT_pred - Db.MT_pred)./Db1.MT_pred);
-                    Db.Day = 10+Db.Day;
-                    Daybenefit = addstruct(Daybenefit , Db);
-                end
-                
+      
                 Daybenefit = normData(Daybenefit , {'percChangeMT' , 'percChangeMT_pred'});
-                if poolDays
-                    daylab = {'Session 1 to 3' , 'Sessions 3 to 5' , 'Overal (session 1 to 5)'};
-                else
-                    daylab = {'Session 1 to 2' , 'Session 2 to 3' , 'Session 3 to 4' , 'Session 4 to 5' , 'Overal ()'};
-                end
+                daylab = {'Overal (session 1 to 5)' , 'Session 1 to 3' , 'Sessions 3 to 5'};
+                
                 xtick = 1:length(unique(ANA.Horizon));
                 xtl = repmat({'W=1' , 'W=2' , 'W=3' , 'W=4' , 'W=5' ,'W=6' , 'W=7-13'} , 1, length(dayz));
                 xt = xtick;
@@ -1354,27 +1349,13 @@ switch what
                     xt = [xt , xtick + dd*length(unique(ANA.Horizon))+dd*.5];
                 end
                 
-                for sn = 0%:1
+                for sn = 0:1
                     colorz = colz(end,sn+1);
                     figure('color' , 'white')
                     barplot([Daybenefit.Day Daybenefit.Horizon] , Daybenefit.normpercChangeMT , 'plotfcn' , 'nanmean',...
                         'subset' ,Daybenefit.seqNumb == sn, 'facecolor' , colorz,'edgecolor' , 'white',...
                         'errorwidth' , 1 ,'leg' , daylab,'XTickLabel' ,{'W=1' , 'W=2' , 'W=3' , 'W=4' , 'W=5' ,'W=6' , 'W=7-13'})
-                    
-                    
-                    
-                    %                     barplot([Daybenefit.Day] , Daybenefit.normpercChangeMT , 'plotfcn' , 'nanmean',...
-                    %                         'split', Daybenefit.Horizon, 'subset' ,Daybenefit.seqNumb == sn, 'facecolor' , colorz,'edgecolor' , 'none',...
-                    %                         'errorwidth' , 1 )
-                    
-                    
-                    %                     hold on
-                    %                     lineplot([Daybenefit.Horizon] , Daybenefit.normpercChangeMT , 'plotfcn' , 'nanmean',...
-                    %                         'split', Daybenefit.Day , 'linecolor' , colorz,...
-                    %                         'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , 2) , 'shadecolor' ,colorz,...
-                    %                         'linewidth' , 1 , 'markertype' , {'o' , 's' , '<' , '*'}  , 'markerfill' , colorz,...
-                    %                         'markersize' , 5, 'markercolor' , colorz , 'subset' ,Daybenefit.seqNumb == sn , 'leg' , 'auto');
-                    
+
                     
                     set(gca,'FontSize' , 7 , 'XTick' , xt , 'XTickLabels' , xtl,...
                         'XTickLabelRotation' , 30, 'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [0 25],'YTick' ,...
@@ -1383,24 +1364,7 @@ switch what
                     xlabel('Viewing Window size','FontSize' , 9)
                     title('Day-to-day Improvement in Performance in Different Viewing Window Sizes (W)' ,'FontSize' , 10)
                 end
-                subplot(212)
-                hold on
-                Nh = length(unique(Daybenefit.Horizon));
-                for sn = 0:1
-                    xtick = [];
-                    for h = 1:length(unique(Daybenefit.Horizon))
-                        Xcoor = (h-1)*(length(dayz))+[1:length(dayz)-1];
-                        plotshade(Xcoor,plot_pred_red{sn+1}(:,h)',err_pred_red{sn+1}(:,h)','transp' , .6 , 'patchcolor' , colz{4,sn+1} , 'linecolor' , colz{4,sn+1} , 'linewidth' , 3);
-                        plot(Xcoor,plot_pred_red{sn+1}(:,h), '-o' , 'MarkerSize' , 15 , 'color' , colz{4,sn+1},'MarkerFaceColor',colz{4,sn+1} , 'LineWidth' , 4);
-                        xtick = [xtick  Xcoor];
-                    end
-                end
-                set(gca,'FontSize' , 20 , 'XTick' , xtick , 'XTickLabels' , repmat(daylab , length(dayz)-1),...
-                    'XTickLabelRotation' , 30, 'GridAlpha' , .2 , 'Box' , 'off' , 'XLim' , [0 max(xtick)], 'YLim' , [0 35],'YTick' ,...
-                    [10 20 30] , 'YGrid' , 'on');
-                ylabel('%' ,'FontSize' , 22)
-                xlabel('Viewing Window size','FontSize' , 22)
-                title('Day-to-day Improvement in Fitted Performance in Different Viewing Window Sizes (W)' ,'FontSize' , 28)
+                
             case 'Actual&fit%ChangeSeqType'
                 Hz = {[1] [2] [3] , [4] [5] [6:9]};
                 ANA = MTs;
