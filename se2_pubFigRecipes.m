@@ -18,19 +18,20 @@ out  = se2_pubFigs(Dall , 'IPI','IPIFullDispsplitseqNumb', 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'IPI','IPIFullDispsplitHorizon', 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'IPI','compareLearning', 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'IPI','compareLearning_histogram', 'poolDays' , 0);
-out  = se2_pubFigs(Dall , 'IPI','IPILearningPlacement', 'poolDays' , 0, 'dayz' , {[1] [5]});
+out  = se2_pubFigs(Dall , 'IPI','IPILearningPlacement', 'poolDays' , 0, 'dayz' , {[1] [4 5]});
 out  = se2_pubFigs(Dall , 'IPI','percentTotalLearning_IPIplacement', 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'IPI','subjEffectiveHorizon' , 'poolDays' , 1, 'subjnum' , [1:15]);
 out  = se2_pubFigs(Dall , 'IPI','IPIbyTransition' , 'poolDays' , 1, 'subjnum' , [1:15],'dayz' , {[4 5]});
 out  = se2_pubFigs(Dall , 'IPI','RTvsInitialIPIs' , 'poolDays' , 1, 'subjnum' , [1:15]);
 out  = se2_pubFigs(Dall , 'IPI','initialEyeInitialIPI' , 'poolDays' , 1, 'subjnum' , [1:15]);
 out  = se2_pubFigs(Dall , 'IPI','subjEffectiveHorizonThresh' , 'poolDays' , 1, 'subjnum' , [1:15]);
+out  = se2_pubFigs(Dall , 'IPI','plotAverage' , 'poolDays' , 1, 'subjnum' , [1:15]);
 
 
 
 
 out  = se2_pubFigs(Dall , 'RT','RandvsStructCommpare');
-out  = se2_pubFigs(Dall , 'RT','RandStructAcrossDays' , 'poolDays' , 1 , 'dayz' , {[1] [4 5]}, 'subjnum' , [1:15]);
+out  = se2_pubFigs(Dall , 'RT','RandStructAcrossDays' , 'poolDays' , 1 , 'dayz' , {[1] [2 3] [4 5]}, 'subjnum' , [1:15]);
 out  = se2_pubFigs(Dall , 'RT','compareLearning' , 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'RT','LearningEffectShade' , 'poolDays' , 0);
 out  = se2_pubFigs(Dall , 'RT','BoxFirstLastDays' , 'poolDays' , 0);
@@ -92,9 +93,9 @@ stats = se2_SigTest(Dall , 'MT' , 'seqNumb' , [0] , 'Day' , [1:5] , 'Horizon' , 
     'PoolHorizons' , [],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , [1,2,4:15]);
 
 %% significance test on RTs
-stats = se2_SigTest(Dall , 'RT' , 'seqNumb' , [0] , 'Day' , [1:5] , 'Horizon' , [1:13],...
+stats = se2_SigTest(Dall , 'RT' , 'seqNumb' , [0] , 'Day' , [4 5] , 'Horizon' , [1:13],...
     'PoolDays' , 1,'whatIPI','WithBetRand','PoolSequences' , 0 ,...
-    'PoolHorizons' , [],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , [1,2,4:15]);
+    'PoolHorizons' , [],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , [1:15]);
 
 %% significance test on RTs
 stats = se2_SigTest(Dall , 'RT' , 'seqNumb' , [103 203 303] , 'Day' , [1:5] , 'Horizon' , [1:13],...
@@ -102,9 +103,9 @@ stats = se2_SigTest(Dall , 'RT' , 'seqNumb' , [103 203 303] , 'Day' , [1:5] , 'H
     'PoolHorizons' , [],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , [1:15]);
 
 %% significance test on IPIs % {[1] [2] [3] [4] [5] [6] [7] [8] [9] [10] [11] [12] [13]}
-stats = se2_SigTest(Dall , 'IPI' , 'seqNumb' , [0] , 'Day' , [1 : 5] , 'Horizon' , [1:13],...
-    'PoolDays' , 0,'whatIPI','ipistoEachother','PoolSequences' , 0 ,...
-    'PoolHorizons' , [0],'ipiOfInterest' , {[1 2] [5:9] [12:13] } , 'poolIPIs' , 0 , 'subjnum' , [1:15]);
+stats = se2_SigTest(Dall , 'IPI' , 'seqNumb' , [0] , 'Day' , [2 3] , 'Horizon' , [1],...
+    'PoolDays' , 1,'whatIPI','ipistoEachother','PoolSequences' , 0 ,...
+    'PoolHorizons' , [6:13],'ipiOfInterest' , num2cell([1:13]) , 'poolIPIs' , 0 , 'subjnum' , [1:15]);
 % WHAT I USED IN THE PAPER
 % stats = se2_SigTest(Dall , 'IPI' , 'seqNumb' , [0] , 'Day' , [1 : 5] , 'Horizon' , [1:13],...
 %     'PoolDays' , 0,'whatIPI','ipistoEachother','PoolSequences' , 0 ,...

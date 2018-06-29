@@ -334,7 +334,7 @@ switch what
                 ylabel('msec')
         end
     case 'RT'
-        ANA = getrow(ANA,~(ANA.Day==1 & ANA.SN==15));
+%         ANA = getrow(ANA,~(ANA.Day==1 & ANA.SN==15));
         if ~isempty(PoolHorizons)
             ANA.Horizon(ismember(ANA.Horizon ,PoolHorizons)) = PoolHorizons(1);
             Horizon = unique(ANA.Horizon);

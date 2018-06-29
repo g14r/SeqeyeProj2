@@ -41,8 +41,8 @@ while(c<=length(varargin))
 end
 
 %%
-% baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
-baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
+baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
+% baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
 
 
 
@@ -453,16 +453,75 @@ switch what
         
         
         switch nowWhat
-            case 'RTvsInitialIPIs'
+           
+
+            case 'plotAverage'
                 for d = 1:length(dayz)
                     IPItable.Day(ismember(IPItable.Day , dayz{d})) = d;
                 end
-                IPItable = getrow(IPItable , ~IPItable.badpress & ismember(IPItable.prsnumb , [0, 1:2]) & IPItable.seqNumb==0);
-                IPItable.prsnumb(ismember(IPItable.prsnumb , [1:2])) = 1;
-                T = tapply(IPItable , {'Horizon' ,'prsnumb' , 'SN' , 'Day'} , {'IPI' , 'nanmedian'});
-                M = getrow(T , T.Day~=2);
-                M = normData(M  , {'IPI'});
-                figure('color' , 'white')
+                IPIs = getrow(IPItable , ~IPItable.badpress & IPItable.seqNumb==0);
+                IPIs.prsnumb(IPIs.prsnumb>0) = 1;
+                IPIs.Horizon(IPIs.Horizon>6) = 6;
+                IPIs = tapply(IPIs , {'Horizon' , 'SN' , 'Day' ,'prsnumb'} , {'IPI' , 'nanmean'});
+                IPIs = getrow(IPIs , IPIs.Day~=2);
+                IPIs = normData(IPIs  , {'IPI'});
+                IPIs.DUMMY = IPIs.Day;
+                for sqn = 0
+                    colorz = colz([1,end] , sqn+1);
+                    figure('color' , 'white');
+                    lineplot([ IPIs.Day IPIs.Horizon ] , IPIs.normIPI , 'plotfcn' , 'nanmean',...
+                        'split' , IPIs.DUMMY ,'linecolor' , colorz,...
+                        'errorcolor' , colorz , 'errorbars' , {'shade'}  , 'shadecolor' ,colorz,...
+                        'linewidth' , 2 , 'markertype' , {'>' , '>'}  , 'markerfill' , colorz,...
+                        'markersize' , 6, 'markercolor' , colorz , 'leg' , daylab([1,end]),'subset' , IPIs.prsnumb~=0);
+                
+
+                    hold on
+                    
+                    lineplot([ IPIs.Day IPIs.Horizon ] , IPIs.normIPI , 'plotfcn' , 'nanmean',...
+                        'split' , IPIs.DUMMY ,'linecolor' , colorz,...
+                        'errorcolor' , colorz , 'errorbars' , {'shade'}  , 'shadecolor' ,colorz,...
+                        'linewidth' , 1 , 'markertype' , {'s' , 's'}  , 'markerfill' , colorz,...
+                        'markersize' , 6, 'markercolor' , colorz , 'leg' , daylab([1,end]),'subset' , IPIs.prsnumb==0);
+                    set(gca,'FontSize' , 7,'GridAlpha' , .2 , 'Box' , 'off',...
+                        'YLim' , [250 850] , 'YTick' , [300 :100:800],...
+                        'YTickLabel' , [0.2 :0.1: 0.8] ,'XTickLabel' , []);
+                    ylabel('Inter-press interval time [s]','FontSize' , 7)
+                end
+                
+                for sqn = 0
+                    colorz = colz([1,end] , sqn+1);
+                    figure('color' , 'white');
+                    lineplot([ IPIs.Day IPIs.Horizon ] , IPIs.normIPI , 'plotfcn' , 'nanmean',...
+                        'split' , IPIs.DUMMY ,'linecolor' , colorz,...
+                        'errorcolor' , colorz , 'errorbars' , {'shade'}  , 'shadecolor' ,colorz,...
+                        'linewidth' , 2 , 'markertype' , {'>' , '>'}  , 'markerfill' , colorz,...
+                        'markersize' , 6, 'markercolor' , colorz , 'leg' , daylab([1,end]));
+                    set(gca,'FontSize' , 7,'GridAlpha' , .2 , 'Box' , 'off',...
+                        'YLim' , [150 1000] , 'YTick' , [200 :100:1000],...
+                        'YTickLabel' , [0.2 :0.1: 1] ,'XTickLabel' , []);
+                    ylabel('Inter-press interval time [s]','FontSize' , 7)
+                end
+                
+                IPIs = getrow(IPItable , ~IPItable.badpress & IPItable.seqNumb==0 & IPItable.prsnumb~=0);
+                IPIs = tapply(IPItable , {'Horizon' , 'SN' , 'Day'} , {'IPI' , 'nanmedian'});
+                IPIs = getrow(IPIs , IPIs.Day~=2);
+                IPIs = normData(IPIs  , {'IPI'});
+                IPIs.DUMMY = IPIs.Day;
+                for sqn = 0
+                    colorz = colz([1,end] , sqn+1);
+                    figure('color' , 'white');
+                    lineplot([ IPIs.Day IPIs.Horizon ] , IPIs.normIPI , 'plotfcn' , 'nanmean',...
+                        'split' , IPIs.DUMMY ,'linecolor' , colorz,...
+                        'errorcolor' , colorz , 'errorbars' , {'shade'}  , 'shadecolor' ,colorz,...
+                        'linewidth' , 2 , 'markertype' , {'>' , '>'}  , 'markerfill' , colorz,...
+                        'markersize' , 6, 'markercolor' , colorz , 'leg' , daylab([1,end]));
+                    set(gca,'FontSize' , 7,'GridAlpha' , .2 , 'Box' , 'off',...
+                        'YLim' , [150 650] , 'YTick' , [200 :100:600],...
+                        'YTickLabel' , [0.2 :0.1: 0.6] ,'XTickLabel' , []);
+                    ylabel('Inter-press interval time [s]','FontSize' , 7)
+                end
+                
                 plot(M.normIPI(M.prsnumb==1 & M.Day==1) , M.normIPI(M.prsnumb==0 & M.Day==1) , 'o' , 'MarkerFaceColor' , colz{1,1},...
                     'MarkerEdgeColor' , colz{1,1})
                 hold on
@@ -470,6 +529,31 @@ switch what
                 set(h1 , 'LineWidth' , 2 , 'color' , colz{1,1})
                 
                 plot(M.normIPI(M.prsnumb==1 & M.Day==3) , M.normIPI(M.prsnumb==0 & M.Day==3) , 'o' , 'MarkerFaceColor' , colz{5,1},...
+                    'MarkerEdgeColor' , colz{5,1})
+                h2 = lsline;
+                set(h2 , 'LineWidth' , 2 , 'color' , colz{5,1})
+                
+                ylabel('Initial IPI [msec]')
+                xlabel('Initial RT [msec]')
+                set(gca,'FontSize' , 14 , 'Box' , 'off')
+            case 'RTvsInitialIPIs'
+                dayz = {[1] , [4 5]};
+                for d = 1:length(dayz)
+                    IPItable.Day(ismember(IPItable.Day , dayz{d})) = d;
+                end
+                IPItable = getrow(IPItable , ~IPItable.badpress & ismember(IPItable.prsnumb , [0, 1:2]) & IPItable.seqNumb==0);
+                IPItable.prsnumb(ismember(IPItable.prsnumb , [1])) = 1;
+                T = tapply(IPItable , {'Horizon' ,'prsnumb' , 'SN' , 'Day'} , {'IPI' , 'nanmedian'});
+                M = getrow(T , T.Day~=2);
+                M = normData(M  , {'IPI'});
+                figure('color' , 'white')
+                plot(M.normIPI(M.prsnumb==0 & M.Day==1) , M.normIPI(M.prsnumb==1 & M.Day==1)  , 'o' , 'MarkerFaceColor' , colz{1,1},...
+                    'MarkerEdgeColor' , colz{1,1})
+                hold on
+                h1 = lsline;
+                set(h1 , 'LineWidth' , 2 , 'color' , colz{1,1})
+                
+                plot(M.normIPI(M.prsnumb==0 & M.Day==3) ,M.normIPI(M.prsnumb==1 & M.Day==3) ,  'o' , 'MarkerFaceColor' , colz{5,1},...
                     'MarkerEdgeColor' , colz{5,1})
                 h2 = lsline;
                 set(h2 , 'LineWidth' , 2 , 'color' , colz{5,1})
@@ -624,42 +708,42 @@ switch what
                     ylabel('Window size')
                 end
             case 'IPIFullDispsplitDay'
-                IPItable = getrow(IPItable , ~IPItable.badpress);
-                horz = {[1] [2] [3] [4] [5:13]};
-                hlab = repmat({'1' , '2' , '3' , '4'  , '5 - 13'} , 1 , length(dayz));
+                dayz = {[1] [4 5]};
+                IPItable = getrow(IPItable , ~IPItable.badpress & ismember(IPItable.Day , cell2mat(dayz)));
+                horz = {[1] [2] [3] [4] [5] [6:13]};
+                hlab = repmat({'1' , '2' , '3' , '4'  , '5' , '6 - 13'} , 1 , length(dayz));
+                
                 IPIs  = IPItable;
-                IPIs.Horizon(IPIs.Horizon>5) = 5;
+                IPIs.Horizon(IPIs.Horizon>6) = 6;
                 % pool last and within
-                IPIs.ChunkBndry(IPIs.ChunkBndry == 3) = 2;
                 for d = 1:length(dayz)
                     IPIs.Day(ismember(IPIs.Day , dayz{d})) = d;
                 end
+                
                 %                 IPIs.prsnumb(ismember(IPIs.prsnumb , [4:10])) = 4;
                 IPIs  = tapply(IPIs , {'Horizon' , 'Day' ,'SN' , 'prsnumb' , 'seqNumb'} , {'IPI' , 'nanmean(x)'});
                 IPIs = normData(IPIs , {'IPI'});
-                IPIs = getrow(IPIs , ismember(IPIs.Day , [length(dayz)]));
-                for sqn = 0:1
-                    colorz = colz([4] , sqn+1);
+                for sqn = 0%:1
+                    colorz = colz([1 end] , sqn+1);
                     figure('color' , 'white');
                     lineplot([ IPIs.Horizon IPIs.prsnumb] , IPIs.normIPI , 'plotfcn' , 'nanmean',...
                         'split', [ IPIs.Day ] , 'subset', ismember(IPIs.seqNumb  , sqn) & ismember(IPIs.prsnumb ,  [1:13]), 'linecolor' , colorz,...
                         'errorcolor' , colorz , 'errorbars' , {'shade'}  , 'shadecolor' ,colorz,...
-                        'linewidth' , 2 , 'markertype' , {'o' , '.'}  , 'markerfill' , colorz,...
-                        'markersize' , 6, 'markercolor' , colorz , 'leg' , daylab([1,end]));
+                        'linewidth' , 1 , 'markertype' , {'^' , '^'}  , 'markerfill' , colorz,...
+                        'markersize' , 4, 'markercolor' , colorz , 'leg' , daylab([1,end]));
                     set(gca,'FontSize' , 7,'GridAlpha' , .2 , 'Box' , 'off',...
                         'YLim' , [150 650] , 'YTick' , [200 :100:600],...
                         'YTickLabel' , [0.2 :0.1: 0.6] ,'XTickLabel' , []);
                     ylabel('Inter-press interval time [s]','FontSize' , 7)
                 end
             case 'IPILearningPlacement'
-                IPItable = getrow(IPItable , ~IPItable.badpress);
+                IPItable = getrow(IPItable , ~IPItable.badpress & ismember(IPItable.Day , cell2mat(dayz)));
                 horz = {[1] [2] [3] [4] [5] [6:13]};
                 hlab = repmat({'1' , '2' , '3' , '4'  , '5' , '6 - 13'} , 1 , length(dayz));
                 
                 IPIs  = IPItable;
-                IPIs.Horizon(IPIs.Horizon==13) = 9;
+                IPIs.Horizon(IPIs.Horizon>6) = 6;
                 % pool last and within
-                IPIs.ChunkBndry(IPIs.ChunkBndry == 3) = 2;
                 for d = 1:length(dayz)
                     IPIs.Day(ismember(IPIs.Day , dayz{d})) = d;
                 end
@@ -2643,7 +2727,7 @@ switch what
                 end
                 
             case 'presspositionlook_ahead'
-                dayz = {[4 5]};
+                dayz = {1 [4 5]};
                 K = getrow(eyeinfo , ismember(eyeinfo.Day , cell2mat(dayz)) & ismember(eyeinfo.seqNumb , [0]) &ismember(eyeinfo.sn , [1:9 , 11,12,14]));
                 for dd  = 1:length(dayz)
                     K.Day(ismember(K.Day , dayz{dd})) = dd;
@@ -2651,26 +2735,25 @@ switch what
                 
                 %                 K.Horizon(ismember(K.Horizon ,[6:13])) = 6;
                 K = getrow(K , ~isnan(K.PB));
-                K.Horizon(K.Horizon>5) = 5;
+                K.Horizon(K.Horizon>6) = 6;
                 
                 K = tapply(K , {'Day' , 'Horizon' , 'sn', 'prsnumb' , 'seqNumb'} , {'PB' , 'nanmean'} );
                 K = normData(K , {'PB'});
                 
                 figure('color' , 'white')
-                colorz  = colz([end] , unique(K.seqNumb)+1);
-                lineplot([  K.Horizon K.prsnumb ] , -K.normPB , 'plotfcn' , 'nanmean',...
+                colorz  = colz([1 end] , unique(K.seqNumb)+1);
+                lineplot([K.Horizon K.prsnumb ] , -K.normPB , 'plotfcn' , 'nanmean',...
                     'split', K.Day , 'linecolor' , colorz,...
                     'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , length(dayz)) , 'shadecolor' ,colorz,...
-                    'linewidth' , 2 , 'markertype' , {'^', '*'}  , 'markerfill' , colorz,...
+                    'linewidth' , 1 , 'markertype' , {'*', '*'}  , 'markerfill' , colorz,...
                     'markersize' , 6, 'markercolor' , colorz , 'leg' , 'auto');%, ...
                 %'subset' , ismember(K.prsnumb , [1:2]));% & ismember(K.Day , [1 length(dayz)]));
                 ylabel('Mean preview [digits]' )
                 xlabel('Viewing window size (W)' )
                 %                 title(['Look-ahead  CB = ' , num2str(cb{1})])
                 hold on 
-                line([0 50] , [0 0] , 'color' , 'k')
-                set(gca,'FontSize' , 16 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [-1 2],'XLim' , [.5 94],'YTick' , [-.5:.5:2] ,...
-                    'XTickLabel' , repmat({'1','','','','','','','','13'} , 1 , length(unique(K.prsnumb))),'XTickLabelRotation' , 0)
+                line([0 60] , [0 0] , 'color' , 'k')
+                set(gca,'FontSize' , 7 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [-1 2],'YTick' , [-.5:.5:2])
             case 'startlookahead'
                 K = tapply(eyeinfo , {'Day' , 'Horizon' , 'sn','CB' , 'prsnumb'} , {'PB' , 'nanmean'} , ...
                     'subset' , ismember(eyeinfo.prsnumb , [1]));
