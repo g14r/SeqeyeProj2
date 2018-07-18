@@ -156,7 +156,7 @@ switch what
         for d = 1:length(dayz)
             ANA.Day(ismember(ANA.Day , dayz{d})) = d;
         end
-        MT = tapply(ANA , {'Horizon' , 'BN' , 'seqNumb' , 'SN' , 'Day'} , {'MT'});
+        MT = tapply(ANA , {'Horizon' , 'BN' , 'seqNumb' , 'SN' , 'Day'} , {'MT' , 'nanmean'});
         MT = normData(MT , {'MT'});
         % segments
         ANA = getrow(Dall , Dall.isgood & ~ismember(Dall.seqNumb , [0 1:6]) & ~Dall.isError);
@@ -200,7 +200,7 @@ switch what
                 for sn = 0:1
                     subplot(2,1 , sn+1);
                     colorz = colz(:,sn+1);
-                    lineplot([MT.Horizon] , MT.normMT , 'plotfcn' , 'nanmean',...
+                    lineplot([MT.Horizon] , MT.normMT , 'plotfcn' , 'nanmedian',...
                         'split', MT.Day , 'linecolor' , colorz,...
                         'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , 2) , 'shadecolor' ,colorz,...
                         'linewidth' , 1 , 'markertype' , repmat({'o'} , 1  , 2) , 'markerfill' , colorz,...
@@ -339,9 +339,9 @@ switch what
                 D1   = tapply(Temp , {'Horizon'} , {'MT' , 'nanmean'} , 'subset' , Temp.Day==1 & ismember(Temp.Horizon , [2 , 7]));
                 D23  = tapply(Temp , {'Horizon'} , {'MT' , 'nanmean'} , 'subset' , ismember(Temp.Day , [2]) & ismember(Temp.Horizon , [3 , 7]));
                 D45  = tapply(Temp , {'Horizon'} , {'MT' , 'nanmean'} , 'subset' , ismember(Temp.Day , [3]) & ismember(Temp.Horizon , [4 , 7]));
-                thresh(1) = (D1.MT(1)-D1.MT(2))/D1.MT(2); % threshold for day 1
-                thresh(2) = (D23.MT(1)-D23.MT(2))/D23.MT(2);  % threshold for last day 
-                thresh(3) = (D45.MT(1)-D45.MT(2))/D45.MT(2);  % threshold for last day 
+                thresh(1) = .07;%(D1.MT(1)-D1.MT(2))/D1.MT(2); % threshold for day 1
+                thresh(2) = .07;%(D23.MT(1)-D23.MT(2))/D23.MT(2);  % threshold for last day 
+                thresh(3) = .065;%(D45.MT(1)-D45.MT(2))/D45.MT(2);  % threshold for last day 
                 Temp = tapply(Temp , {'Horizon' , 'SN' , 'seqNumb' , 'Day'} , {'MT' , 'nanmedian(x)'});
                 figure('color' , 'white')
                 fcount = 1;
@@ -367,7 +367,7 @@ switch what
                 end
                 E = getrow(EH, EH.sq==1);
                 S =anovaMixed(E.effH  , E.SN ,'within',[E.Day] ,{ 'Day'},'intercept',1) ;
-                
+                figure('color' , 'white')
                 for sn = 1:2
                     subplot(1,2,sn)
                     colorz = colz(1:length(dayz) , sn);
@@ -379,20 +379,21 @@ switch what
                     set(gca , 'FontSize' , 18 , 'YLim' , [1 4.5] , 'YTick' , [1 2 3 ] , 'XtickLabels' , {})
                     fcount = fcount+1;
                 end
-                for sn = 1:2
-                    subplot(1,2,sn)
-                    colorz = colz(1:length(dayz) , sn);
-                    for sub = 1:15
-                        A = getrow(EH,EH.sq == sn & EH.SN == sub);
-                        plot(A.Day , A.effH,'color' , colorz{1} , 'LineWidth' , 1)
-                        hold on
-                    end
-                    T = tapply(EH , {'Day' , 'sq'} , {'effH' , 'mean'}, 'subset' ,EH.sq == sn);
-                    plot(T.Day ,T.effH,'color' , colorz{3} , 'LineWidth' , 2)
-                    ylabel('Plannig horizon')
-                    set(gca , 'FontSize' , 18 , 'YLim' , [1 4.5] , 'YTick' , [1 2 3 ] , 'XtickLabels' , {})
-                    fcount = fcount+1;
-                end
+%                 figure('color' , 'white')
+%                 for sn = 1:2
+%                     subplot(1,2,sn)
+%                     colorz = colz(1:length(dayz) , sn);
+%                     for sub = 1:15
+%                         A = getrow(EH,EH.sq == sn & EH.SN == sub);
+%                         plot(A.Day , A.effH,'color' , colorz{1} , 'LineWidth' , 1)
+%                         hold on
+%                     end
+%                     T = tapply(EH , {'Day' , 'sq'} , {'effH' , 'mean'}, 'subset' ,EH.sq == sn);
+%                     plot(T.Day ,T.effH,'color' , colorz{3} , 'LineWidth' , 2)
+%                     ylabel('Plannig horizon')
+%                     set(gca , 'FontSize' , 18 , 'YLim' , [1 4.5] , 'YTick' , [1 2 3 ] , 'XtickLabels' , {})
+%                     fcount = fcount+1;
+%                 end
         end
         out = [];
     case 'IPI'
@@ -1545,7 +1546,7 @@ switch what
                 Hz = {[1] [2] [3] , [4] [5] [6] [7:13]};
                 ANA = MTs;
                 ANA.Horizon(ANA.Horizon>7) = 7;
-                ANA  = tapply(ANA , {'Horizon' , 'Day' ,'SN' , 'seqNumb'} , {'MT' , 'nanmean(x)'},{'MT_pred' , 'nanmean(x)'});
+                ANA  = tapply(ANA , {'Horizon' , 'Day' ,'SN' , 'seqNumb'} , {'MT' , 'namean(x)'},{'MT_pred' , 'namean(x)'});
                 ANA.percChangeMT = zeros(length(ANA.MT) , length(dayz)-1);
                 ANA.percChangeMT_pred = zeros(length(ANA.MT) , length(dayz)-1);
                 

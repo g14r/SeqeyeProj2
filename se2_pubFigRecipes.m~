@@ -76,7 +76,7 @@ out  = se2_pubFigs(Dall , 'Eye', 'initialEyeInitialIPI' , 'isSymmetric' , 1 ,'po
 se2_compareExp(Dall1 , Dall2 , 'MT')
 se2_compareExp(Dall1 , Dall2 , 'RT')
 %% SUBJECT-LEVEL determine the horizon size by t-testing each window to the mean of all other windows
-clear Eh S
+clear Hoz S
 dayz = {[1] [2 3] [4 5]};
 cc = 1;
 for d = 1:length(dayz)
@@ -88,30 +88,14 @@ for d = 1:length(dayz)
                 'PoolHorizons' , [],'ipiOfInterest' , [] , 'poolIPIs' , 0 , 'subjnum' , [sn]);
             S(sn,h) = stats.p;
         end
-       EH.effH(cc,1) = find(S(sn,:)>0.05 ,1 , 'first')-1; 
-       EH.Day(cc,1) = d;
-       EH.sq(cc,1) = 0;
-       EH.SN(cc,1) = sn;
-       cc=cc+1;
+       Hoz.H(sn,d) = find(S(sn,:)>0.05 ,1 , 'first')-1; 
     end
 end
-clear tempcol
-c1 = [255, 153, 179]/255; % Random Red Tones
-ce = [153, 0, 51]/255;
-for rgb = 1:3
-    tempcol(rgb , :) = linspace(c1(rgb),ce(rgb) , 7);
-end
-for i = 1:length(tempcol)
-    colz{i,1} = tempcol(: , i)';
-end
-figure('color' , 'white')
-colorz = colz(1:length(dayz) , 1);
-barplot([EH.sq] ,EH.effH , 'split' ,  EH.Day , 'plotfcn' , 'mean',...
-    'facecolor' , colorz,'edgecolor' , 'none',...
-    'errorwidth' , 1 );
-ylabel('Plannig horizon')
-set(gca , 'FontSize' , 7 , 'YLim' , [0 2.5] , 'YTick' , [1 2 3 ] , 'XtickLabels' , {})
-S =anovaMixed(EH.effH  , EH.SN ,'within',[EH.Day] ,{ 'Day'},'intercept',1) ;
+
+ barplot([EH.sq] ,EH.effH , 'split' ,  EH.Day , 'plotfcn' , 'mean',...
+                        'facecolor' , colorz,'edgecolor' , 'none',...
+                        'errorwidth' , 1  , 'subset' ,EH.sq == sn);%,'leg' , daylab);% & ~ismember(EH.SN , [3,9]));
+                   
 %% GROUP-LEVEL determine the horizon size by t-testing each window to the mean of all other windows
 clear Hoz S
 dayz = {[1] [2 3] [4 5]};

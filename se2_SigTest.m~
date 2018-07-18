@@ -138,15 +138,11 @@ switch what
             A2 = getrow(ANA , ANA.Horizon == H(2));
             A1 =tapply(A1,{'SN' , 'TN' , 'Day' , 'BN'} , {'MT' ,'nanmean'});
             A2 =tapply(A2,{'SN' , 'TN' , 'Day' , 'BN'} , {'MT' ,'nanmean'});
-         elseif length(H)>2 & length(subjnum)>1
+         elseif length(H)>2
             A1 = getrow(ANA , ANA.Horizon == H(1));
             A2 = getrow(ANA , ismember(ANA.Horizon , H(2:end)));
             A1 =tapply(A1,{'SN' , 'Day' } , {'MT' ,'nanmean'});
             A2 =tapply(A2,{'SN' , 'Day'} , {'MT' ,'nanmean'});
-        elseif length(H)>2 & length(subjnum)==1
-            A1 = getrow(ANA , ANA.Horizon == H(1));
-            A2 = getrow(ANA , ismember(ANA.Horizon , H(2:end)));
-            A2 =tapply(A2,{'SN' , 'BN'} , {'MT' ,'nanmean'});
         end
         %         [h , stats] = ttest(A1.MT , A2.MT ,'kind' , 'paired','tail' , 'right');
         l = min(length(A1.MT),length(A2.MT));
