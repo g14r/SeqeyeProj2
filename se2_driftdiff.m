@@ -2,7 +2,8 @@ function se2_driftdiff(what)
 
 N = 14;   % number of presses in a sequence
 % colors = rand(N , 3);
-load('/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze/se2_colors.mat')
+%load('/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze/se2_colors.mat')
+load('/Volumes/MotorControl/data/SeqEye2/analyze/se2_colors.mat');
 
 switch what
     case 'Scenario1'

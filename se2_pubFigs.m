@@ -41,10 +41,10 @@ while(c<=length(varargin))
 end
 
 %%
-baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
+% baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
 % baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
-
-
+% baseDir = '/Volumes/MotorControl/data/SeqEye2/analyze';
+baseDir = '/Users/giacomo/Documents/data/SeqHorizonFinger/shf';
 
 if subjnum == length(subj_name)
     subjnum = 1:length(subj_name)-1;
@@ -145,8 +145,8 @@ switch what
         switch nowWhat
             case 'ErrorvsWindow'
         end
- 
-    
+        
+        
     case 'MT'
         ANA = getrow(Dall , Dall.isgood & ismember(Dall.seqNumb , [0 1:6]) & ~Dall.isError);
         ANA.seqNumb(ANA.seqNumb >=1) = 1;
@@ -340,8 +340,8 @@ switch what
                 D23  = tapply(Temp , {'Horizon'} , {'MT' , 'nanmean'} , 'subset' , ismember(Temp.Day , [2]) & ismember(Temp.Horizon , [3 , 7]));
                 D45  = tapply(Temp , {'Horizon'} , {'MT' , 'nanmean'} , 'subset' , ismember(Temp.Day , [3]) & ismember(Temp.Horizon , [4 , 7]));
                 thresh(1) = .065;%(D1.MT(1)-D1.MT(2))/D1.MT(2); % threshold for day 1
-                thresh(2) = .065;%(D23.MT(1)-D23.MT(2))/D23.MT(2);  % threshold for last day 
-                thresh(3) = .065;%(D45.MT(1)-D45.MT(2))/D45.MT(2);  % threshold for last day 
+                thresh(2) = .065;%(D23.MT(1)-D23.MT(2))/D23.MT(2);  % threshold for last day
+                thresh(3) = .065;%(D45.MT(1)-D45.MT(2))/D45.MT(2);  % threshold for last day
                 Temp = tapply(Temp , {'Horizon' , 'SN' , 'seqNumb' , 'Day'} , {'MT' , 'nanmedian(x)'});
                 fcount = 1;
                 EH = [];
@@ -368,7 +368,7 @@ switch what
                 S =anovaMixed(E.effH  , E.SN ,'within',[E.Day] ,{ 'Day'},'intercept',1) ;
                 figure('color' , 'white')
                 for sn = 1
-%                     subplot(1,2,sn)
+                    %                     subplot(1,2,sn)
                     colorz = colz(1:length(dayz) , sn);
                     barplot([EH.sq] ,EH.effH , 'split' ,  EH.Day , 'plotfcn' , 'mean',...
                         'facecolor' , colorz,'edgecolor' , 'none',...
@@ -378,21 +378,21 @@ switch what
                     set(gca , 'FontSize' , 7 , 'YLim' , [0 2.5] , 'YTick' , [1 2 3 ] , 'XtickLabels' , {})
                     fcount = fcount+1;
                 end
-%                 figure('color' , 'white')
-%                 for sn = 1:2
-%                     subplot(1,2,sn)
-%                     colorz = colz(1:length(dayz) , sn);
-%                     for sub = 1:15
-%                         A = getrow(EH,EH.sq == sn & EH.SN == sub);
-%                         plot(A.Day , A.effH,'color' , colorz{1} , 'LineWidth' , 1)
-%                         hold on
-%                     end
-%                     T = tapply(EH , {'Day' , 'sq'} , {'effH' , 'mean'}, 'subset' ,EH.sq == sn);
-%                     plot(T.Day ,T.effH,'color' , colorz{3} , 'LineWidth' , 2)
-%                     ylabel('Plannig horizon')
-%                     set(gca , 'FontSize' , 18 , 'YLim' , [1 4.5] , 'YTick' , [1 2 3 ] , 'XtickLabels' , {})
-%                     fcount = fcount+1;
-%                 end
+                %                 figure('color' , 'white')
+                %                 for sn = 1:2
+                %                     subplot(1,2,sn)
+                %                     colorz = colz(1:length(dayz) , sn);
+                %                     for sub = 1:15
+                %                         A = getrow(EH,EH.sq == sn & EH.SN == sub);
+                %                         plot(A.Day , A.effH,'color' , colorz{1} , 'LineWidth' , 1)
+                %                         hold on
+                %                     end
+                %                     T = tapply(EH , {'Day' , 'sq'} , {'effH' , 'mean'}, 'subset' ,EH.sq == sn);
+                %                     plot(T.Day ,T.effH,'color' , colorz{3} , 'LineWidth' , 2)
+                %                     ylabel('Plannig horizon')
+                %                     set(gca , 'FontSize' , 18 , 'YLim' , [1 4.5] , 'YTick' , [1 2 3 ] , 'XtickLabels' , {})
+                %                     fcount = fcount+1;
+                %                 end
         end
         out = [];
     case 'IPI'
@@ -449,12 +449,12 @@ switch what
         
         
         IPIOrig = IPItable;
-
+        
         
         
         switch nowWhat
-           
-
+            
+            
             case 'plotAverage'
                 for d = 1:length(dayz)
                     IPItable.Day(ismember(IPItable.Day , dayz{d})) = d;
@@ -474,8 +474,8 @@ switch what
                         'errorcolor' , colorz , 'errorbars' , {'shade'}  , 'shadecolor' ,colorz,...
                         'linewidth' , 2 , 'markertype' , {'>' , '>'}  , 'markerfill' , colorz,...
                         'markersize' , 6, 'markercolor' , colorz , 'leg' , daylab([1,end]),'subset' , IPIs.prsnumb~=0);
-                
-
+                    
+                    
                     hold on
                     
                     lineplot([ IPIs.Day IPIs.Horizon ] , IPIs.normIPI , 'plotfcn' , 'nanmean',...
@@ -671,7 +671,7 @@ switch what
                         fcount = fcount+1;
                         axis square
                     end
-                end    
+                end
             case 'sigIPIvssteadystate'
                 IPItable = getrow(IPItable , ~IPItable.badpress);
                 
@@ -1024,7 +1024,7 @@ switch what
                         end
                     end
                 end
-                    
+                
                 for sn = 1:2
                     figure('color' , 'white')
                     colorz = colz([1:2:end] , sn);
@@ -1035,9 +1035,9 @@ switch what
                     ylabel('Plannig horizon')
                     set(gca , 'FontSize' , 7 , 'YLim' , [1 5] , 'YTick' , [1 2 3 4] , 'XtickLabels' , {})
                 end
-        
                 
-               
+                
+                
                 E = getrow(EH, EH.sq==1);
                 S =anovaMixed(E.effH  , E.SN ,'within',[E.Day E.poolpress] ,{ 'Day' , 'presspos'},'intercept',1);% , 'subset' , E.Day~=2) ;
                 
@@ -1078,10 +1078,10 @@ switch what
                 
                 dayz = {[1] [2 3] [4 5]};
                 seqN = {[0] , [1 2]};
-%                 ANA = getrow(ANA , ANA.MT <= 9000 );
-%                 for d = 1:length(dayz)
-%                     ANA.Day(ismember(ANA.Day , dayz{d})) = d;
-%                 end
+                %                 ANA = getrow(ANA , ANA.MT <= 9000 );
+                %                 for d = 1:length(dayz)
+                %                     ANA.Day(ismember(ANA.Day , dayz{d})) = d;
+                %                 end
                 %                 dayz = {[1] [3] [5]};
                 daylab = {'Early training (day 1)' 'Mid-training (day 3)' 'Trained (day 5)'};
                 subjs  = unique(Dall.SN);
@@ -1560,7 +1560,7 @@ switch what
                     Db.percChangeMT_pred = 100*abs((Dbd.MT_pred - Db.MT_pred)./Dbd.MT_pred);
                     Daybenefit = addstruct(Daybenefit , Db);
                 end
-      
+                
                 Daybenefit = normData(Daybenefit , {'percChangeMT' , 'percChangeMT_pred'});
                 daylab = {'Overal (session 1 to 5)' , 'Session 1 to 3' , 'Sessions 3 to 5'};
                 
@@ -1577,7 +1577,7 @@ switch what
                     barplot([Daybenefit.Day Daybenefit.Horizon] , Daybenefit.normpercChangeMT , 'plotfcn' , 'nanmean',...
                         'subset' ,Daybenefit.seqNumb == sn, 'facecolor' , colorz,'edgecolor' , 'white',...
                         'errorwidth' , 1 ,'leg' , daylab,'XTickLabel' ,{'W=1' , 'W=2' , 'W=3' , 'W=4' , 'W=5' ,'W=6' , 'W=7-13'})
-
+                    
                     
                     set(gca,'FontSize' , 7 , 'XTick' , xt , 'XTickLabels' , xtl,...
                         'XTickLabelRotation' , 30, 'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [0 25],'YTick' ,...
@@ -2266,9 +2266,9 @@ switch what
                 grid on
         end
     case 'Eye'
-        calc = 0;
+        calc = 1;%1;%0;
         if isSymmetric
-            filename = 'se2_eyeInfo.mat';
+            filename = 'se2_eyeInfo_new.mat';
         else
             filename = 'se2_eyeInfo_asym.mat';
         end
@@ -2277,7 +2277,7 @@ switch what
             eyeinfo.CB         = [];   % chunk boundry
             eyeinfo.Horizon    = [];
             eyeinfo.sn         = [];
-            eyeinfo.Day        = [];
+            eyeinfo.day        = [];
             eyeinfo.BN         = [];
             eyeinfo.TN         = [];
             eyeinfo.sacPerSec  = [];
@@ -2304,7 +2304,7 @@ switch what
                     ANA.ChunkBndry(tn , :) = zeros(size(ANA.ChnkArrang(tn , :)));
                 end
                 ANA.DigFixWeighted(tn , :) = zeros(1 ,14);
-                window = 74;
+                window = 24;%74;
                 if isSymmetric
                     for p = 1:14
                         id = ANA.xEyePosDigit{tn , 1}<=p+.5 & ANA.xEyePosDigit{tn , 1}>p-.5;
@@ -2328,7 +2328,7 @@ switch what
                 
                 for p = 1:14
                     id = [ANA.AllPressIdx(tn , p) - window :ANA.AllPressIdx(tn , p) + 1];
-                    if id(1) > length(ANA.xEyePosDigit{tn}) | sum(id<0)>0
+                    if id(1) > length(ANA.xEyePosDigit{tn}) || sum(id<0)>0
                         ANA.EyePressTimePos(tn , p) = NaN;
                     elseif id(end)>length(ANA.xEyePosDigit{tn})
                         ANA.EyePressTimePos(tn , p) = nanmedian(ANA.xEyePosDigit{tn}(id(1):end));
@@ -2336,16 +2336,18 @@ switch what
                         ANA.EyePressTimePos(tn , p) = nanmedian(ANA.xEyePosDigit{tn}(id));
                     end
                 end
-                perv_Ben           = [1:14] - ANA.EyePressTimePos(tn , :);
-                goodid             = ~(abs(perv_Ben)>=3.5);
-                prsnumb            = find(goodid);
+                %perv_Ben           = (1:14) - ANA.EyePressTimePos(tn , :);
+                perv_Ben           = ANA.EyePressTimePos(tn , :) - (1:14);
+                %goodid             = ~(abs(perv_Ben)>=3.5);
+                goodid             = ~(abs(perv_Ben)>=5);
+                %prsnumb            = find(goodid);
                 count              = sum(goodid);
                 eyeinfo.PB         = [eyeinfo.PB ;perv_Ben(goodid)'];
                 eyeinfo.prsnumb    = [eyeinfo.prsnumb ;find(goodid')];
                 eyeinfo.CB         = [eyeinfo.CB ;ANA.ChunkBndry(tn ,goodid)'];
                 eyeinfo.Horizon    = [eyeinfo.Horizon ; ANA.Horizon(tn)*ones(count , 1)];
                 eyeinfo.sn         = [eyeinfo.sn ; ANA.SN(tn)*ones(count , 1)];
-                eyeinfo.Day        = [eyeinfo.Day ; ANA.Day(tn)*ones(count , 1)];
+                eyeinfo.day        = [eyeinfo.day ; ANA.Day(tn)*ones(count , 1)];
                 eyeinfo.BN         = [eyeinfo.BN ; ANA.BN(tn)*ones(count , 1)];
                 eyeinfo.TN         = [eyeinfo.TN ; ANA.TN(tn)*ones(count , 1)];
                 eyeinfo.sacPerSec  = [eyeinfo.sacPerSec ; ANA.SaccPerSec(tn)*ones(count , 1)];
@@ -2365,9 +2367,13 @@ switch what
             load([baseDir , '/', filename])
         end
         if poolDays
-            eyeinfo = getrow(eyeinfo , ismember(eyeinfo.Day , [1 3 4 5]));
-            eyeinfo.Day(eyeinfo.Day==3) = 2;
-            eyeinfo.Day(ismember(eyeinfo.Day , [4 5])) = 3;
+            eyeinfo = getrow(eyeinfo, ismember(eyeinfo.day, [1 3 4 5]));
+            eyeinfo.day(eyeinfo.day==3) = 2;
+            eyeinfo.day(ismember(eyeinfo.day , [4 5])) = 3;
+            eyeinfo.day = eyeinfo.day';
+        end
+        if size(eyeinfo.day,2)>1
+            eyeinfo.day = eyeinfo.day';
         end
         eyeinfo = getrow(eyeinfo , ismember(eyeinfo.sn , subjnum));
         out = [];
@@ -2375,15 +2381,15 @@ switch what
             case 'initialEyeInitialIPI'
                 eyeinfo = getrow(eyeinfo , ismember(eyeinfo.sn , subjnum) & ismember(eyeinfo.CB , 0) & ismember(eyeinfo.prsnumb , [1]));
                 out = [];
-                M = tapply(eyeinfo , {'Day' , 'Horizon' , 'sn'} , {'PB' , 'nanmedian'}, {'RT' , 'nanmedian'},{'initIPI' , 'nanmedian'});
+                M = tapply(eyeinfo , {'day' , 'Horizon' , 'sn'} , {'PB' , 'nanmedian'}, {'RT' , 'nanmedian'},{'initIPI' , 'nanmedian'});
                 figure('color' , 'white')
-                scatter(-M.PB(M.Day==1) , M.initIPI(M.Day==1) , 'o' , 'MarkerFaceColor' , colz{1,1},...
+                scatter(-M.PB(M.day==1) , M.initIPI(M.day==1) , 'o' , 'MarkerFaceColor' , colz{1,1},...
                     'MarkerEdgeColor' , colz{1,1})
                 hold on
                 h1 = lsline;
                 set(h1 , 'LineWidth' , 2 , 'color' , colz{1,1})
                 
-                scatter(-M.PB(M.Day==3) , M.initIPI(M.Day==3) , 'o' , 'MarkerFaceColor' , colz{5,1},...
+                scatter(-M.PB(M.day==3) , M.initIPI(M.day==3) , 'o' , 'MarkerFaceColor' , colz{5,1},...
                     'MarkerEdgeColor' , colz{5,1});
                 hold on
                 h1 = lsline;
@@ -2394,13 +2400,13 @@ switch what
                 set(gca,'FontSize' , 14 , 'Box' , 'off')
                 
                 figure('color' , 'white')
-                scatter(-M.PB(M.Day==1) , M.RT(M.Day==1) , 'o' , 'MarkerFaceColor' , colz{1,1},...
+                scatter(-M.PB(M.day==1) , M.RT(M.day==1) , 'o' , 'MarkerFaceColor' , colz{1,1},...
                     'MarkerEdgeColor' , colz{1,1})
                 hold on
                 h1 = lsline;
                 set(h1 , 'LineWidth' , 2 , 'color' , colz{1,1})
                 
-                scatter(-M.PB(M.Day==3) , M.RT(M.Day==3) , 'o' , 'MarkerFaceColor' , colz{5,1},...
+                scatter(-M.PB(M.day==3) , M.RT(M.day==3) , 'o' , 'MarkerFaceColor' , colz{5,1},...
                     'MarkerEdgeColor' , colz{5,1});
                 hold on
                 h1 = lsline;
@@ -2412,7 +2418,7 @@ switch what
             case 'finalEyeInitialIPI'
                 eyeinfo = getrow(eyeinfo , ismember(eyeinfo.sn , subjnum) & ismember(eyeinfo.CB , 0) & ismember(eyeinfo.prsnumb , [12]));
                 out = [];
-                M = tapply(eyeinfo , {'Day' , 'Horizon' , 'sn'} , {'PB' , 'nanmedian'}, {'finlIPI' , 'nanmedian'});
+                M = tapply(eyeinfo , {'day' , 'Horizon' , 'sn'} , {'PB' , 'nanmedian'}, {'finlIPI' , 'nanmedian'});
                 figure('color' , 'white')
                 scatter(-M.PB(M.Day==1) , M.finlIPI(M.Day==1) , 'o' , 'MarkerFaceColor' , colz{1,1},...
                     'MarkerEdgeColor' , colz{1,1})
@@ -2429,7 +2435,7 @@ switch what
                 ylabel('Final IPI [msec]')
                 xlabel('Relative eye - press distance at the time of the first press [digits]')
                 set(gca,'FontSize' , 14 , 'Box' , 'off')
-
+                
             case 'sacDurSplitDay'
                 Ho  = unique(eyeinfo.Horizon);
                 
@@ -2728,44 +2734,50 @@ switch what
                 
             case 'presspositionlook_ahead'
                 dayz = {1 [4 5]};
-                K = getrow(eyeinfo , ismember(eyeinfo.Day , cell2mat(dayz)) & ismember(eyeinfo.seqNumb , [0]) &ismember(eyeinfo.sn , [1:9 , 11,12,14]));
+                K = getrow(eyeinfo , ismember(eyeinfo.day , cell2mat(dayz)) & ismember(eyeinfo.seqNumb , [0]) &ismember(eyeinfo.sn , [1:9 , 11,12,14]));
                 for dd  = 1:length(dayz)
-                    K.Day(ismember(K.Day , dayz{dd})) = dd;
+                    K.day(ismember(K.day , dayz{dd})) = dd;
                 end
                 
-                %                 K.Horizon(ismember(K.Horizon ,[6:13])) = 6;
+                K.Horizon(ismember(K.Horizon ,[6:13])) = 6;
                 K = getrow(K , ~isnan(K.PB));
-                K.Horizon(K.Horizon>6) = 6;
+                K.Hor(K.Horizon>6) = 6;
                 
-                K = tapply(K , {'Day' , 'Horizon' , 'sn', 'prsnumb' , 'seqNumb'} , {'PB' , 'nanmean'} );
+                K = tapply(K , {'day' , 'Horizon' , 'sn', 'prsnumb' , 'seqNumb'} , {'PB' , 'nanmean'} );
                 K = normData(K , {'PB'});
                 
                 figure('color' , 'white')
                 colorz  = colz([1 end] , unique(K.seqNumb)+1);
-                lineplot([K.Horizon K.prsnumb ] , -K.normPB , 'plotfcn' , 'nanmean',...
-                    'split', K.Day , 'linecolor' , colorz,...
-                    'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , length(dayz)) , 'shadecolor' ,colorz,...
-                    'linewidth' , 1 , 'markertype' , {'*', '*'}  , 'markerfill' , colorz,...
-                    'markersize' , 6, 'markercolor' , colorz , 'leg' , 'auto');%, ...
-                %'subset' , ismember(K.prsnumb , [1:2]));% & ismember(K.Day , [1 length(dayz)]));
+                sty = style.custom(colorz,...
+                    'errorbars', 'shade',...
+                    'linewidth' , 2 , 'markertype' , '*',... 
+                    'markerfill' , colorz,...
+                    'markersize' , 6, 'markercolor' , colorz);
+                plt.line([K.Horizon K.prsnumb ] , K.normPB , 'plotfcn' , 'nanmean',...
+                    'split', K.day, 'style',sty);% 'subset', ismember(K.prsnumb , [1:2]));% & ismember(K.day , [1 length(dayz)]));
+                %                 plt.line([K.Horizon K.prsnumb ] , -K.normPB , 'plotfcn' , 'nanmean',...
+                %                     'split', K.day, 'style',sty);% 'subset', ismember(K.prsnumb , [1:2]));% & ismember(K.day , [1 length(dayz)]));
                 ylabel('Mean preview [digits]' )
                 xlabel('Viewing window size (W)' )
                 %                 title(['Look-ahead  CB = ' , num2str(cb{1})])
-                hold on 
+                hold on
                 line([0 60] , [0 0] , 'color' , 'k')
-                set(gca,'FontSize' , 7 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [-1 2],'YTick' , [-.5:.5:2])
+                %set(gca,'FontSize' , 7 ,'GridAlpha' , .2 , 'Box' , 'off' , 'YLim' , [-1 2],'YTick' , [-.5:.5:2])
             case 'startlookahead'
-                K = tapply(eyeinfo , {'Day' , 'Horizon' , 'sn','CB' , 'prsnumb'} , {'PB' , 'nanmean'} , ...
+                K = tapply(eyeinfo , {'day' , 'Horizon' , 'sn','CB' , 'prsnumb'} , {'PB' , 'nanmean'} , ...
                     'subset' , ismember(eyeinfo.prsnumb , [1]));
                 K = normData(K , {'PB'});
-                K = getrow(K , ismember(K.Day , [1 , length(dayz)]));
+                K = getrow(K , ismember(K.day , [1 , length(dayz)]));
                 figure('color' , 'white')
                 for cb = {[0] [1 2 3]}
                     subplot(1,2,cb{1}(1)+1)
                     colorz  = colz(1:length(dayz) , cb{1}(1)+1);
                     
+                    
+                    plt.line([K.prsnumb K.Horizon ] , -K.normPB);
+                    
                     lineplot([K.prsnumb K.Horizon ] , -K.normPB , 'plotfcn' , 'nanmean',...
-                        'split', K.Day , 'subset' ,  ismember(K.CB , cb{1}) , 'linecolor' , colorz,...
+                        'split', K.day , 'subset' ,  ismember(K.CB , cb{1}) , 'linecolor' , colorz,...
                         'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , length(dayz)) , 'shadecolor' ,colorz,...
                         'linewidth' , 3 , 'markertype' , {'+' , '*'}  , 'markerfill' , colorz,...
                         'markersize' , 15, 'markercolor' , colorz , 'leg' , 'auto');
@@ -2785,7 +2797,7 @@ switch what
                 for d = 1:length(dayz)
                     horzcolor{d} = temp(d,:);
                 end
-                K = tapply(eyeinfo , {'Day' , 'Horizon' , 'sn','seqNumb' , 'prsnumb'} , {'prstimepos' , 'nanmean'});
+                K = tapply(eyeinfo , {'day' , 'Horizon' , 'sn','seqNumb' , 'prsnumb'} , {'prstimepos' , 'nanmean'});
                 K = normData(K , {'prstimepos'});
                 figure('color' , 'white')
                 fcount = 1;
@@ -2794,7 +2806,7 @@ switch what
                         subplot(3,length(Ho) , fcount)
                         colorz  = horzcolor;
                         lineplot([K.prsnumb] , K.normprstimepos , 'plotfcn' , 'nanmean',...
-                            'split', K.Day , 'subset' , ismember(K.Horizon , Ho(h)) & ismember(K.seqNumb , sqn) , 'linecolor' , colorz,...
+                            'split', K.day , 'subset' , ismember(K.Horizon , Ho(h)) & ismember(K.seqNumb , sqn) , 'linecolor' , colorz,...
                             'errorcolor' , colorz , 'errorbars' , repmat({'shade'} , 1 , length(dayz)) , 'shadecolor' ,colorz,...
                             'linewidth' , 3 , 'markertype' , repmat({'o'} , 1  , length(dayz)) , 'markerfill' , colorz,...
                             'markersize' , 10, 'markercolor' , colorz);

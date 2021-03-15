@@ -3,7 +3,7 @@ function ANA=se2_subj(subjname,fig,block,trial)
 
 
 % ------------------------- Directories -----------------------------------
-baseDir         ='/Volumes/MotorControl/data/SeqEye2/SEp/data';
+baseDir = '/Volumes/MotorControl/data/SeqEye2/SEp/data';
 % -------------------------------------------------------------------------
 cd (baseDir)
 mkdir('analyze');

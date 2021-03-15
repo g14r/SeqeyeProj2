@@ -1,7 +1,7 @@
 function varargout  = se2_linearIPIModels(what , varargin)
 % Function to fit and evaluate different linear models for the IPIs
-baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
-% baseDir = '/Volumes/MotorControl/data/SeqEye2/analyze';  % server
+%baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
+baseDir = '/Volumes/MotorControl/data/SeqEye2/analyze';  % server
 horzSize = {1,2,3,4,5,6,7,8,13,[5:13]};
 modelTerms =  {[6]    [1 6] ,   [2 6] ,   [2:3 6]        [2:4 6]          ,[1:2  , 6] ,      [1:3 6]  ,    [1:4 , 6]};
 modelNames = {'R'  'C+R',     '1st+R' ,'1st+2nd+R'    '1st+2nd+3rd+R' , 'C+1st+R'  ,  'C+1st+2nd+R'  ,  'Full'};

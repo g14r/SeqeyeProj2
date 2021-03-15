@@ -6,7 +6,7 @@ function sig = se2_vizModelz(what)
 
 % baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
 baseDir = '/Volumes/MotorControl/data/SeqEye2/analyze';  % server
-baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
+%baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
 
 
 iN1 = input('Visualize Chunked or Random? (c/r)'  , 's');

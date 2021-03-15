@@ -1,8 +1,12 @@
 function Dout=se2_analyze (what , getdat , SubjCodes , Dall)
-
+%
+% first load se2_alldata.mat, which contains Dall for the following example
+% call: Dout = se2_analyze ('all_subj', 0, {}, Dall); 
 
 % baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';
-baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';
+%baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';
+%baseDir         ='/Volumes/MotorControl/data/SeqEye2/analyze';
+baseDir = '/Users/giacomo/Documents/data/SeqHorizonFinger/shf';
 subj_name = {'AT1' , 'CG1' , 'HB1' , 'JT1' , 'CB1' , 'YM1' , 'NL1' , 'SR1' , 'IB1' , 'MZ1' , 'DW1','RA1' ,'CC1' 'DK1' , 'JM1'};
 % load([baseDir , '/CMB.mat'])
 %load([baseDir , '/se1_all.mat'])
@@ -14,7 +18,7 @@ Dout = [];
 switch what
     case 'all_subj'
         
-        for i=14:length(subj_name)
+        for i=1:length(subj_name)
             clear ANA
             if getdat
                 ANA = se2_subj(subj_name{i} , 0);
@@ -59,8 +63,8 @@ switch what
                 IPIarrangement(~IPIarrangement) = 2;         % within IPIs will have the index of 2
             elseif GroupCode == 2
                 load([baseDir , '/CMB_34_2.mat'])
-%                 ChnkArrang = CMB.DesiredCnhkargmnt(CMB.Group2 , :);
-                 ChnkArrang = [4 4 3 3 ; 3 4 3 4];
+                %                 ChnkArrang = CMB.DesiredCnhkargmnt(CMB.Group2 , :);
+                ChnkArrang = [4 4 3 3 ; 3 4 3 4];
                 for j = 1:size(ChnkArrang , 1)
                     temp = [];
                     temp1 = [];
@@ -96,35 +100,39 @@ switch what
                 ANA.IPIarrangement(ANA.seqNumb == cl , :) = repmat(IPIarrangement(cl , :) , length(find(ANA.seqNumb == cl)) , 1);
                 ANA.IPIChnkPlcmntArr(ANA.seqNumb == cl , :) = repmat(ICP(cl , :) , length(find(ANA.seqNumb == cl)) , 1);
             end
-
+            
             ANA.BT  = ones(size(ANA.BN));
             ChunkBlockNumb = [9:14 , 23:25 , 34:36 , 45:47];
             ANA.BT(ismember(ANA.BN , ChunkBlockNumb)) = 0;       % Chunk
             
             for tn = 1:length(ANA.TN)
-                [i , tn , ANA.BN(tn)] 
+                [i , tn , ANA.BN(tn)]
                 % detrend the IPIs
                 %ANA.IPI(tn , :) = detrend(ANA.IPI(tn , :),'linear',7) + mean(ANA.IPI(tn , :));
                 if isequal([i , tn , ANA.BN(tn)]  , [4 1981 55])
                     keyboard
+                end                
+                if ~all(isnan(ANA.xEye{tn}))
+                    ANA.xEye{tn} = nanfastsmooth(ANA.xEye{tn} , 9);
+                    ANA.xEye{tn}(ANA.Pupil{tn}<= .95 *nanmedian(ANA.Pupil{tn})) = NaN;
+                    ANA.yEye{tn}(ANA.Pupil{tn}<= .95 *nanmedian(ANA.Pupil{tn})) = NaN;
+                    
+                    % Calculate the eye start position during state = 3
+                    idx = (ANA.state{tn} == 3);
+                    % the first 1.5 seconds is always start fixation. We're only considerin 300ms before the seqence is presented
+                    ANA.EyeStartPos(tn,1)  = nanmedian(ANA.xEye{tn}(idx,:));
+                    ANA.EyeStartPos(tn,2)  = nanmedian(ANA.yEye{tn}(idx,:));
+                    
+                    
+                    % Calculate the eye end position during state = 7
+                    idx = (ANA.state{tn} == 7);
+                    % the first 1.5 seconds is always start fixation. We're only considerin 300ms before the seqence is presented
+                    ANA.EyeEndPos(tn,1)  = nanmedian(ANA.xEye{tn}(idx,:));
+                    ANA.EyeEndPos(tn,2)  = nanmedian(ANA.yEye{tn}(idx,:));
+                    ANA.pix2cm(tn,1) = abs(ANA.EyeStartPos(tn,1) - ANA.EyeEndPos(tn,1))/((sum(~isnan(ANA.AllPress(tn,:)))-1) * 1); % pixels per 1cm calculates for every trial
+                    %ANA.pix2cm(tn,1) = abs(ANA.EyeStartPos(tn,1) - ANA.EyeEndPos(tn,1))/((sum(~isnan(ANA.AllPress(tn,:)))-1) * 1.15); % pixels per 1cm calculates for every trial
+                    %ANA.pix2cm(tn,1) = abs(ANA.EyeStartPos(tn,1) - ANA.EyeEndPos(tn,1))/((sum(~isnan(ANA.AllPress(tn,:)))-1) * 1.5); % pixels per 1cm calculates for every trial
                 end
-                ANA.xEye{tn} = nanfastsmooth(ANA.xEye{tn} , 9);
-                ANA.xEye{tn}(ANA.Pupil{tn}<= .95 *nanmedian(ANA.Pupil{tn})) = NaN;
-                ANA.yEye{tn}(ANA.Pupil{tn}<= .95 *nanmedian(ANA.Pupil{tn})) = NaN;
-                
-                % Calculate the eye start position during state = 3
-                idx = (ANA.state{tn} == 3);
-                % the first 1.5 seconds is always start fixation. We're only considerin 300ms before the seqence is presented
-                ANA.EyeStartPos(tn,1)  = nanmedian(ANA.xEye{tn}(idx,:));
-                ANA.EyeStartPos(tn,2)  = nanmedian(ANA.yEye{tn}(idx,:));
-                
-                
-                % Calculate the eye end position during state = 7
-                idx = (ANA.state{tn} == 7);
-                % the first 1.5 seconds is always start fixation. We're only considerin 300ms before the seqence is presented
-                ANA.EyeEndPos(tn,1)  = nanmedian(ANA.xEye{tn}(idx,:));
-                ANA.EyeEndPos(tn,2)  = nanmedian(ANA.yEye{tn}(idx,:));
-                ANA.pix2cm(tn,1) = abs(ANA.EyeStartPos(tn,1) - ANA.EyeEndPos(tn,1))/((sum(~isnan(ANA.AllPress(tn,:)))-1) * 1.15); % pixels per 1cm calculates for every trial
             end
             % there is high discrepency in the statrting position and
             % ending position betwen trails so it make sense to use the
@@ -138,12 +146,12 @@ switch what
                 ANA.EyeEndPos(ANA.BN == uBN(bn) , :)   = repmat(nanmedian(ANA.EyeEndPos(id , :)), l , 1);
                 ANA.pix2cm(ANA.BN == uBN(bn) , :)   = repmat(nanmedian(ANA.pix2cm(id , :)), l , 1);
             end
-            if ~isfield (ANA , 'PPDx')
-                for tn = 1:length(ANA.TN)
-                    ppdx = (ANA.EyeEndPos(tn,1) - ANA.EyeStartPos(tn,1))/36;
-                    ANA.PPDx{tn,1}(:,1) = ppdx*ones(length(ANA.xEye{tn}) , 1);
-                end
-            end
+%             if ~isfield (ANA , 'PPDx')
+%                 for tn = 1:length(ANA.TN)
+%                     ppdx = (ANA.EyeEndPos(tn,1) - ANA.EyeStartPos(tn,1))/36;
+%                     ANA.PPDx{tn,1}(:,1) = ppdx*ones(length(ANA.xEye{tn}) , 1);
+%                 end
+%             end
             
 
             ANA.isgood = ones(length(ANA.TN) , 1);
@@ -158,10 +166,12 @@ switch what
                         ANA.seqlength(tn,1) = 4;
                 end
                 
-                % convert eye movements to cms knowing that the distance between the two pluses is 29.9 cm (1.15 cm between digits)
+                % convert eye movements to cms knowing that the distance between the two pluses is 13.5 cm (0.5 cm between digits, 0.5 cm per digit)
                 ANA.xEyePosDigit{tn , 1}(:,1) = [(ANA.xEye{tn} - repmat(ANA.EyeStartPos(tn,1),length(ANA.xEye{tn}) , 1))...
                     ./repmat(ANA.pix2cm(tn,1),length(ANA.xEye{tn}) , 1)];
-                ANA.xEyePosDigit{tn , 1} = 1 + ANA.xEyePosDigit{tn , 1}/1.15;
+                ANA.xEyePosDigit{tn , 1} = 1 + ANA.xEyePosDigit{tn , 1}/1;
+                %ANA.xEyePosDigit{tn , 1} = 1 + ANA.xEyePosDigit{tn , 1}/1.15;
+                %ANA.xEyePosDigit{tn , 1} = 1 + ANA.xEyePosDigit{tn , 1}/1.5;
                 
                 if ANA.AllPressIdx(tn,ANA.seqlength(tn)) + window + 5 > length(ANA.xEyePosDigit{tn}) | ANA.seqlength(tn) ~= sum(~isnan(ANA.AllPressIdx(tn , :)))
                     ANA.isgood(tn) = 0;
@@ -406,6 +416,8 @@ switch what
             
             
         end
+        
+        save([baseDir, '/', 'Dall'], 'Dout', '-v7.3');
 %%
 %%
 %%

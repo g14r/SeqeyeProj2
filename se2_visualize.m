@@ -37,7 +37,8 @@ function out  = se2_visualize(Dall , subjnum, what, distance, calc , day ,rep, G
 %%
 prefix = 'se1_';
 % baseDir = '/Users/nedakordjazi/Documents/SeqEye/SeqEye2/analyze';     %macbook
-baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
+% baseDir = '/Users/nkordjazi/Documents/SeqEye/SeqEye2/analyze';          %iMac
+baseDir         ='/Volumes/MotorControl/data/SeqEye2/analyze';
 subj_name = {'AT1' , 'CG1' , 'HB1' , 'JT1' , 'CB1' , 'YM1' , 'NL1' , 'SR1' , 'IB1' , 'MZ1' , 'DW1', 'RA1' ,'CC1', 'All'};
 
 % subj_name = {'AT1' , 'CG1' , 'HB1' , 'JT1' , 'CB1' , 'YM1' , 'NL1' , 'SR1' , 'All'};
@@ -795,9 +796,9 @@ switch what
         
         
         subplot (1,2,2)
-        h1 = plotshade(x1',plot1,error1,'transp' , .2 , 'patchcolor' , 'b' , 'linecolor' , 'b' , 'linewidth' , 3 , 'linestyle' , ':')
+        h1 = plotshade(x1',plot1,error1,'transp' , .2 , 'patchcolor' , 'b' , 'color' , 'b' , 'linewidth' , 3 , 'linestyle' , ':')
         hold on
-        h2 = plotshade(x2',plot2,error2,'transp' , .2 , 'patchcolor' , 'm' , 'linecolor' , 'm' , 'linewidth' , 3 , 'linestyle' , ':')
+        h2 = plotshade(x2',plot2,error2,'transp' , .2 , 'patchcolor' , 'm' , 'color' , 'm' , 'linewidth' , 3 , 'linestyle' , ':')
         %errorbar(xcoord1,PLOT1,ERROR1,'LineWidth' , 3)
         %hold on
         %errorbar(xcoord2,PLOT2,ERROR2,'LineWidth' , 3)
